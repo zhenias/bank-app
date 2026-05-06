@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  # React Frontend Application
+  app:
+    build:
+      context: ./fronend
+      dockerfile: Dockerfile
+    container_name: bank-frontend-app
+    environment:
+      NODE_ENV: development
+      VITE_API_URL: http://localhost:8000/api
+    ports:
+      - "5174:5174"
+    volumes:
+      - .:/app
+    depends_on:
+      - backend
+    links:
+      - "backend:backend"
+    command: npm run dev -- --host 0.0.0.0 --port 5174
+

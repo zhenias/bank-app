@@ -1,0 +1,96 @@
+services:
+  # MariaDB Database
+  mariadb:
+    image: mariadb:11.4
+    container_name: bank-app-mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: ${DB_DATABASE:-backend}
+      MYSQL_USER: ${DB_USERNAME:-laravel}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-laravel_password}
+      MARIADB_AUTO_UPGRADE: 'on'
+      MARIADB_DISABLE_ROOTSO: 1
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - ./docker/scripts/mariadb:/docker-entrypoint-initdb.d
+    networks:
+      - bank-app-network
+    healthcheck:
+      test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: bank-app-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - bank-app-network
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      timeout: 5s
+      retries: 5
+
+  # Backend (Laravel with PHP-FPM + Nginx)
+  backend:
+    image: php:8.4-fpm-alpine
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: bank-app-backend
+    environment:
+      APP_ENV: local
+      APP_DEBUG: 'true'
+      APP_URL: http://localhost:8000
+      DB_CONNECTION: mysql
+      DB_HOST: mariadb
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    networks:
+      - bank-app-network
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # Frontend (React)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: bank-app-frontend
+    environment:
+      VITE_API_URL: http://localhost:8000/api
+      NODE_ENV: development
+    ports:
+      - "5174:5174"
+    volumes:
+      - ./frontend:/app
+    networks:
+      - bank-app-network
+    depends_on:
+      - backend
+    links:
+      - "backend:backend"
+    command: npm run dev -- --host 0.0.0.0 --port 5174
+
+volumes:
+  mariadb_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  bank-app-network:
+    driver: bridge
+

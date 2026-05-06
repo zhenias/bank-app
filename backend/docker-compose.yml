@@ -1,0 +1,68 @@
+services:
+    mariadb:
+        image: mariadb:11.4
+        container_name: bank-backend-mariadb
+        environment:
+            MYSQL_ROOT_PASSWORD: root_password
+            MYSQL_DATABASE: ${DB_DATABASE:-backend}
+            MYSQL_USER: ${DB_USERNAME:-laravel}
+            MYSQL_PASSWORD: ${DB_PASSWORD:-laravel_password}
+            MARIADB_AUTO_UPGRADE: 'on'
+            MARIADB_DISABLE_ROOTSO: 1
+        ports:
+            - "3306:3306"
+        volumes:
+            - mariadb_data:/var/lib/mysql
+        networks:
+            - backend-network
+        healthcheck:
+            test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
+            timeout: 20s
+            retries: 10
+
+    redis:
+        image: redis:7-alpine
+        container_name: bank-backend-redis
+        ports:
+            - "6379:6379"
+        volumes:
+            - redis_data:/data
+        networks:
+            - backend-network
+        command: redis-server --appendonly yes
+        healthcheck:
+            test: [ "CMD", "redis-cli", "ping" ]
+            timeout: 5s
+            retries: 10
+
+    app:
+        image: php:8.4-fpm-alpine
+        build:
+            context: ./backend
+        container_name: bank-backend-app
+        environment:
+            APP_ENV: local
+            APP_DEBUG: 'true'
+            APP_URL: http://localhost:8000
+            DB_CONNECTION: mysql
+        ports:
+            - "8000:8000"
+        volumes:
+            - ./backend:/app
+        networks:
+            - backend-network
+        depends_on:
+            mariadb:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+
+volumes:
+    mariadb_data:
+        driver: local
+    redis_data:
+        driver: local
+
+networks:
+    backend-network:
+        driver: bridge

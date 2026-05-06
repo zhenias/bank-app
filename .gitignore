@@ -1,0 +1,40 @@
+# Docker files section (add to your .gitignore if not present)
+
+# Docker
+.docker/
+docker-compose.override.yml
+.dockerignore
+
+# Docker volumes (local data, not tracked)
+mariadb_data/
+redis_data/
+volumes/
+
+# Node modules and vendor
+node_modules/
+vendor/
+
+.ideaa
+
+# Environment
+.env.local
+.env.*.local
+
+# Logs
+storage/logs/
+*.log
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Cache
+bootstrap/cache/
+storage/framework/cache/
+
