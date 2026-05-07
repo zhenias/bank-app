@@ -1,3 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply m-0 min-h-screen;
+  }
+}
+
 .counter {
   font-size: 16px;
   padding: 5px 10px;

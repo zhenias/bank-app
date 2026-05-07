@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Laravel\Passport\Client;
 use Laravel\Passport\ClientRepository;
 
@@ -29,7 +30,7 @@ class PassportClientSeeder extends Seeder
                 ->where('id', $clientId)
                 ->orWhere('name', $nameApp)
                 ->update([
-                    'secret' => $clientSecret,
+                    'secret' => Hash::make($clientSecret),
                     'redirect_uris' => json_encode([$redirectUri]),
                     'updated_at' => now(),
                 ]);
@@ -46,7 +47,7 @@ class PassportClientSeeder extends Seeder
         DB::table('oauth_clients')->insert([
             'id'                     => $clientId,
             'name'                   => $nameApp,
-            'secret'                 => $clientSecret,
+            'secret'                 => Hash::make($clientSecret),
             'provider'               => 'users',
             'redirect_uris'          => json_encode([$redirectUri]),
             'grant_types'           => json_encode(['authorization_code', 'refresh_token']),

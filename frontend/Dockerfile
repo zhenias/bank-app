@@ -1,20 +1,13 @@
-# Use Node.js image
-FROM node:20-alpine
+FROM node:20-slim
 
-# Set working directory
 WORKDIR /app
 
-# Copy package files first (better caching)
-COPY package*.json ./
-
-# Install dependencies
-RUN npm install
-
-# Copy the rest of the application
+# Skopiuj wszystko
 COPY . .
 
-# Expose Vite dev server port
+# Zainstaluj zależności
+RUN npm install
+
 EXPOSE 5174
 
-# Start Vite dev server
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "5174"]
+CMD ["npx", "vite", "--host", "0.0.0.0", "--port", "5174"]
