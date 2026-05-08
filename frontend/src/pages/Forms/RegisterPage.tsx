@@ -1,14 +1,16 @@
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { RegisterForm } from '../components/Auth/RegisterForm';
+import { useAuth } from '../../context/AuthContext.jsx';
+import { RegisterForm } from '../../components/Auth/RegisterForm.jsx';
 
 export const RegisterPage = () => {
     const { handleRegister } = useAuth();
     const navigate = useNavigate();
 
-    const onRegister = async (name, email, password) => {
-        await handleRegister(name, email, password);
-        navigate('/balance');
+    const onRegister = async (name: string, email: string, password: string) => {
+        const user = await handleRegister(name, email, password);
+        navigate('/');
+
+        return user;
     };
 
     const onSwitchToLogin = () => {

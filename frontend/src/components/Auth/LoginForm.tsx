@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useToast } from '../../context/ToastContext';
 import { useLoading } from '../../context/LoadingContext';
+import { LoadingSpinner } from "../Assets/Svg/LoadingSpinner.jsx";
 import {
     Paper,
     TextField,
@@ -10,38 +11,39 @@ import {
     Link,
     Alert
 } from '@mui/material';
-import { Person, Email, Lock, PersonAdd } from '@mui/icons-material';
-import {LoadingSpinner} from "../Assets/Svg/LoadingSpinner.jsx";
+import { Email, Lock, Login as LoginIcon } from '@mui/icons-material';
+import type { User } from '../../types/types';
 
-export const RegisterForm = ({ onRegister, onSwitchToLogin }) => {
-    const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [passwordConfirmation, setPasswordConfirmation] = useState('');
-    const [error, setError] = useState('');
+interface LoginFormProps {
+    onLogin: (email: string, password: string) => Promise<User>;
+    onSwitchToRegister: () => void;
+}
+
+export const LoginForm = ({ onLogin, onSwitchToRegister }: LoginFormProps) => {
+    const [email, setEmail] = useState<string>('');
+    const [password, setPassword] = useState<string>('');
+    const [error, setError] = useState<string>('');
     const { showError, showSuccess } = useToast();
     const { isLoading, startLoading, stopLoading } = useLoading();
 
-    const handleSubmit = async (e) => {
+    useEffect(() => {
+        setEmail('test@example.com');
+        setPassword('password');
+    }, []);
+
+    const handleSubmit = async (e: any): Promise<void> => {
         e.preventDefault();
+
         setError('');
-
-        if (password !== passwordConfirmation) {
-            const errorMessage = 'Hasła nie są takie same';
-            setError(errorMessage);
-            // showError(errorMessage);
-            return;
-        }
-
         startLoading();
 
         try {
-            await onRegister(name, email, password);
-            showSuccess('Rejestracja zakończona sukcesem! Możesz teraz się zalogować. Przekierowanie..');
+            await onLogin(email, password);
+            showSuccess('Zalogowano pomyślnie!');
         } catch (err) {
-            const errorMessage = err.message || 'Błąd rejestracji, spróbuj później.';
+            const errorMessage = err instanceof Error ? err.message : 'Błąd logowania';
             setError(errorMessage);
-            // showError(errorMessage);
+            showError(errorMessage);
         } finally {
             stopLoading();
         }
@@ -70,10 +72,10 @@ export const RegisterForm = ({ onRegister, onSwitchToLogin }) => {
             >
                 <Box sx={{ textAlign: 'center' }}>
                     <Typography variant="h4" component="h1" gutterBottom>
-                        Rejestracja
+                        Logowanie
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                        Utwórz nowe konto bankowe
+                        Zaloguj się do swojego konta bankowego
                     </Typography>
                 </Box>
 
@@ -86,28 +88,15 @@ export const RegisterForm = ({ onRegister, onSwitchToLogin }) => {
                 <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                     <TextField
                         fullWidth
-                        label="Imię i nazwisko"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        required
-                        disabled={isLoading}
-                        InputProps={{
-                            startAdornment: <Person sx={{ mr: 1, color: 'action.active' }} />,
-                        }}
-                        variant="outlined"
-                    />
-
-                    <TextField
-                        fullWidth
                         label="Email"
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
                         disabled={isLoading}
-                        InputProps={{
-                            startAdornment: <Email sx={{ mr: 1, color: 'action.active' }} />,
-                        }}
+                        // InputProps={{
+                        //     startAdornment: <Email sx={{ mr: 1, color: 'action.active' }} />,
+                        // }}
                         variant="outlined"
                     />
 
@@ -119,23 +108,9 @@ export const RegisterForm = ({ onRegister, onSwitchToLogin }) => {
                         onChange={(e) => setPassword(e.target.value)}
                         required
                         disabled={isLoading}
-                        InputProps={{
-                            startAdornment: <Lock sx={{ mr: 1, color: 'action.active' }} />,
-                        }}
-                        variant="outlined"
-                    />
-
-                    <TextField
-                        fullWidth
-                        label="Potwierdź hasło"
-                        type="password"
-                        value={passwordConfirmation}
-                        onChange={(e) => setPasswordConfirmation(e.target.value)}
-                        required
-                        disabled={isLoading}
-                        InputProps={{
-                            startAdornment: <Lock sx={{ mr: 1, color: 'action.active' }} />,
-                        }}
+                        // InputProps={{
+                        //     startAdornment: <Lock sx={{ mr: 1, color: 'action.active' }} />,
+                        // }}
                         variant="outlined"
                     />
 
@@ -145,23 +120,23 @@ export const RegisterForm = ({ onRegister, onSwitchToLogin }) => {
                         variant="contained"
                         size="large"
                         disabled={isLoading}
-                        startIcon={isLoading ? <LoadingSpinner text="Rejestracja..." /> : <PersonAdd />}
+                        startIcon={isLoading ? <LoadingSpinner /> : <LoginIcon />}
                         sx={{ mt: 2, py: 1.5 }}
                     >
-                        {isLoading ? ' ' : 'Zarejestruj się'}
+                        {isLoading ? 'Logowanie...' : 'Zaloguj się'}
                     </Button>
                 </Box>
 
                 <Box sx={{ textAlign: 'center', mt: 2 }}>
                     <Typography variant="body2">
-                        Masz już konto?{' '}
+                        Nie masz konta?{' '}
                         <Link
                             component="button"
                             variant="body2"
-                            onClick={onSwitchToLogin}
+                            onClick={onSwitchToRegister}
                             sx={{ cursor: 'pointer' }}
                         >
-                            Zaloguj się
+                            Zarejestruj się
                         </Link>
                     </Typography>
                 </Box>

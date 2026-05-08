@@ -1,9 +1,10 @@
 import { createContext, useContext, useState, useCallback } from 'react';
 import { Snackbar, Alert } from '@mui/material';
+import type { ToastContextType } from '../types/types';
 
-const ToastContext = createContext();
+const ToastContext = createContext<ToastContextType | null>(null);
 
-export const useToast = () => {
+export const useToast = (): ToastContextType => {
     const context = useContext(ToastContext);
     if (!context) {
         throw new Error('useToast must be used within ToastProvider');
@@ -11,14 +12,18 @@ export const useToast = () => {
     return context;
 };
 
-export const ToastProvider = ({ children }) => {
-    const [toast, setToast] = useState({
+export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
+    const [toast, setToast] = useState<{
+        open: boolean;
+        message: string;
+        severity: 'success' | 'error' | 'warning' | 'info';
+    }>({
         open: false,
         message: '',
         severity: 'info'
     });
 
-    const showToast = useCallback((message, severity = 'info') => {
+    const showToast = useCallback((message: string, severity: 'success' | 'error' | 'warning' | 'info' = 'info') => {
         setToast({
             open: true,
             message,
@@ -30,21 +35,21 @@ export const ToastProvider = ({ children }) => {
         setToast(prev => ({ ...prev, open: false }));
     }, []);
 
-    const showSuccess = useCallback((message) => showToast(message, 'success'), [showToast]);
-    const showError = useCallback((message) => showToast(message, 'error'), [showToast]);
-    const showWarning = useCallback((message) => showToast(message, 'warning'), [showToast]);
-    const showInfo = useCallback((message) => showToast(message, 'info'), [showToast]);
+    const showSuccess = useCallback((message: string) => showToast(message, 'success'), [showToast]);
+    const showError = useCallback((message: string) => showToast(message, 'error'), [showToast]);
+    const showWarning = useCallback((message: string) => showToast(message, 'warning'), [showToast]);
+    const showInfo = useCallback((message: string) => showToast(message, 'info'), [showToast]);
+
+    const value: ToastContextType = {
+        showToast,
+        showSuccess,
+        showError,
+        showWarning,
+        showInfo
+    };
 
     return (
-        <ToastContext.Provider
-            value={{
-                showToast,
-                showSuccess,
-                showError,
-                showWarning,
-                showInfo
-            }}
-        >
+        <ToastContext.Provider value={value}>
             {children}
             <Snackbar
                 open={toast.open}

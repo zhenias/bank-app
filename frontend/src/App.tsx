@@ -7,9 +7,11 @@ import { LoadingProvider } from './context/LoadingContext';
 import { Header } from './components/Layout/Header';
 import { ProtectedRoute } from './components/Layout/ProtectedRoute';
 import { LoadingOverlay } from './components/UI/LoadingOverlay';
-import { LoginPage } from './pages/LoginPage';
-import { RegisterPage } from './pages/RegisterPage';
-import { BalancePage } from './pages/BalancePage';
+import { LoginPage } from './pages/Forms/LoginPage';
+import { RegisterPage } from './pages/Forms/RegisterPage';
+import { BalancePage } from './pages/User/BalancePage';
+import {JSX} from "react";
+import {ProfilePage} from "./pages/User/ProfilePage";
 
 const theme = createTheme({
   palette: {
@@ -41,7 +43,7 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           textTransform: 'none',
-          borderRadius: 3,
+          borderRadius: 4,
           fontWeight: 600,
         },
       },
@@ -49,7 +51,7 @@ const theme = createTheme({
     MuiPaper: {
       styleOverrides: {
         root: {
-          borderRadius: 12,
+          borderRadius: 8,
         },
       },
     },
@@ -65,7 +67,7 @@ const theme = createTheme({
   },
 });
 
-function App() {
+function App(): JSX.Element {
     return (
         <ThemeProvider theme={theme}>
             <CssBaseline />
@@ -80,6 +82,14 @@ function App() {
                                         <Route path="/login" element={<LoginPage />} />
                                         <Route path="/register" element={<RegisterPage />} />
                                         <Route
+                                            path="/profile"
+                                            element={
+                                                <ProtectedRoute>
+                                                    <ProfilePage />
+                                                </ProtectedRoute>
+                                            }
+                                        />
+                                        <Route
                                             path="/balance"
                                             element={
                                                 <ProtectedRoute>
@@ -87,11 +97,11 @@ function App() {
                                                 </ProtectedRoute>
                                             }
                                         />
-                                        <Route path="/" element={<Navigate to="/balance" replace />} />
+                                        <Route path="/" element={<Navigate to="/profile" replace />} />
                                     </Routes>
                                 </Box>
                             </Box>
-                            {/*<LoadingOverlay />*/}
+                            <LoadingOverlay />
                         </LoadingProvider>
                     </ToastProvider>
                 </AuthProvider>

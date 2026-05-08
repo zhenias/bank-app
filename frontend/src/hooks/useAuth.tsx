@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { checkAuth, logout } from '../services/authService';
+import {User} from "../types/types";
 
 export const useAuth = () => {
-    const [user, setUser] = useState(null);
+    const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {

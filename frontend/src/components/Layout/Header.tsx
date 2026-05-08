@@ -3,23 +3,24 @@ import { useAuth } from '../../context/AuthContext';
 import { AppBar, Toolbar, Typography, Button, Box, Avatar, IconButton, Menu, MenuItem } from '@mui/material';
 import { AccountCircle, Logout } from '@mui/icons-material';
 import { useState } from 'react';
+import type { User } from '../../types/types';
 
 export const Header = () => {
     const { user, handleLogout } = useAuth();
     const navigate = useNavigate();
-    const [anchorEl, setAnchorEl] = useState(null);
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
-    const onLogout = async () => {
+    const onLogout = async (): Promise<void> => {
         await handleLogout();
         navigate('/login');
         setAnchorEl(null);
     };
 
-    const handleMenu = (event) => {
+    const handleMenu = (event: React.MouseEvent<HTMLElement>): void => {
         setAnchorEl(event.currentTarget);
     };
 
-    const handleClose = () => {
+    const handleClose = (): void => {
         setAnchorEl(null);
     };
 
@@ -34,6 +35,12 @@ export const Header = () => {
                 }}>
                     🏦 {import.meta.env.VITE_APP_NAME}
                 </Typography>
+
+                {user ? (
+                    <Button color="inherit" component={Link} to="/balance">
+                        Saldo
+                    </Button>
+                ) : ''}
 
                 <Box sx={{ flexGrow: 1 }} />
 

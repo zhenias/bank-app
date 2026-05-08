@@ -1,5 +1,4 @@
 import { CircularProgress, Box } from '@mui/material';
-import {size} from "zod";
 
 export const LoadingSpinner = ({ text = 'Ładowanie...' }) => {
     return (

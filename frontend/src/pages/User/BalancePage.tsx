@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { fetchWithAuth } from '../services/authService';
+import { useAuth } from '../../context/AuthContext.jsx';
+import { fetchWithAuth } from '../../services/authService.js';
 import {
     Container,
     Paper,
@@ -35,7 +35,7 @@ export const BalancePage = () => {
             }
 
             setBalance(data.balance);
-        } catch (err) {
+        } catch (err: any) {
             setError(err.message || 'Nie udało się pobrać salda');
             console.error(err);
         } finally {
@@ -69,7 +69,7 @@ export const BalancePage = () => {
 
             <Grid container spacing={3}>
                 {/* Saldo */}
-                <Grid item xs={12} md={8}>
+                <Grid>
                     <Card elevation={2} sx={{ height: '100%' }}>
                         <CardContent sx={{ p: 4 }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
@@ -97,7 +97,7 @@ export const BalancePage = () => {
                                         Twoje saldo wynosi:
                                     </Typography>
                                     <Typography variant="h3" component="div" sx={{ fontWeight: 'bold', fontSize: '2.5rem' }}>
-                                        {balance !== null ? `${balance.toFixed(2)} PLN` : '---'}
+                                        {balance !== null ? `${balance} PLN` : '---'}
                                     </Typography>
                                 </Box>
                             )}
@@ -106,7 +106,7 @@ export const BalancePage = () => {
                 </Grid>
 
                 {/* Menu boczne */}
-                <Grid item xs={12} md={4}>
+                <Grid>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                         <Card elevation={2} sx={{ cursor: 'pointer', '&:hover': { boxShadow: 4 } }}>
                             <CardContent sx={{ p: 3, display: 'flex', alignItems: 'center' }}>
