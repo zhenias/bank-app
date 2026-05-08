@@ -1,6 +1,5 @@
 const API_URL = import.meta.env.VITE_API_URL;
 
-// Login przez OAuth token endpoint
 export const loginWithPassword = async (email, password) => {
     const response = await fetch('/oauth/token', {
         method: 'POST',
@@ -14,7 +13,7 @@ export const loginWithPassword = async (email, password) => {
             client_secret: import.meta.env.VITE_OAUTH_CLIENT_SECRET,
             username: email,
             password: password,
-            scope: 'user-profile',
+            scope: '*',
         }),
     });
 
@@ -25,19 +24,15 @@ export const loginWithPassword = async (email, password) => {
 
     const data = await response.json();
 
-    // Zapisz tokeny
     localStorage.setItem('access_token', data.access_token);
     localStorage.setItem('refresh_token', data.refresh_token);
 
-    // Ustaw token w nagłówkach dla przyszłych zapytań
     setAuthToken(data.access_token);
 
-    // Pobierz dane użytkownika
     const user = await getUserInfo();
     return user;
 };
 
-// Rejestracja
 export const register = async (name, email, password) => {
     const response = await fetch('/api/register', {
         method: 'POST',
@@ -58,11 +53,9 @@ export const register = async (name, email, password) => {
         throw new Error(error.message || 'Błąd rejestracji');
     }
 
-    // Po rejestracji automatycznie zaloguj
     return await loginWithPassword(email, password);
 };
 
-// Pobierz dane użytkownika
 export const getUserInfo = async () => {
     const token = localStorage.getItem('access_token');
 
@@ -84,7 +77,6 @@ export const getUserInfo = async () => {
     return await response.json();
 };
 
-// Sprawdź czy użytkownik jest zalogowany
 export const checkAuth = async () => {
     const token = localStorage.getItem('access_token');
 
@@ -96,7 +88,6 @@ export const checkAuth = async () => {
     return await getUserInfo();
 };
 
-// Odśwież token
 export const refreshToken = async () => {
     const refreshToken = localStorage.getItem('refresh_token');
 
@@ -114,7 +105,7 @@ export const refreshToken = async () => {
             refresh_token: refreshToken,
             client_id: import.meta.env.VITE_OAUTH_CLIENT_ID,
             client_secret: import.meta.env.VITE_OAUTH_CLIENT_SECRET,
-            scope: '',
+            scope: '*',
         }),
     });
 
@@ -130,13 +121,12 @@ export const refreshToken = async () => {
     return data.access_token;
 };
 
-// Logout
 export const logout = async () => {
     const token = localStorage.getItem('access_token');
 
     if (token) {
         try {
-            await fetch('/oauth/revoke', {
+            await fetch('/api/token/revoke', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -153,13 +143,8 @@ export const logout = async () => {
     setAuthToken(null);
 };
 
-// Helper do ustawiania tokena w nagłówkach
 export const setAuthToken = (token) => {
     if (token) {
-        // Dla axios (jeśli używasz)
-        // axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
-        // Dla fetch - możesz zapisać w globalnym kontekście
         window.defaultHeaders = {
             'Authorization': `Bearer ${token}`,
             'Accept': 'application/json',
@@ -190,7 +175,6 @@ export const fetchWithAuth = async (url, options = {}) => {
 
     let response = await makeRequest(token);
 
-    // Jeśli token wygasł (401), spróbuj go odświeżyć
     if (response.status === 401) {
         try {
             token = await refreshToken();

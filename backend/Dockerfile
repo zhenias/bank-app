@@ -14,9 +14,14 @@ COPY ./docker/supervisord.conf /etc/supervisord.conf
 
 RUN mkdir -p storage/logs bootstrap/cache && chmod -R 775 storage bootstrap/cache
 
-COPY ./docker/entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+#COPY ./docker/entrypoint.sh /entrypoint.sh
+#RUN chmod +x /entrypoint.sh
 
-EXPOSE 8000
+COPY docker/entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/entrypoint.sh
 
-ENTRYPOINT ["/entrypoint.sh"]
+EXPOSE 80
+
+#ENTRYPOINT ["/entrypoint.sh"]
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

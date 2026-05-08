@@ -1,124 +1,171 @@
 import { useState } from 'react';
+import { useToast } from '../../context/ToastContext';
+import { useLoading } from '../../context/LoadingContext';
+import {
+    Paper,
+    TextField,
+    Button,
+    Typography,
+    Box,
+    Link,
+    Alert
+} from '@mui/material';
+import { Person, Email, Lock, PersonAdd } from '@mui/icons-material';
+import {LoadingSpinner} from "../Assets/Svg/LoadingSpinner.jsx";
 
 export const RegisterForm = ({ onRegister, onSwitchToLogin }) => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [passwordConfirmation, setPasswordConfirmation] = useState('');
-    const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const { showError, showSuccess } = useToast();
+    const { isLoading, startLoading, stopLoading } = useLoading();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError('');
 
         if (password !== passwordConfirmation) {
-            setError('Hasła nie są takie same');
+            const errorMessage = 'Hasła nie są takie same';
+            setError(errorMessage);
+            // showError(errorMessage);
             return;
         }
 
-        setLoading(true);
-        setError('');
+        startLoading();
 
         try {
             await onRegister(name, email, password);
+            showSuccess('Rejestracja zakończona sukcesem! Możesz teraz się zalogować. Przekierowanie..');
         } catch (err) {
-            setError(err.message || 'Błąd rejestracji');
+            const errorMessage = err.message || 'Błąd rejestracji, spróbuj później.';
+            setError(errorMessage);
+            // showError(errorMessage);
         } finally {
-            setLoading(false);
+            stopLoading();
         }
     };
 
     return (
-        <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
-            <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">
-                Rejestracja
-            </h2>
+        <Box
+            sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                minHeight: '100vh',
+                p: 2
+            }}
+        >
+            <Paper
+                elevation={3}
+                sx={{
+                    p: 4,
+                    maxWidth: 400,
+                    width: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 3
+                }}
+            >
+                <Box sx={{ textAlign: 'center' }}>
+                    <Typography variant="h4" component="h1" gutterBottom>
+                        Rejestracja
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                        Utwórz nowe konto bankowe
+                    </Typography>
+                </Box>
 
-            {error && (
-                <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm">
-                    {error}
-                </div>
-            )}
+                {error && (
+                    <Alert severity="error" sx={{ mb: 2 }}>
+                        {error}
+                    </Alert>
+                )}
 
-            <form onSubmit={handleSubmit}>
-                <div className="mb-4">
-                    <label className="block text-gray-700 font-semibold mb-2">
-                        Imię i nazwisko
-                    </label>
-                    <input
-                        type="text"
+                <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <TextField
+                        fullWidth
+                        label="Imię i nazwisko"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         required
-                        placeholder="Jan Kowalski"
-                        disabled={loading}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition disabled:bg-gray-100 disabled:cursor-not-allowed"
+                        disabled={isLoading}
+                        InputProps={{
+                            startAdornment: <Person sx={{ mr: 1, color: 'action.active' }} />,
+                        }}
+                        variant="outlined"
                     />
-                </div>
 
-                <div className="mb-4">
-                    <label className="block text-gray-700 font-semibold mb-2">
-                        Email
-                    </label>
-                    <input
+                    <TextField
+                        fullWidth
+                        label="Email"
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
-                        placeholder="twoj@email.com"
-                        disabled={loading}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition disabled:bg-gray-100 disabled:cursor-not-allowed"
+                        disabled={isLoading}
+                        InputProps={{
+                            startAdornment: <Email sx={{ mr: 1, color: 'action.active' }} />,
+                        }}
+                        variant="outlined"
                     />
-                </div>
 
-                <div className="mb-4">
-                    <label className="block text-gray-700 font-semibold mb-2">
-                        Hasło
-                    </label>
-                    <input
+                    <TextField
+                        fullWidth
+                        label="Hasło"
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
-                        placeholder="••••••••"
-                        disabled={loading}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition disabled:bg-gray-100 disabled:cursor-not-allowed"
+                        disabled={isLoading}
+                        InputProps={{
+                            startAdornment: <Lock sx={{ mr: 1, color: 'action.active' }} />,
+                        }}
+                        variant="outlined"
                     />
-                </div>
 
-                <div className="mb-6">
-                    <label className="block text-gray-700 font-semibold mb-2">
-                        Potwierdź hasło
-                    </label>
-                    <input
+                    <TextField
+                        fullWidth
+                        label="Potwierdź hasło"
                         type="password"
                         value={passwordConfirmation}
                         onChange={(e) => setPasswordConfirmation(e.target.value)}
                         required
-                        placeholder="••••••••"
-                        disabled={loading}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition disabled:bg-gray-100 disabled:cursor-not-allowed"
+                        disabled={isLoading}
+                        InputProps={{
+                            startAdornment: <Lock sx={{ mr: 1, color: 'action.active' }} />,
+                        }}
+                        variant="outlined"
                     />
-                </div>
 
-                <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 disabled:bg-green-300 disabled:cursor-not-allowed"
-                >
-                    {loading ? 'Rejestracja...' : '📝 Zarejestruj się'}
-                </button>
-            </form>
+                    <Button
+                        type="submit"
+                        fullWidth
+                        variant="contained"
+                        size="large"
+                        disabled={isLoading}
+                        startIcon={isLoading ? <LoadingSpinner text="Rejestracja..." /> : <PersonAdd />}
+                        sx={{ mt: 2, py: 1.5 }}
+                    >
+                        {isLoading ? ' ' : 'Zarejestruj się'}
+                    </Button>
+                </Box>
 
-            <div className="mt-6 text-center">
-                <button
-                    type="button"
-                    onClick={onSwitchToLogin}
-                    className="text-blue-600 hover:text-blue-700 text-sm hover:underline transition"
-                >
-                    Masz już konto? Zaloguj się
-                </button>
-            </div>
-        </div>
+                <Box sx={{ textAlign: 'center', mt: 2 }}>
+                    <Typography variant="body2">
+                        Masz już konto?{' '}
+                        <Link
+                            component="button"
+                            variant="body2"
+                            onClick={onSwitchToLogin}
+                            sx={{ cursor: 'pointer' }}
+                        >
+                            Zaloguj się
+                        </Link>
+                    </Typography>
+                </Box>
+            </Paper>
+        </Box>
     );
 };

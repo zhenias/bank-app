@@ -26,9 +26,6 @@ class AppServiceProvider extends ServiceProvider
         Passport::tokensCan([
             // Podstawowe informacje o użytkowniku
             'user-profile' => 'Odczyt podstawowych danych profilu',
-            'user-email' => 'Odczyt adresu email',
-            'user-phone' => 'Odczyt numeru telefonu',
-            'user-address' => 'Odczyt adresu zamieszkania',
 
             // Informacje finansowe
             'balance-view' => 'Odczyt bieżącego salda konta',
@@ -84,6 +81,13 @@ class AppServiceProvider extends ServiceProvider
             // Produkty inwestycyjne
             'investments-view' => 'Odczyt produktów inwestycyjnych',
             'investments-details' => 'Odczyt szczegółów inwestycji',
+        ]);
+
+        Passport::defaultScopes([
+            'user-profile',
+
+            'balance-view',
+            'balance-history',
         ]);
     }
 }

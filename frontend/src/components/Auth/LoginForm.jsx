@@ -1,86 +1,139 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useToast } from '../../context/ToastContext';
+import { useLoading } from '../../context/LoadingContext';
+import { LoadingSpinner } from "../Assets/Svg/LoadingSpinner.jsx";
+import {
+    Paper,
+    TextField,
+    Button,
+    Typography,
+    Box,
+    Link,
+    Alert
+} from '@mui/material';
+import { Email, Lock, Login as LoginIcon } from '@mui/icons-material';
 
-export const LoginForm = ({ onLogin, onSwitchToRegister, error: externalError }) => {
+export const LoginForm = ({ onLogin, onSwitchToRegister }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const { showError, showSuccess } = useToast();
+    const { isLoading, startLoading, stopLoading } = useLoading();
+
+    useEffect(() => {
+        setEmail('test@example.com');
+        setPassword('password');
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true);
         setError('');
+        startLoading();
 
         try {
             await onLogin(email, password);
+            showSuccess('Zalogowano pomyślnie!');
         } catch (err) {
-            setError(err.message || 'Błąd logowania');
+            const errorMessage = err.message || 'Błąd logowania';
+            setError(errorMessage);
+            showError(errorMessage);
         } finally {
-            setLoading(false);
+            stopLoading();
         }
     };
 
     return (
-        <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
-            <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">
-                Logowanie
-            </h2>
+        <Box
+            sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                minHeight: '100vh',
+                p: 2
+            }}
+        >
+            <Paper
+                elevation={3}
+                sx={{
+                    p: 4,
+                    maxWidth: 400,
+                    width: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 3
+                }}
+            >
+                <Box sx={{ textAlign: 'center' }}>
+                    <Typography variant="h4" component="h1" gutterBottom>
+                        Logowanie
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                        Zaloguj się do swojego konta bankowego
+                    </Typography>
+                </Box>
 
-            {(error || externalError) && (
-                <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm">
-                    {error || externalError}
-                </div>
-            )}
+                {error && (
+                    <Alert severity="error" sx={{ mb: 2 }}>
+                        {error}
+                    </Alert>
+                )}
 
-            <form onSubmit={handleSubmit}>
-                <div className="mb-4">
-                    <label className="block text-gray-700 font-semibold mb-2">
-                        Email
-                    </label>
-                    <input
+                <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <TextField
+                        fullWidth
+                        label="Email"
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
-                        placeholder="twoj@email.com"
-                        disabled={loading}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition disabled:bg-gray-100 disabled:cursor-not-allowed"
+                        disabled={isLoading}
+                        InputProps={{
+                            startAdornment: <Email sx={{ mr: 1, color: 'action.active' }} />,
+                        }}
+                        variant="outlined"
                     />
-                </div>
 
-                <div className="mb-6">
-                    <label className="block text-gray-700 font-semibold mb-2">
-                        Hasło
-                    </label>
-                    <input
+                    <TextField
+                        fullWidth
+                        label="Hasło"
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
-                        placeholder="••••••••"
-                        disabled={loading}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition disabled:bg-gray-100 disabled:cursor-not-allowed"
+                        disabled={isLoading}
+                        InputProps={{
+                            startAdornment: <Lock sx={{ mr: 1, color: 'action.active' }} />,
+                        }}
+                        variant="outlined"
                     />
-                </div>
 
-                <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 disabled:bg-blue-300 disabled:cursor-not-allowed"
-                >
-                    {loading ? 'Logowanie...' : '🔐 Zaloguj się'}
-                </button>
-            </form>
+                    <Button
+                        type="submit"
+                        fullWidth
+                        variant="contained"
+                        size="large"
+                        disabled={isLoading}
+                        startIcon={isLoading ? <LoadingSpinner /> : <LoginIcon />}
+                        sx={{ mt: 2, py: 1.5 }}
+                    >
+                        {isLoading ? ' ' : 'Zaloguj się'}
+                    </Button>
+                </Box>
 
-            <div className="mt-6 text-center">
-                <button
-                    type="button"
-                    onClick={onSwitchToRegister}
-                    className="text-blue-600 hover:text-blue-700 text-sm hover:underline transition"
-                >
-                    Nie masz konta? Zarejestruj się
-                </button>
-            </div>
-        </div>
+                <Box sx={{ textAlign: 'center', mt: 2 }}>
+                    <Typography variant="body2">
+                        Nie masz konta?{' '}
+                        <Link
+                            component="button"
+                            variant="body2"
+                            onClick={onSwitchToRegister}
+                            sx={{ cursor: 'pointer' }}
+                        >
+                            Zarejestruj się
+                        </Link>
+                    </Typography>
+                </Box>
+            </Paper>
+        </Box>
     );
 };

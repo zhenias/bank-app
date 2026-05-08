@@ -6,7 +6,7 @@ WORKDIR /app
 COPY . .
 
 # Zainstaluj zależności
-RUN npm install
+RUN npm ci
 
 EXPOSE 5174
 

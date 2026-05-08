@@ -1,6 +1,6 @@
 <?php
 
-use App\Exceptions\ApiExceptionHandler;
+use App\Exceptions\Handler;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -45,15 +45,57 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->group('api', [
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            \App\Http\Middleware\ForceJsonResponse::class,
         ]);
 
         $middleware->append([
             \Illuminate\Http\Middleware\HandleCors::class,
             \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
             \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
+//            \App\Http\Middleware\ForceJsonResponse::class,
         ]);
     })
-    ->withSingletons([
-        \Illuminate\Contracts\Debug\ExceptionHandler::class => \App\Exceptions\Handler::class,
-    ])
+//    ->withSingletons([
+//        \Illuminate\Contracts\Debug\ExceptionHandler::class => \App\Exceptions\Handler::class,
+//    ])
+//    ->withSingletons([
+//        Illuminate\Contracts\Debug\ExceptionHandler::class => Illuminate\Foundation\Exceptions\Handler::class,
+//    ])
+    ->withExceptions(function (Exceptions $exceptions) {
+//        $exceptions->renderable(function (ValidationException $e) {
+//            return Handler::handleException($e);
+//        });
+//
+//        $exceptions->renderable(function (AuthenticationException $e) {
+//            return Handler::handleException($e);
+//        });
+//
+//        $exceptions->renderable(function (AuthorizationException $e) {
+//            return Handler::handleException($e);
+//        });
+//
+//        $exceptions->renderable(function (ModelNotFoundException $e) {
+//            return Handler::handleException($e);
+//        });
+//
+//        $exceptions->renderable(function (NotFoundHttpException $e) {
+//            return Handler::handleException($e);
+//        });
+//
+//        $exceptions->renderable(function (UnauthorizedHttpException $e) {
+//            return Handler::handleException($e);
+//        });
+//
+//        $exceptions->renderable(function (AccessDeniedHttpException $e) {
+//            return Handler::handleException($e);
+//        });
+//
+//        $exceptions->renderable(function (ThrottleRequestsException $e) {
+//            return Handler::handleException($e);
+//        });
+//
+//        $exceptions->renderable(function (MissingScopeException $e) {
+//            return Handler::handleException($e);
+//        });
+    })
     ->create();
