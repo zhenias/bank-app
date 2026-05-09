@@ -43,7 +43,7 @@ Kompletna konfiguracja Docker dla całego projektu Bank App obejmująca:
 - **.env** - Zmienne dla frontendu (API URL)
 - **.env.example** - Template zmiennych
 - **.dockerignore** - Frontend excludes
-- **vite.config.js** - Zaktualizowana konfiguracja (HMR, polling watch)
+- **vite.config.ts** - Zaktualizowana konfiguracja (HMR, polling watch)
 - **docker/scripts/** - Utility skrypty:
   - `start.sh` - Start container
   - `stop.sh` - Stop container
@@ -226,7 +226,7 @@ make migrate
 ```
 
 ### HMR (Hot Module Replacement) nie działa
-- ✅ Już skonfigurowany w vite.config.js frontendu
+- ✅ Już skonfigurowany w vite.config.ts frontendu
 - ✅ usePolling: true dla better Docker compatibility
 - Sprawdź logi (make logs) czy brak błędów WebSocket
 

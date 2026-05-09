@@ -1,0 +1,139 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Bank Online System API",
+        "description": "Dokumentacja API dla systemu bankowego",
+        "contact": {
+            "email": "bank@example.com"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8000",
+            "description": "Serwer lokalny"
+        }
+    ],
+    "paths": {
+        "/api/user/profile": {
+            "get": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Pobierz profil zalogowanego użytkownika",
+                "operationId": "df75b4adcde309b849928aaad6f2801f",
+                "responses": {
+                    "200": {
+                        "description": "Profil użytkownika",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Usuń konto użytkownika",
+                "operationId": "525d4f5accfa65e919856629752cf921",
+                "responses": {
+                    "200": {
+                        "description": "Konto usunięte"
+                    },
+                    "401": {
+                        "description": "Nieautoryzowany"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "patch": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Aktualizuj profil użytkownika",
+                "operationId": "2a42a766d61145b41a15f799502cd6ab",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Jan Kowalski"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "example": "jan@example.com"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Zaktualizowano"
+                    },
+                    "422": {
+                        "description": "Błąd walidacji"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "User": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Jan Kowalski"
+                    },
+                    "email": {
+                        "type": "string",
+                        "example": "jan.kowalski@example.com"
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Profile",
+            "description": "Zarządzanie profilem użytkownika"
+        }
+    ]
+}

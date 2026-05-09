@@ -7,6 +7,10 @@ Route::get('/', function () {
     return redirect()->route('dashboard');
 });
 
+Route::get('/docs', function () {
+    return view('vendor.redoc.redoc');
+});
+
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
