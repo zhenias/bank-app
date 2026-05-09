@@ -25,8 +25,8 @@ class UpdateProfileRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['sometimes', 'string', 'max:255'],
-            'email' => ['sometimes', 'email', 'max:255', 'unique:users,email,' . $this->user()->id],
+            'name'     => ['sometimes', 'string', 'max:255'],
+            'email'    => ['sometimes', 'email', 'max:255', 'unique:users,email,' . $this->user()->id],
             'password' => [
                 'sometimes',
                 'string',
@@ -48,20 +48,20 @@ class UpdateProfileRequest extends FormRequest
         return [
             'name' => [
                 'description' => 'Nowa nazwa użytkownika',
-                'example' => 'Jan Kowalski',
+                'example'     => 'Jan Kowalski',
             ],
             'email' => [
                 'description' => 'Nowy adres email',
-                'example' => 'jan@example.com',
+                'example'     => 'jan@example.com',
             ],
             'password' => [
                 'description' => 'Nowe hasło (min. 8 znaków, max. 255 znaków, musi być potwierdzone)',
-                'example' => 'newpassword123',
+                'example'     => 'newpassword123',
             ],
             'password_confirmation' => [
                 'description' => 'Potwierdzenie nowego hasła',
-                'example' => 'newpassword123',
-            ]
+                'example'     => 'newpassword123',
+            ],
         ];
     }
 }

@@ -1,11 +1,9 @@
 <?php
-
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -13,7 +11,7 @@ return new class extends Migration
     {
         Schema::create('oauth_access_tokens', function (Blueprint $table) {
             $table->char('id', 80)->primary();
-            $table->foreignId('user_id')->nullable()->index();
+            $table->foreignUuid('user_id')->nullable()->index();
             $table->foreignUuid('client_id');
             $table->string('name')->nullable();
             $table->text('scopes')->nullable();

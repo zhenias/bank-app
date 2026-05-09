@@ -1,15 +1,13 @@
 <?php
 
-namespace App\Services\AccountNumberGenerator;
+namespace App\Services\Generator;
 
-use App\Services\Service;
-
-class AccountNumberGeneratorService extends Service
+trait AccountNumberGeneratorService
 {
     private const string BANK_SORT_CODE = '12345678';
 
     /**
-     * Generuje poprawny 26-cyfrowy numer konta (NRB)
+     * Generuje poprawny 26-cyfrowy numer konta (NRB).
      */
     public function generate(): string
     {
@@ -17,7 +15,7 @@ class AccountNumberGeneratorService extends Service
 
         $accountBase = self::BANK_SORT_CODE . $clientNumber;
 
-        $tmpChecksumStr = $accountBase . '2521' . '00';
+        $tmpChecksumStr = $accountBase . '252100';
 
         $checksum = $this->calculateChecksum($tmpChecksumStr);
 
@@ -30,7 +28,7 @@ class AccountNumberGeneratorService extends Service
     private function generateClientNumber(): string
     {
         $random = '';
-        for ($i = 0; $i < 16; $i++) {
+        for ($i = 0; $i < 16; ++$i) {
             $random .= random_int(0, 9);
         }
 
@@ -38,24 +36,24 @@ class AccountNumberGeneratorService extends Service
     }
 
     /**
-     * Oblicza sumę kontrolną modulo 97 (standard IBAN)
+     * Oblicza sumę kontrolną modulo 97 (standard IBAN).
      */
     private function calculateChecksum(string $ibanBase): string
     {
         $remainder = 0;
-        $digits = str_split($ibanBase);
+        $digits    = str_split($ibanBase);
 
         foreach ($digits as $digit) {
-            $remainder = (int)(($remainder . $digit) % 97);
+            $remainder = (int) (($remainder . $digit) % 97);
         }
 
         $checksum = 98 - $remainder;
 
-        return str_pad((string)$checksum, 2, '0', STR_PAD_LEFT);
+        return str_pad((string) $checksum, 2, '0', STR_PAD_LEFT);
     }
 
     /**
-     * Konwertuj NRB na format IBAN
+     * Konwertuj NRB na format IBAN.
      */
     public function toIBAN(string $nrb): string
     {
@@ -63,7 +61,7 @@ class AccountNumberGeneratorService extends Service
     }
 
     /**
-     * Formatuj numer do wyświetlenia (co 4 cyfry spacja)
+     * Formatuj numer do wyświetlenia (co 4 cyfry spacja).
      */
     public function format(string $nrb): string
     {

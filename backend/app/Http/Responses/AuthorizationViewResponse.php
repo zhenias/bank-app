@@ -12,7 +12,7 @@ class AuthorizationViewResponse implements AuthorizationViewResponseContract, Re
 
     public function __construct($view = 'passport::authorize', array $parameters = [])
     {
-        $this->view = $view;
+        $this->view       = $view;
         $this->parameters = $parameters;
     }
 

@@ -49,7 +49,7 @@ class ServiceCommand extends Command
     {
         $directory = dirname($path);
 
-        if (!$this->filesystem->isDirectory($directory)) {
+        if (! $this->filesystem->isDirectory($directory)) {
             $this->filesystem->makeDirectory($directory, 0755, true, true);
         }
     }
@@ -57,7 +57,7 @@ class ServiceCommand extends Command
     protected function buildClass(string $name): string
     {
         $namespace = 'App\\Services';
-        $extends = 'Service';
+        $extends   = 'Service';
 
         $className = class_basename($name);
 
@@ -71,7 +71,7 @@ class ServiceCommand extends Command
             "<?php\n\nnamespace %s;\n\nuse App\\Services\\Service;\n\nclass %s extends %s\n{\n    \n}\n",
             $namespace,
             $className,
-            $extends
+            $extends,
         );
     }
 }

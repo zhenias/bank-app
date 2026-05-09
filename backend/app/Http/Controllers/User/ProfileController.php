@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 use Laravel\Passport\Attributes\AuthorizeToken;
-use Illuminate\Validation\Rules;
 
 /**
  * Zarządzanie profilem użytkownika.
@@ -23,12 +22,12 @@ use Illuminate\Validation\Rules;
 class ProfileController extends Controller
 {
     /**
-    * Informacja o profilu użytkownika.
-    *
-    * Zwraca dane aktualnego zalogowanego użytkownika.
-    *
-    * @unauthenticated
-    */
+     * Informacja o profilu użytkownika.
+     *
+     * Zwraca dane aktualnego zalogowanego użytkownika.
+     *
+     * @unauthenticated
+     */
     public function show(Request $request): JsonResponse
     {
         return response()->json($request->user()->toArray());
@@ -50,10 +49,10 @@ class ProfileController extends Controller
     }
 
     /**
-    * Usuń konto.
-    *
-    * Usuwa konto zalogowanego użytkownika - na zawsze!
-    */
+     * Usuń konto.
+     *
+     * Usuwa konto zalogowanego użytkownika - na zawsze!
+     */
     public function destroy(Request $request): JsonResponse
     {
         $request->user()->delete();
@@ -81,8 +80,8 @@ class ProfileController extends Controller
     public function create(Request $request): User
     {
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'name'     => ['required', 'string', 'max:255'],
+            'email'    => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'password' => [
                 'required',
                 'string',
@@ -98,8 +97,8 @@ class ProfileController extends Controller
         ]);
 
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
+            'name'     => $request->name,
+            'email'    => $request->email,
             'password' => Hash::make($request->password),
         ]);
 
