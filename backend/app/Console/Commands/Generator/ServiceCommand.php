@@ -29,7 +29,8 @@ class ServiceCommand extends Command
         $path = app_path('Services/' . $name . '.php');
 
         if ($this->filesystem->exists($path)) {
-            $this->components->error('Service already exists.');
+            $this->components->error('Service [%s.php] already exists.', $name);
+
             return Command::FAILURE;
         }
 

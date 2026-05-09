@@ -94,9 +94,6 @@ export const LoginForm = ({ onLogin, onSwitchToRegister }: LoginFormProps) => {
                         onChange={(e) => setEmail(e.target.value)}
                         required
                         disabled={isLoading}
-                        // InputProps={{
-                        //     startAdornment: <Email sx={{ mr: 1, color: 'action.active' }} />,
-                        // }}
                         variant="outlined"
                     />
 
@@ -108,9 +105,6 @@ export const LoginForm = ({ onLogin, onSwitchToRegister }: LoginFormProps) => {
                         onChange={(e) => setPassword(e.target.value)}
                         required
                         disabled={isLoading}
-                        // InputProps={{
-                        //     startAdornment: <Lock sx={{ mr: 1, color: 'action.active' }} />,
-                        // }}
                         variant="outlined"
                     />
 

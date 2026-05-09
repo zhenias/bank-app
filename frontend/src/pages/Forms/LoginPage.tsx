@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext.jsx';
-import { LoginForm } from '../../components/Auth/LoginForm.jsx';
+import { useAuth } from '../../context/AuthContext';
+import { LoginForm } from '../../components/Auth/LoginForm';
 
 export const LoginPage = () => {
     const { handleLogin } = useAuth();

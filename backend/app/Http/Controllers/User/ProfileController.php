@@ -21,11 +21,10 @@ use Illuminate\Validation\Rules;
 #[AuthorizeToken(['user-profile'], anyScope: true)]
 class ProfileController extends Controller
 {
-
     /**
-    * Pobierz profil.
+    * Informacja o profilu użytkownika.
     *
-    * Zwraca dane zalogowanego użytkownika.
+    * Zwraca dane aktualnego zalogowanego użytkownika.
     *
     * @unauthenticated
     */
@@ -37,7 +36,7 @@ class ProfileController extends Controller
     /**
      * Aktualizuj profil.
      *
-     * Aktualizuje dane profilowe zalogowanego użytkownika.
+     * Aktualizuje dane profilowe użytkownika.
      */
     public function update(UpdateProfileRequest $request): JsonResponse
     {
@@ -52,13 +51,13 @@ class ProfileController extends Controller
     /**
     * Usuń konto.
     *
-    * Usuwa konto zalogowanego użytkownika.
+    * Usuwa konto zalogowanego użytkownika - na zawsze!
     */
     public function destroy(Request $request): JsonResponse
     {
         $request->user()->delete();
 
-        return response()->json(['message' => 'Account deleted'], 200);
+        return response()->json(null, 200);
     }
 
     /**
@@ -74,7 +73,7 @@ class ProfileController extends Controller
     }
 
     /**
-     * Rejestracja nowego użytkownika.
+     * Rejestracja użytkownika w systemie.
      *
      * Tworzy nowe konto użytkownika.
      */

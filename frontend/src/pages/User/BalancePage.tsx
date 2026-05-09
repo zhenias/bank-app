@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../../context/AuthContext.jsx';
-import { fetchWithAuth } from '../../services/authService.js';
+import { useAuth } from '../../context/AuthContext';
+import { fetchWithAuth } from '../../services/authService';
 import {
     Container,
     Paper,
@@ -27,7 +27,7 @@ export const BalancePage = () => {
 
     const fetchBalance = async () => {
         try {
-            const response = await fetchWithAuth('/api/user/balance');
+            const response = await fetchWithAuth('/user/balance');
             const data = await response.json();
 
             if (!response.ok) {

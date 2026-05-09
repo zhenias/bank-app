@@ -28,7 +28,6 @@ export const LoadingProvider = ({ children }: { children: React.ReactNode }) => 
         stopLoading
     };
 
-    // @ts-ignore
     return (
         <LoadingContext.Provider value={value}>
             {children}

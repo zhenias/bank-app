@@ -96,9 +96,6 @@ export const RegisterForm = ({ onRegister, onSwitchToLogin }: RegisterFormProps)
                         onChange={(e) => setName(e.target.value)}
                         required
                         disabled={isLoading}
-                        // InputProps={{
-                        //     startAdornment: <Person sx={{ mr: 1, color: 'action.active' }} />,
-                        // }}
                         variant="outlined"
                     />
 
@@ -110,9 +107,6 @@ export const RegisterForm = ({ onRegister, onSwitchToLogin }: RegisterFormProps)
                         onChange={(e) => setEmail(e.target.value)}
                         required
                         disabled={isLoading}
-                        // InputProps={{
-                        //     startAdornment: <Email sx={{ mr: 1, color: 'action.active' }} />,
-                        // }}
                         variant="outlined"
                     />
 
@@ -124,9 +118,6 @@ export const RegisterForm = ({ onRegister, onSwitchToLogin }: RegisterFormProps)
                         onChange={(e) => setPassword(e.target.value)}
                         required
                         disabled={isLoading}
-                        // InputProps={{
-                        //     startAdornment: <Lock sx={{ mr: 1, color: 'action.active' }} />,
-                        // }}
                         variant="outlined"
                     />
 
@@ -138,9 +129,6 @@ export const RegisterForm = ({ onRegister, onSwitchToLogin }: RegisterFormProps)
                         onChange={(e) => setPasswordConfirmation(e.target.value)}
                         required
                         disabled={isLoading}
-                        // InputProps={{
-                        //     startAdornment: <Lock sx={{ mr: 1, color: 'action.active' }} />,
-                        // }}
                         variant="outlined"
                     />
 

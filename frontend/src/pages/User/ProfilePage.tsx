@@ -11,8 +11,8 @@ import {
     Divider, TextField, Button
 } from '@mui/material';
 import {LoadingSpinner} from "../../components/Assets/Svg/LoadingSpinner";
-import {useToast} from "../../context/ToastContext.jsx";
-import {useLoading} from "../../context/LoadingContext.jsx";
+import {useToast} from "../../context/ToastContext";
+import {useLoading} from "../../context/LoadingContext";
 import {format_date} from "../../hooks/formatedDate";
 
 export const ProfilePage = () => {

@@ -60,6 +60,8 @@ export interface BalanceResponse {
 // Request/Response types for fetchWithAuth
 export interface FetchOptions extends RequestInit {
     headers?: Record<string, string>;
+    body?: BodyInit;
+    method?: string;
 }
 
 // OAuth types

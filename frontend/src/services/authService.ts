@@ -169,7 +169,7 @@ export const fetchWithAuth = async (url: string, options: FetchOptions = {}): Pr
             'Accept': 'application/json',
         };
 
-        return fetch(`${url}`, { ...options, headers });
+        return fetch(`/api${url}`, { ...options, headers });
     };
 
     let token = localStorage.getItem('access_token');
@@ -194,19 +194,9 @@ export const fetchWithAuth = async (url: string, options: FetchOptions = {}): Pr
 };
 
 export const updateUserProfile = async (profileData: ProfileUpdateData): Promise<User> => {
-    const token = localStorage.getItem('access_token');
 
-    if (!token) {
-        throw new Error('Brak tokena');
-    }
-
-    const response = await fetch(`/api/user/profile`, {
+    const response = await fetchWithAuth(`/user/profile`, {
         method: 'PUT',
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-        },
         body: JSON.stringify(profileData),
     });
 

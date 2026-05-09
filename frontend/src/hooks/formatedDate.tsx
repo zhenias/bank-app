@@ -1,4 +1,3 @@
-
 export const format_date = (date: Date | string | undefined) => {
     if (!date) return 'Brak danych';
     const d = new Date(date);
