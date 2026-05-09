@@ -12,6 +12,7 @@ import { RegisterPage } from './pages/Forms/RegisterPage';
 import { BalancePage } from './pages/User/BalancePage';
 import {JSX} from "react";
 import {ProfilePage} from "./pages/User/ProfilePage";
+import {DashboardPage} from "./pages/Dashboard/DashboardPage";
 
 const theme = createTheme({
   palette: {
@@ -97,11 +98,19 @@ function App(): JSX.Element {
                                                 </ProtectedRoute>
                                             }
                                         />
-                                        <Route path="/" element={<Navigate to="/profile" replace />} />
+                                        <Route
+                                            path="/dashboard"
+                                            element={
+                                                <ProtectedRoute>
+                                                    <DashboardPage />
+                                                </ProtectedRoute>
+                                            }
+                                        />
+                                        <Route path="/" element={<Navigate to="/dashboard" replace />} />
                                     </Routes>
                                 </Box>
                             </Box>
-                            <LoadingOverlay />
+                            {/*<LoadingOverlay />*/}
                         </LoadingProvider>
                     </ToastProvider>
                 </AuthProvider>

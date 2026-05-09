@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests\User;
 
+use App\Rules\Password\CurrentPassword;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Password;
 
 class UpdateProfileRequest extends FormRequest
 {
@@ -24,8 +26,20 @@ class UpdateProfileRequest extends FormRequest
     {
         return [
             'name' => ['sometimes', 'string', 'max:255'],
-            'email' => ['sometimes', 'email', 'max:255', 'lowercase', 'unique:users,email,' . $this->user()->id],
-            'password' => ['sometimes', 'string', 'min:8', 'max:255', 'confirmed'],
+            'email' => ['sometimes', 'email', 'max:255', 'unique:users,email,' . $this->user()->id],
+            'password' => [
+                'sometimes',
+                'string',
+                'confirmed',
+                Password::min(8)
+                    ->max(255)
+                    ->letters()
+                    ->mixedCase()
+                    ->numbers()
+                    ->symbols()
+                    ->uncompromised(),
+            ],
+            'old_password' => ['required_with:password', 'string', 'max:255', new CurrentPassword()],
         ];
     }
 

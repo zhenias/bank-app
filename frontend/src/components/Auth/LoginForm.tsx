@@ -117,7 +117,7 @@ export const LoginForm = ({ onLogin, onSwitchToRegister }: LoginFormProps) => {
                         startIcon={isLoading ? <LoadingSpinner /> : <LoginIcon />}
                         sx={{ mt: 2, py: 1.5 }}
                     >
-                        {isLoading ? 'Logowanie...' : 'Zaloguj się'}
+                        {isLoading ? '' : 'Zaloguj się'}
                     </Button>
                 </Box>
 

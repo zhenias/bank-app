@@ -7,8 +7,8 @@ interface LoadingSpinnerProps {
 export const LoadingSpinner = ({ text = 'Ładowanie...' }: LoadingSpinnerProps) => {
     return (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <CircularProgress size={20} aria-label="Loading…" />
-            <span>{text}</span>
+            <CircularProgress size={14} />
+            <span style={{ fontSize: '0.875rem' }}>{text}</span>
         </Box>
     );
 };

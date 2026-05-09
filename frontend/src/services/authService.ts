@@ -1,11 +1,11 @@
-import type {
+import {
     User,
     TokenResponse,
     OAuthCredentials,
     RegisterData,
     ProfileUpdateData,
     FetchOptions,
-    ApiError
+    ApiError, ProfileUpdateResponse
 } from '../types/types';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
@@ -157,7 +157,6 @@ export const logout = async (): Promise<void> => {
 
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
-    window.location.href = '/login';
 };
 
 export const fetchWithAuth = async (url: string, options: FetchOptions = {}): Promise<Response> => {
@@ -193,10 +192,10 @@ export const fetchWithAuth = async (url: string, options: FetchOptions = {}): Pr
     return response;
 };
 
-export const updateUserProfile = async (profileData: ProfileUpdateData): Promise<User> => {
+export const updateUserProfile = async (profileData: ProfileUpdateData): Promise<ProfileUpdateResponse> => {
 
     const response = await fetchWithAuth(`/user/profile`, {
-        method: 'PUT',
+        method: 'PATCH',
         body: JSON.stringify(profileData),
     });
 

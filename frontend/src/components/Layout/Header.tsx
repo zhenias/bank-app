@@ -24,6 +24,11 @@ export const Header = () => {
         setAnchorEl(null);
     };
 
+    const handleProfile = (): void => {
+        navigate('/profile');
+        setAnchorEl(null);
+    }
+
     return (
         <AppBar position="fixed" sx={{ bgcolor: 'background.paper', color: 'text.primary', boxShadow: 1, borderRadius: 0 }}>
             <Toolbar>
@@ -76,7 +81,7 @@ export const Header = () => {
                             open={Boolean(anchorEl)}
                             onClose={handleClose}
                         >
-                            <MenuItem onClick={handleClose}>
+                            <MenuItem onClick={handleProfile}>
                                 <AccountCircle sx={{ mr: 1 }} />
                                 Profil
                             </MenuItem>

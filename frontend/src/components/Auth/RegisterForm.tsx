@@ -12,6 +12,7 @@ import {
 } from '@mui/material';
 import { Person, Email, Lock, PersonAdd } from '@mui/icons-material';
 import type { User } from '../../types/types';
+import {LoadingSpinner} from "../Assets/Svg/LoadingSpinner";
 
 interface RegisterFormProps {
     onRegister: (name: string, email: string, password: string) => Promise<User>;
@@ -42,7 +43,8 @@ export const RegisterForm = ({ onRegister, onSwitchToLogin }: RegisterFormProps)
 
         try {
             await onRegister(name, email, password);
-            showSuccess('Rejestracja pomyślna!');
+
+            showSuccess('Rejestracja pomyślna! Przekierowanie do logowania...');
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Błąd rejestracji';
             setError(errorMessage);
@@ -138,10 +140,10 @@ export const RegisterForm = ({ onRegister, onSwitchToLogin }: RegisterFormProps)
                         variant="contained"
                         size="large"
                         disabled={isLoading}
-                        startIcon={isLoading ? null : <PersonAdd />}
+                        startIcon={isLoading ? <LoadingSpinner text="Rejestracja..." /> : <PersonAdd />}
                         sx={{ mt: 2, py: 1.5 }}
                     >
-                        {isLoading ? 'Rejestracja...' : 'Zarejestruj się'}
+                        {isLoading ? '' : 'Zarejestruj się'}
                     </Button>
                 </Box>
 

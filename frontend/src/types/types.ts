@@ -49,6 +49,14 @@ export interface ApiError {
 export interface ProfileUpdateData {
     name?: string;
     email?: string;
+    password?: string;
+    password_confirmation?: string;
+    old_password?: string;
+}
+
+export interface ProfileUpdateResponse {
+    user: User;
+    message?: string;
 }
 
 // Balance types
