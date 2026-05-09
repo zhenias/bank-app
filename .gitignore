@@ -38,3 +38,4 @@ Thumbs.db
 bootstrap/cache/
 storage/framework/cache/
 
+/.php-cs-fixer.cache
