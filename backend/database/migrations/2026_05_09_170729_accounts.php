@@ -30,6 +30,7 @@ return new class extends Migration {
             $table->string('cvv', 4);
             $table->string('status', 20)->default('active');
             $table->string('type', 20)->default('debit');
+            $table->string('network', 20)->default('VISA');
             $table->timestamps();
 
             $table->index('account_id');

@@ -1,4 +1,7 @@
 <?php
+
+use App\Http\Controllers\Account\AccountController;
+use App\Http\Controllers\Account\Card\CardController;
 use App\Http\Controllers\User\ProfileController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -25,4 +28,10 @@ Route::middleware(['auth:api'])->group(function () {
             ];
         });
     });
+
+    Route::apiResource('accounts', AccountController::class);
+    Route::apiResource('accounts.cards', CardController::class)->only(['index', 'store']);
+    Route::get('cards/{card}', [CardController::class, 'show']);
+    Route::patch('cards/{card}/block', [CardController::class, 'block']);
+    Route::patch('cards/{card}/unblock', [CardController::class, 'unblock']);
 });

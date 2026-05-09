@@ -19,7 +19,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\Contracts\OAuthenticatable;
 use Laravel\Passport\HasApiTokens;
 
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable(['id', 'name', 'email'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements OAuthenticatable, MustVerifyEmail
 {
@@ -37,6 +37,9 @@ class User extends Authenticatable implements OAuthenticatable, MustVerifyEmail
     protected function casts(): array
     {
         return [
+            'id'                => 'string',
+            'name'              => 'string',
+            'email'             => 'string',
             'email_verified_at' => 'datetime',
             'password'          => 'hashed',
         ];
@@ -52,9 +55,18 @@ class User extends Authenticatable implements OAuthenticatable, MustVerifyEmail
         return $this->hasManyThrough(Card::class, Account::class);
     }
 
-    public function transactions(): HasManyThrough
+    //    public function transactions(): HasManyThrough
+    //    {
+    //        return $this->hasManyThrough(Transaction::class, Account::class);
+    //    }
+
+    public function transactions()
     {
-        return $this->hasManyThrough(Transaction::class, Account::class);
+        return Transaction::whereHas('fromAccount', function ($q) {
+            $q->where('user_id', $this->id);
+        })->orWhereHas('toAccount', function ($q) {
+            $q->where('user_id', $this->id);
+        });
     }
 
     public function flikCodes(): HasManyThrough

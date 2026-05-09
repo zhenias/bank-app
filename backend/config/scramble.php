@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 use Dedoc\Scramble\Http\Middleware\RestrictedDocsAccess;
 
 return [
@@ -43,7 +41,7 @@ return [
         /*
          * Define the title of the documentation's website. App name is used when this config is `null`.
          */
-        'title' => null,
+        'title' => config('app.name'),
 
         /*
          * Define the theme of the documentation. Available options are `light`, `dark`, and `system`.
@@ -58,7 +56,7 @@ return [
         /*
          * Hide the schemas in the Table of Contents. Enabled by default.
          */
-        'hide_schemas' => false,
+        'hide_schemas' => true,
 
         /*
          * URL to an image that displays as a small square logo next to the title, above the table of contents.
@@ -94,6 +92,10 @@ return [
      * ```
      */
     'servers' => null,
+
+    'examples' => [
+        'use_faker' => true,
+    ],
 
     /*
      * Determines how Scramble stores the descriptions of enum cases.
