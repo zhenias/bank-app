@@ -387,7 +387,7 @@ Jeśli masz problemy:
 3. **Rebuild**: `docker-compose up -d --build`
 4. **Reset**: `docker-compose down -v && docker-compose up -d`
 
-## ✅ Checklist первого uruchomienia
+## ✅ Checklist pierwszego uruchomienia
 
 - [ ] Zainstalowany Docker Desktop / Docker Engine
 - [ ] Porty 8000, 5174, 3306, 6379 dostępne
