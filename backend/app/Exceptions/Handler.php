@@ -34,74 +34,65 @@ class Handler extends ExceptionHandler
 
     private function handleApiException(\Throwable $e): JsonResponse
     {
-        // MissingScopeException (Passport)
         if ($e instanceof MissingScopeException) {
             return response()->json([
                 'status'  => 'error',
-                'message' => 'Brak wymaganych uprawnień.',
+                'message' => 'Insufficient permissions to access this resource.',
                 'code'    => 403,
             ], 403);
         }
 
-        // AuthenticationException (brak autoryzacji)
         if ($e instanceof AuthenticationException || $e instanceof UnauthorizedHttpException) {
             return response()->json([
                 'status'  => 'error',
-                'message' => 'Brak autoryzacji.',
+                'message' => 'Unauthenticated. Please provide valid credentials.',
                 'code'    => 401,
             ], 401);
         }
 
-        // AuthorizationException (brak dostępu)
         if ($e instanceof AuthorizationException || $e instanceof AccessDeniedHttpException) {
             return response()->json([
                 'status'  => 'error',
-                'message' => 'Brak uprawnień do tego zasobu.',
+                'message' => 'No permissions for this resource.',
                 'code'    => 403,
             ], 403);
         }
 
-        // ValidationException (błędy walidacji)
         if ($e instanceof ValidationException) {
             return response()->json([
                 'status'  => 'error',
-                'message' => 'Błąd walidacji danych.',
+                'message' => 'Error validating data.',
                 'errors'  => $e->errors(),
                 'code'    => 422,
             ], 422);
         }
 
-        // ModelNotFoundException (model nie znaleziony)
         if ($e instanceof ModelNotFoundException) {
             return response()->json([
                 'status'  => 'error',
-                'message' => 'Żądany zasób nie został znaleziony.',
+                'message' => 'Resource not found.',
                 'code'    => 404,
             ], 404);
         }
 
-        // NotFoundHttpException (endpoint nie istnieje)
         if ($e instanceof NotFoundHttpException) {
             return response()->json([
                 'status'  => 'error',
-                'message' => 'Endpoint nie istnieje.',
+                'message' => 'Endpoint not found.',
                 'code'    => 404,
             ], 404);
         }
 
-        // ThrottleRequestsException (zbyt wiele zapytań)
         if ($e instanceof ThrottleRequestsException) {
             return response()->json([
                 'status'  => 'error',
-                'message' => 'Zbyt wiele żądań. Spróbuj ponownie później.',
+                'message' => 'How many requests you have made. Please try again later.',
                 'code'    => 429,
             ], 429);
         }
 
-        // Domyślny błąd
         $statusCode = method_exists($e, 'getStatusCode') ? $e->getStatusCode() : 500;
 
-        // W trybie debug pokaż więcej informacji
         if (config('app.debug')) {
             return response()->json([
                 'status'  => 'error',
@@ -115,7 +106,7 @@ class Handler extends ExceptionHandler
 
         return response()->json([
             'status'  => 'error',
-            'message' => $e->getMessage() ?: 'Wystąpił wewnętrzny błąd serwera.',
+            'message' => $e->getMessage() ?: 'Internal Server Error',
             'code'    => $statusCode,
         ], $statusCode >= 100 && $statusCode < 600 ? $statusCode : 500);
     }

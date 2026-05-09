@@ -55,11 +55,6 @@ class User extends Authenticatable implements OAuthenticatable, MustVerifyEmail
         return $this->hasManyThrough(Card::class, Account::class);
     }
 
-    //    public function transactions(): HasManyThrough
-    //    {
-    //        return $this->hasManyThrough(Transaction::class, Account::class);
-    //    }
-
     public function transactions()
     {
         return Transaction::whereHas('fromAccount', function ($q) {

@@ -24,8 +24,6 @@ class AccountController extends Controller
 
     /**
      * Wyświetla listę kont bankowych użytkownika.
-     *
-     * @return AccountResource::collection(Account::where('user_id', auth()->id())->with('cards')->paginate(20))
      */
     public function index()
     {

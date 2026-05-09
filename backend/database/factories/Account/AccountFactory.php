@@ -11,6 +11,7 @@ class AccountFactory extends Factory
     {
         return [
             'user_id'        => User::factory(),
+            'name'           => $this->faker->word(),
             'account_number' => $this->faker->unique()->iban(),
             'balance'        => $this->faker->randomFloat(2, 0, 10000),
             'currency'       => 'PLN',

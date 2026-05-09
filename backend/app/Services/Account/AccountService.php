@@ -64,7 +64,7 @@ class AccountService extends Service
      */
     public function closeAccount(Account $account): void
     {
-        if (0 !== $account->balance) {
+        if ($account->balance > 0) {
             throw new \Exception('Cannot close account with non-zero balance.');
         }
 

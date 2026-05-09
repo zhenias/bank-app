@@ -3,6 +3,7 @@
 namespace Database\Factories\Account\Transaction;
 
 use App\Models\Account\Transaction\Transaction;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,10 +18,14 @@ class TransactionFactory extends Factory
      */
     public function definition(): array
     {
+        $fromAccountUser = User::factory()->create();
+        $toAccountUser   = User::factory()->create();
+        $fromCardUser    = $fromAccountUser->cards()->factory()->create();
+
         return [
-            'from_account_id' => null,
-            'to_account_id'   => null,
-            'from_card_id'    => null,
+            'from_account_id' => $fromAccountUser,
+            'to_account_id'   => $toAccountUser,
+            'from_card_id'    => $fromCardUser,
             'amount'          => $this->faker->randomFloat(2, 1, 1000),
             'description'     => $this->faker->sentence(),
             'type'            => $this->faker->randomElement(['transfer', 'payment', 'withdrawal']),
