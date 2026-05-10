@@ -30,7 +30,7 @@ class StoreAccountRequest extends FormRequest
         ];
     }
 
-    public function bodyParameters(): array
+    public function queryParameters(): array
     {
         return [
             'name' => [

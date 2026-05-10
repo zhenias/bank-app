@@ -37,13 +37,13 @@ class UpdateProfileRequest extends FormRequest
                     ->mixedCase()
                     ->numbers()
                     ->symbols()
-                    ->uncompromised(),
+//                    ->uncompromised(),
             ],
             'old_password' => ['required_with:password', 'string', 'max:255', new CurrentPassword()],
         ];
     }
 
-    public function bodyParameters(): array
+    public function queryParameters(): array
     {
         return [
             'name' => [

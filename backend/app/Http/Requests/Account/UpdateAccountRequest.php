@@ -26,4 +26,14 @@ class UpdateAccountRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
         ];
     }
+
+    public function queryParameters(): array
+    {
+        return [
+            'name' => [
+                'description' => 'Nazwa konta',
+                'example'     => 'Konto oszczędnościowe',
+            ],
+        ];
+    }
 }

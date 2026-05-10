@@ -56,7 +56,7 @@ return [
         /*
          * Hide the schemas in the Table of Contents. Enabled by default.
          */
-        'hide_schemas' => true,
+        'hide_schemas' => false,
 
         /*
          * URL to an image that displays as a small square logo next to the title, above the table of contents.
@@ -97,6 +97,15 @@ return [
         'use_faker' => true,
     ],
 
+    'security' => [
+        'bearer' => [
+            'type' => 'http',
+            'scheme' => 'bearer',
+            'bearerFormat' => 'JWT',
+            'description' => 'Wprowadź token JWT: **Bearer {token}**',
+        ],
+    ],
+
     /*
      * Determines how Scramble stores the descriptions of enum cases.
      * Available options:
@@ -134,8 +143,8 @@ return [
     'flatten_deep_query_parameters' => true,
 
     'middleware' => [
-        'web',
-        RestrictedDocsAccess::class,
+//        'web',
+//         RestrictedDocsAccess::class,
     ],
 
     'extensions' => [],

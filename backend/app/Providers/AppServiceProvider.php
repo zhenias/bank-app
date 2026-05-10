@@ -3,6 +3,9 @@
 namespace App\Providers;
 
 use App\Http\Responses\AuthorizationViewResponse;
+use Dedoc\Scramble\Scramble;
+use Dedoc\Scramble\Support\Generator\OpenApi;
+use Dedoc\Scramble\Support\Generator\SecurityScheme;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Passport\Contracts\AuthorizationViewResponse as AuthorizationViewResponseContract;
 use Laravel\Passport\Passport;
@@ -18,6 +21,15 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        Scramble::registerApi('docs');
+
+        Scramble::configure()
+            ->withDocumentTransformers(function (OpenApi $openApi) {
+                $openApi->secure(
+                    SecurityScheme::http('bearer', 'JWT'),
+                );
+            });
+
         Passport::tokensExpireIn(now()->addDays(15));
         Passport::refreshTokensExpireIn(now()->addDays(30));
 

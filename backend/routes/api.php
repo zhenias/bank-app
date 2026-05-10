@@ -7,6 +7,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Laravel\Passport\Http\Middleware\CheckToken;
 
+Route::prefix('/')->group(function () {
+    return response()->json([
+        'message' => 'Access denied.'
+    ]);
+});
+
 Route::middleware(['auth:api'])->group(function () {
     Route::prefix('/user')->group(function () {
         Route::middleware('guest')->withoutMiddleware(['auth:api'])->group(function () {
