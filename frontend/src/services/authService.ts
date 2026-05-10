@@ -34,6 +34,7 @@ export const loginWithPassword = async (email: string, password: string): Promis
 
     if (!response.ok) {
         const error: ApiError = await response.json();
+
         throw new Error(error.message || 'Błąd logowania');
     }
 
@@ -85,7 +86,9 @@ export const getUserInfo = async (): Promise<User> => {
     });
 
     if (!response.ok) {
-        throw new Error('Nie udało się pobrać danych użytkownika');
+        const error: ApiError = await response.json();
+
+        throw new Error(error.message || 'Nie udało się pobrać danych użytkownika');
     }
 
     return await response.json();

@@ -4,15 +4,17 @@ import { CssBaseline, Box } from '@mui/material';
 import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
 import { LoadingProvider } from './context/LoadingContext';
-import { Header } from './components/Layout/Header';
 import { ProtectedRoute } from './components/Layout/ProtectedRoute';
-import { LoadingOverlay } from './components/UI/LoadingOverlay';
 import { LoginPage } from './pages/Forms/LoginPage';
 import { RegisterPage } from './pages/Forms/RegisterPage';
 import { BalancePage } from './pages/User/BalancePage';
 import {JSX} from "react";
 import {ProfilePage} from "./pages/User/ProfilePage";
 import {DashboardPage} from "./pages/Dashboard/DashboardPage";
+import {GuestOnlyRoute} from "./components/Layout/GuestOnlyRoute";
+import {DashboardLayout} from "./components/Layout/DashboardLayout";
+import {AccountPage} from "./pages/Account/AccountPage";
+import {AccountViewPage} from "./pages/Account/AccoutViewPage";
 
 const theme = createTheme({
   palette: {
@@ -40,6 +42,11 @@ const theme = createTheme({
     },
   },
   components: {
+    MuiSvgIcon: {
+      defaultProps: {
+          fontSize: 'small',
+      },
+    },
     MuiButton: {
       styleOverrides: {
         root: {
@@ -76,41 +83,26 @@ function App(): JSX.Element {
                 <AuthProvider>
                     <ToastProvider>
                         <LoadingProvider>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', bgcolor: 'background.default' }}>
-                                <Header />
-                                <Box component="main" sx={{ flexGrow: 1, pt: 8, px: 3 }}>
-                                    <Routes>
-                                        <Route path="/login" element={<LoginPage />} />
-                                        <Route path="/register" element={<RegisterPage />} />
-                                        <Route
-                                            path="/profile"
-                                            element={
-                                                <ProtectedRoute>
-                                                    <ProfilePage />
-                                                </ProtectedRoute>
-                                            }
-                                        />
-                                        <Route
-                                            path="/balance"
-                                            element={
-                                                <ProtectedRoute>
-                                                    <BalancePage />
-                                                </ProtectedRoute>
-                                            }
-                                        />
-                                        <Route
-                                            path="/dashboard"
-                                            element={
-                                                <ProtectedRoute>
-                                                    <DashboardPage />
-                                                </ProtectedRoute>
-                                            }
-                                        />
-                                        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-                                    </Routes>
-                                </Box>
-                            </Box>
-                            {/*<LoadingOverlay />*/}
+                            <Routes>
+                                {/* Public - bez headera i menu */}
+                                <Route element={<GuestOnlyRoute />}>
+                                    <Route path="/login" element={<LoginPage />} />
+                                    <Route path="/register" element={<RegisterPage />} />
+                                </Route>
+
+                                {/* Protected z menu bocznym i headerem */}
+                                <Route element={<ProtectedRoute />}>
+                                    <Route element={<DashboardLayout />}>
+                                        <Route path="/dashboard" element={<DashboardPage />} />
+                                        <Route path="/profile" element={<ProfilePage />} />
+                                        <Route path="/balance" element={<BalancePage />} />
+                                        <Route path="/accounts" element={<AccountPage />} />
+                                        <Route path="/accounts/:id" element={<AccountViewPage />} />
+                                    </Route>
+                                </Route>
+
+                                <Route path="*" element={<Navigate to="/dashboard" replace />} />
+                            </Routes>
                         </LoadingProvider>
                     </ToastProvider>
                 </AuthProvider>

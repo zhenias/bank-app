@@ -9,6 +9,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
  * @property Account $resource
+ *
  * @tag Account
  */
 class AccountResource extends JsonResource

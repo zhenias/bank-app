@@ -28,7 +28,7 @@ class Account extends Model
     protected function casts(): array
     {
         return [
-            'balance' => 'decimal:2',
+            'balance' => 'integer',
         ];
     }
 
@@ -58,8 +58,28 @@ class Account extends Model
             ->orWhere('to_account_id', $this->id);
     }
 
+    public function getBalanceInZlotyAttribute(): float
+    {
+        return $this->balance / 100;
+    }
+
     public function getFormattedBalanceAttribute(): string
     {
-        return number_format($this->balance / 100, 2, '.', '') . ' ' . $this->currency;
+        return number_format($this->balance / 100, 2, ',', ' ') . ' ' . $this->currency;
+    }
+
+    public function deposit(int $amountInCents): void
+    {
+        $this->balance += $amountInCents;
+        $this->save();
+    }
+
+    public function withdraw(int $amountInCents): void
+    {
+        if ($this->balance < $amountInCents) {
+            throw new \Exception('Insufficient funds.');
+        }
+        $this->balance -= $amountInCents;
+        $this->save();
     }
 }

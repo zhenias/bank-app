@@ -1,4 +1,4 @@
-import { Navigate } from 'react-router-dom';
+import {Navigate, Outlet} from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 export const GuestOnlyRoute = ({ children }: any) => {
@@ -16,5 +16,5 @@ export const GuestOnlyRoute = ({ children }: any) => {
         return <Navigate to="/" replace />;
     }
 
-    return children;
+    return <Outlet />;
 };

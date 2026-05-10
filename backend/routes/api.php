@@ -9,13 +9,13 @@ use Laravel\Passport\Http\Middleware\CheckToken;
 
 Route::prefix('/')->group(function () {
     return response()->json([
-        'message' => 'Access denied.'
+        'message' => 'Access denied.',
     ]);
 });
 
 Route::middleware(['auth:api'])->group(function () {
     Route::prefix('/user')->group(function () {
-        Route::middleware('guest')->withoutMiddleware(['auth:api'])->group(function () {
+        Route::middleware('guest')->withoutMiddleware(['auth:api', 'verified'])->group(function () {
             Route::post('/register', [ProfileController::class, 'create']);
         });
 
@@ -40,4 +40,5 @@ Route::middleware(['auth:api'])->group(function () {
     Route::get('cards/{card}', [CardController::class, 'show']);
     Route::patch('cards/{card}/block', [CardController::class, 'block']);
     Route::patch('cards/{card}/unblock', [CardController::class, 'unblock']);
+    Route::delete('cards/{card}', [CardController::class, 'destroy']);
 });

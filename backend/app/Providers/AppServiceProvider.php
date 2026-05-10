@@ -37,7 +37,8 @@ class AppServiceProvider extends ServiceProvider
 
         Passport::tokensCan([
             // Podstawowe informacje o użytkowniku
-            'user-profile' => 'Odczyt podstawowych danych profilu',
+            'user-profile'        => 'Odczyt podstawowych danych profilu',
+            'user-profile-manage' => 'Edycja podstawowych danych profilu, oraz usuwanie i edycja konta.',
 
             // Informacje finansowe
             'balance-view'    => 'Odczyt bieżącego salda konta',
@@ -60,6 +61,7 @@ class AppServiceProvider extends ServiceProvider
             'accounts-view'      => 'Odczyt listy kont bankowych',
             'accounts-details'   => 'Odczyt szczegółów konta (numer, typ, waluta)',
             'accounts-statement' => 'Pobieranie wyciągów bankowych',
+            'accounts-manage'    => 'Zarządzanie kontami (tworzenia, edycja, usuwanie)',
 
             // Blik / Płatności mobilne
             'blik-generate' => 'Generowanie kodu BLIK',

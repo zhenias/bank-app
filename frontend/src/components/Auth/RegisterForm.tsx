@@ -31,14 +31,6 @@ export const RegisterForm = ({ onRegister, onSwitchToLogin }: RegisterFormProps)
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setError('');
-
-        if (password !== passwordConfirmation) {
-            const errorMessage = 'Hasła nie są takie same';
-            setError(errorMessage);
-            showError(errorMessage);
-            return;
-        }
-
         startLoading();
 
         try {
@@ -52,6 +44,14 @@ export const RegisterForm = ({ onRegister, onSwitchToLogin }: RegisterFormProps)
         } finally {
             stopLoading();
         }
+    };
+
+    const canRegister = () => {
+        return (
+            name.length > 0 &&
+            email.length > 0 &&
+            password.length > 0
+        );
     };
 
     return (
@@ -131,6 +131,8 @@ export const RegisterForm = ({ onRegister, onSwitchToLogin }: RegisterFormProps)
                         onChange={(e) => setPasswordConfirmation(e.target.value)}
                         required
                         disabled={isLoading}
+                        error={passwordConfirmation.length > 0 && password !== passwordConfirmation}
+                        helperText={passwordConfirmation.length > 0 && password !== passwordConfirmation ? 'Hasła nie są zgodne' : ''}
                         variant="outlined"
                     />
 
@@ -139,7 +141,7 @@ export const RegisterForm = ({ onRegister, onSwitchToLogin }: RegisterFormProps)
                         fullWidth
                         variant="contained"
                         size="large"
-                        disabled={isLoading}
+                        disabled={isLoading || !canRegister()}
                         startIcon={isLoading ? <LoadingSpinner text="Rejestracja..." /> : <PersonAdd />}
                         sx={{ mt: 2, py: 1.5 }}
                     >

@@ -99,10 +99,10 @@ return [
 
     'security' => [
         'bearer' => [
-            'type' => 'http',
-            'scheme' => 'bearer',
+            'type'         => 'http',
+            'scheme'       => 'bearer',
             'bearerFormat' => 'JWT',
-            'description' => 'Wprowadź token JWT: **Bearer {token}**',
+            'description'  => 'Wprowadź token JWT: **Bearer {token}**',
         ],
     ],
 
@@ -143,8 +143,8 @@ return [
     'flatten_deep_query_parameters' => true,
 
     'middleware' => [
-//        'web',
-//         RestrictedDocsAccess::class,
+        //        'web',
+        //         RestrictedDocsAccess::class,
     ],
 
     'extensions' => [],

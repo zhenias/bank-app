@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\User;
 
-use App\Rules\Password\CurrentPassword;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
@@ -36,8 +35,8 @@ class RegisterUserRequest extends FormRequest
                     ->letters()
                     ->mixedCase()
                     ->numbers()
-                    ->symbols()
-//                    ->uncompromised(),
+                    ->symbols(),
+                //                    ->uncompromised(),
             ],
         ];
     }

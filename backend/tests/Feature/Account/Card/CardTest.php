@@ -19,7 +19,7 @@ class CardTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->user = User::factory()->create();
+        $this->user    = User::factory()->create();
         $this->account = Account::factory()->create(['user_id' => $this->user->id]);
     }
 
@@ -94,7 +94,7 @@ class CardTest extends TestCase
 
         $this->assertDatabaseHas('cards', [
             'account_id' => $this->account->id,
-            'status' => 'active',
+            'status'     => 'active',
         ]);
     }
 
@@ -111,7 +111,7 @@ class CardTest extends TestCase
         // Format: 4532 **** **** 9012
         $this->assertMatchesRegularExpression(
             '/^\d{4} \*{4} \*{4} \d{4}$/',
-            $cardNumber
+            $cardNumber,
         );
     }
 
@@ -123,7 +123,7 @@ class CardTest extends TestCase
 
         $response->assertStatus(201);
 
-        $expYear = $response->json('data.exp_year');
+        $expYear     = $response->json('data.exp_year');
         $currentYear = (int) now()->format('Y');
 
         $this->assertGreaterThanOrEqual($currentYear, $expYear);
@@ -132,7 +132,7 @@ class CardTest extends TestCase
     public function testMasksCardNumberInResponse(): void
     {
         Card::factory()->create([
-            'account_id' => $this->account->id,
+            'account_id'  => $this->account->id,
             'card_number' => '4532123456789012',
         ]);
 
@@ -149,7 +149,7 @@ class CardTest extends TestCase
     {
         Card::factory()->create([
             'account_id' => $this->account->id,
-            'cvv' => '123',
+            'cvv'        => '123',
         ]);
 
         Passport::actingAs($this->user);
@@ -163,7 +163,7 @@ class CardTest extends TestCase
     public function testShowsCardDetails(): void
     {
         $card = Card::factory()->create([
-            'account_id' => $this->account->id,
+            'account_id'  => $this->account->id,
             'card_number' => '5214123456789012',
         ]);
 
@@ -195,7 +195,7 @@ class CardTest extends TestCase
     {
         $card = Card::factory()->create([
             'account_id' => $this->account->id,
-            'status' => 'active',
+            'status'     => 'active',
         ]);
 
         Passport::actingAs($this->user);
@@ -206,7 +206,7 @@ class CardTest extends TestCase
             ->assertJsonPath('data.status', 'blocked');
 
         $this->assertDatabaseHas('cards', [
-            'id' => $card->id,
+            'id'     => $card->id,
             'status' => 'blocked',
         ]);
     }
@@ -215,7 +215,7 @@ class CardTest extends TestCase
     {
         $card = Card::factory()->create([
             'account_id' => $this->account->id,
-            'status' => 'blocked',
+            'status'     => 'blocked',
         ]);
 
         Passport::actingAs($this->user);
@@ -226,16 +226,16 @@ class CardTest extends TestCase
             ->assertJsonPath('data.status', 'active');
 
         $this->assertDatabaseHas('cards', [
-            'id' => $card->id,
+            'id'     => $card->id,
             'status' => 'active',
         ]);
     }
 
     public function testCannotAccessCardFromOtherUser(): void
     {
-        $otherUser = User::factory()->create();
+        $otherUser    = User::factory()->create();
         $otherAccount = Account::factory()->create(['user_id' => $otherUser->id]);
-        $card = Card::factory()->create(['account_id' => $otherAccount->id]);
+        $card         = Card::factory()->create(['account_id' => $otherAccount->id]);
 
         Passport::actingAs($this->user);
 
@@ -246,9 +246,9 @@ class CardTest extends TestCase
 
     public function testCannotBlockCardFromOtherUser(): void
     {
-        $otherUser = User::factory()->create();
+        $otherUser    = User::factory()->create();
         $otherAccount = Account::factory()->create(['user_id' => $otherUser->id]);
-        $card = Card::factory()->create(['account_id' => $otherAccount->id]);
+        $card         = Card::factory()->create(['account_id' => $otherAccount->id]);
 
         Passport::actingAs($this->user);
 

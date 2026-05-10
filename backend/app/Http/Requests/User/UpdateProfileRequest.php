@@ -36,8 +36,8 @@ class UpdateProfileRequest extends FormRequest
                     ->letters()
                     ->mixedCase()
                     ->numbers()
-                    ->symbols()
-//                    ->uncompromised(),
+                    ->symbols(),
+                //                    ->uncompromised(),
             ],
             'old_password' => ['required_with:password', 'string', 'max:255', new CurrentPassword()],
         ];

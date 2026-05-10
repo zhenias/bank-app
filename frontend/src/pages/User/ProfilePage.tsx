@@ -12,7 +12,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import {LoadingSpinner} from "../../components/Assets/Svg/LoadingSpinner";
 import {useToast} from "../../context/ToastContext";
 import {useLoading} from "../../context/LoadingContext";
-import {formatDate, formatDateShort} from "../../hooks/formatedDate";
+import {formatDate, formatDateShort} from "../../utils/formatedDate";
 import {updateUserProfile} from "../../services/authService";
 import {ProfileUpdateData} from "../../types/types";
 
@@ -81,13 +81,19 @@ export const ProfilePage = () => {
             </Box>
 
             <Grid container spacing={3}>
-                {error && (
-                    <Alert severity="error" sx={{ mb: 2 }}>
-                        {error}
-                    </Alert>
-                )}
-
                 <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: '50%', mx: 'auto' }}>
+                    {!user?.email_verified_at && (
+                        <Alert severity="warning" sx={{ mb: 2 }}>
+                            Twój adres email nie został zweryfikowany. Sprawdź skrzynkę odbiorczą.
+                        </Alert>
+                    )}
+
+                    {error && (
+                        <Alert severity="error" sx={{ mb: 2 }}>
+                            {error}
+                        </Alert>
+                    )}
+
                     <TextField
                         fullWidth
                         label="Imię i nazwisko"
@@ -121,6 +127,23 @@ export const ProfilePage = () => {
                                 readOnly: true,
                             }
                         }}
+                    />
+
+                    <TextField
+                        fullWidth
+                        label="Data zweryfikowania konta"
+                        value={user?.email_verified_at ? formatDate(user.email_verified_at) : 'Niezweryfikowano - wymaga uwagi'}
+                        disabled
+                        variant="outlined"
+                        slotProps={{
+                            input: {
+                                readOnly: true,
+                                sx: !user?.email_verified_at ? {
+                                    color: 'warning.main',
+                                } : {},
+                            },
+                        }}
+                        helperText={!user?.email_verified_at ? 'Kliknij link weryfikacyjny wysłany na email' : ''}
                     />
 
                     <Divider sx={{ my: 2 }} />

@@ -13,11 +13,12 @@ use Dedoc\Scramble\Attributes\BodyParameter;
 use Dedoc\Scramble\Attributes\PathParameter;
 use Dedoc\Scramble\Attributes\QueryParameter;
 use Illuminate\Http\JsonResponse;
+use Laravel\Passport\Attributes\AuthorizeToken;
 
 /**
  * Zarządzanie kontem bankowym.
  *
- * @tags Account
+ * @tags Konto bankowe
  */
 class AccountController extends Controller
 {
@@ -31,6 +32,7 @@ class AccountController extends Controller
     /**
      * Wyświetla listę kont bankowych użytkownika.
      */
+    #[AuthorizeToken(['accounts-view'], anyScope: true)]
     #[QueryParameter('per_page', description: 'Ilość elementów na stronę.', type: 'int', default: 20, example: 30)]
     #[QueryParameter('page', description: 'Numer obecnej strony.', type: 'int', default: 1, example: 2)]
     public function index()
@@ -39,13 +41,14 @@ class AccountController extends Controller
             ->with('cards');
 
         return AccountResource::collection(
-            $this->paginate($accounts)
+            $this->paginate($accounts),
         );
     }
 
     /**
      * Tworzy nowe konto bankowe dla użytkownika.
      */
+    #[AuthorizeToken(['accounts-manage'], anyScope: true)]
     #[BodyParameter('name', description: 'Nazwa konta', type: 'string', example: 'Konto oszczędnościowe')]
     #[BodyParameter('currency', description: 'Waluta konta', type: 'string', example: 'PLN')]
     #[BodyParameter('type', description: 'Typ konta', type: 'string', example: 'current')]
@@ -68,6 +71,7 @@ class AccountController extends Controller
     /**
      * Wyświetla szczegóły konta bankowego, w tym powiązane karty.
      */
+    #[AuthorizeToken(['accounts-details'], anyScope: true)]
     #[PathParameter('account', description: 'Account being viewed', type: 'string', format: 'uuid', example: '550e8400-e29b-41d4-a716-446655440000')]
     public function show(Account $account): AccountResource
     {
@@ -77,6 +81,7 @@ class AccountController extends Controller
     /**
      * Aktualizuje nazwę konta bankowego.
      */
+    #[AuthorizeToken(['accounts-manage'], anyScope: true)]
     #[PathParameter('account', description: 'ID konta bankowego', type: 'string', format: 'uuid', example: '550e8400-e29b-41d4-a716-446655440000')]
     #[BodyParameter('name', description: 'Nowa nazwa konta', type: 'string', example: 'Konto oszczędnościowe')]
     public function update(UpdateAccountRequest $request, Account $account): AccountResource
@@ -89,6 +94,7 @@ class AccountController extends Controller
     /**
      * Usuwa konto bankowe, zamykając je.
      */
+    #[AuthorizeToken(['accounts-manage'], anyScope: true)]
     #[PathParameter('account', description: 'ID konta bankowego', type: 'string', format: 'uuid', example: '550e8400-e29b-41d4-a716-446655440000')]
     public function destroy(Account $account): JsonResponse
     {

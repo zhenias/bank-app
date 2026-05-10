@@ -21,6 +21,11 @@ if [ ! -f "vendor/autoload.php" ]; then
 fi
 
 # Generate app key if not exists
+if [ ! -f .env ]; then
+    echo "📄 Creating .env from .env.example..."
+    cp .env.example .env
+fi
+
 if [ -z "$APP_KEY" ] || [ "$APP_KEY" = "" ]; then
     echo "🔑 Generating APP_KEY..."
     php artisan key:generate --force

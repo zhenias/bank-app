@@ -21,7 +21,7 @@ use Laravel\Passport\HasApiTokens;
 
 #[Fillable(['id', 'name', 'email', 'password'])]
 #[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable implements OAuthenticatable
+class User extends Authenticatable implements OAuthenticatable, MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory;

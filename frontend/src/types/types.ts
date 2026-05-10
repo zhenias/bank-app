@@ -8,6 +8,38 @@ export interface User {
     updated_at?: string;
 }
 
+// Pagination
+export interface PaginationLink {
+    url: string | null;
+    label: string;
+    page: number | null;
+    active: boolean;
+}
+
+export interface PaginationMeta {
+    current_page: number;
+    from: number | null;
+    last_page: number;
+    links: PaginationLink[];
+    path: string;
+    per_page: number;
+    to: number | null;
+    total: number;
+}
+
+export interface PaginationLinks {
+    first: string;
+    last: string;
+    prev: string | null;
+    next: string | null;
+}
+
+export interface PaginationResponse<T> {
+    data: T[];
+    links: PaginationLinks;
+    meta: PaginationMeta;
+}
+
 // Authentication types
 export interface LoginCredentials {
     email: string;
@@ -41,7 +73,9 @@ export interface ApiResponse<T = any> {
 }
 
 export interface ApiError {
-    message: string;
+    status?: string,
+    message?: string;
+    code?: number,
     errors?: Record<string, string[]>;
 }
 
@@ -130,4 +164,39 @@ export interface LoadingContextType {
     isLoading: boolean;
     startLoading: () => void;
     stopLoading: () => void;
+}
+
+// Accounts
+export interface Account {
+    id: string;
+    name: string;
+    account_number: string;
+    balance: string;
+    currency: string;
+    type: string;
+    cards: Card[];
+    created_at: string;
+    updated_at: string;
+}
+
+export interface Card {
+    id: string;
+    card_number: string;
+    card_last_four: string;
+    exp_month: number;
+    exp_year: number;
+    network: string;
+    type: string;
+    status: string;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface Transaction {
+    id: string;
+    amount: number;
+    description: string;
+    type: string;
+    status: string;
+    created_at: string;
 }

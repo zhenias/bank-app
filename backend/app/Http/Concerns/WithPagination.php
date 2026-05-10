@@ -61,7 +61,7 @@ trait WithPagination
     {
         return [
             'per_page' => $this->perPage(),
-            'page' => $this->currentPage(),
+            'page'     => $this->currentPage(),
         ];
     }
 
@@ -73,16 +73,16 @@ trait WithPagination
     {
         return [
             'per_page' => [
-                'type' => 'integer',
+                'type'        => 'integer',
                 'description' => 'Ilość elementów na stronę (1-100).',
-                'default' => 20,
-                'example' => 10,
+                'default'     => 20,
+                'example'     => 10,
             ],
             'page' => [
-                'type' => 'integer',
+                'type'        => 'integer',
                 'description' => 'Numer strony.',
-                'default' => 1,
-                'example' => 2,
+                'default'     => 1,
+                'example'     => 2,
             ],
         ];
     }

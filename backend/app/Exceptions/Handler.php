@@ -12,6 +12,7 @@ use Illuminate\Validation\ValidationException;
 use Laravel\Passport\Exceptions\MissingScopeException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
@@ -38,6 +39,14 @@ class Handler extends ExceptionHandler
             return response()->json([
                 'status'  => 'error',
                 'message' => 'Insufficient permissions to access this resource.',
+                'code'    => 403,
+            ], 403);
+        }
+
+        if ($e instanceof HttpException) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => $e->getMessage(),
                 'code'    => 403,
             ], 403);
         }

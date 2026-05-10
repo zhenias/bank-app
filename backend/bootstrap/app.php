@@ -54,9 +54,9 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
         ]);
     })
-//    ->withSingletons([
-//        \Illuminate\Contracts\Debug\ExceptionHandler::class => \App\Exceptions\Handler::class,
-//    ])
+    ->withSingletons([
+        \Illuminate\Contracts\Debug\ExceptionHandler::class => \App\Exceptions\Handler::class,
+    ])
 //    ->withSingletons([
 //        Illuminate\Contracts\Debug\ExceptionHandler::class => Illuminate\Foundation\Exceptions\Handler::class,
 //    ])

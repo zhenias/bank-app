@@ -57,4 +57,12 @@ class CardService extends Service
 
         return $card->fresh();
     }
+
+    /**
+     * Delete a card.
+     */
+    public function deleteCard(Card $card): void
+    {
+        $card->delete();
+    }
 }

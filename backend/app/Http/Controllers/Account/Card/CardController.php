@@ -11,13 +11,13 @@ use App\Services\Account\Card\CardService;
 use Dedoc\Scramble\Attributes\PathParameter;
 use Dedoc\Scramble\Attributes\QueryParameter;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Validation\UnauthorizedException;
+use Laravel\Passport\Attributes\AuthorizeToken;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
  * Zarządzanie kartami płatniczymi.
  *
- * @tags Card
+ * @tags Karty
  *
  * @queryParam account integer ID konta, do którego przypisana jest karta. Required. Example: "123e4567-e89b-12d3-a456-426614174000"
  */
@@ -33,6 +33,7 @@ class CardController extends Controller
     /**
      * Wyświetla listę kart płatniczych przypisanych do konta.
      */
+    #[AuthorizeToken(['cards-view'], anyScope: true)]
     #[QueryParameter('per_page', description: 'Ilość elementów na stronę.', type: 'int', default: 20, example: 30)]
     #[QueryParameter('page', description: 'Numer obecnej strony.', type: 'int', default: 1, example: 2)]
     #[PathParameter('account', description: 'ID konta', type: 'string', format: 'uuid', example: '550e8400-e29b-41d4-a716-446655440000')]
@@ -45,13 +46,14 @@ class CardController extends Controller
         $cards = $account->cards();
 
         return CardResource::collection(
-            $this->paginate($cards)
+            $this->paginate($cards),
         );
     }
 
     /**
      * Tworzy nową kartę płatniczą dla konta.
      */
+    #[AuthorizeToken(['cards-manage'], anyScope: true)]
     #[PathParameter('account', description: 'ID konta', type: 'string', format: 'uuid', example: '550e8400-e29b-41d4-a716-446655440000')]
     public function store(Account $account): JsonResponse
     {
@@ -69,6 +71,7 @@ class CardController extends Controller
     /**
      * Wyświetla szczegóły karty płatniczej.
      */
+    #[AuthorizeToken(['cards-details'], anyScope: true)]
     #[PathParameter('card', description: 'ID karty', type: 'string', format: 'uuid', example: '550e8400-e29b-41d4-a716-446655440000')]
     public function show(Card $card): CardResource
     {
@@ -82,6 +85,7 @@ class CardController extends Controller
     /**
      * Blokuje kartę płatniczą.
      */
+    #[AuthorizeToken(['cards-manage'], anyScope: true)]
     #[PathParameter('card', description: 'ID karty', type: 'string', format: 'uuid', example: '550e8400-e29b-41d4-a716-446655440000')]
     public function block(Card $card): CardResource
     {
@@ -97,6 +101,7 @@ class CardController extends Controller
     /**
      * Odblokowuje kartę płatniczą.
      */
+    #[AuthorizeToken(['cards-manage'], anyScope: true)]
     #[PathParameter('card', description: 'ID karty', type: 'string', format: 'uuid', example: '550e8400-e29b-41d4-a716-446655440000')]
     public function unblock(Card $card): CardResource
     {
@@ -107,5 +112,21 @@ class CardController extends Controller
         $card = $this->cardService->unblockCard($card);
 
         return new CardResource($card);
+    }
+
+    /**
+     * Odblokowuje kartę płatniczą.
+     */
+    #[AuthorizeToken(['cards-manage'], anyScope: true)]
+    #[PathParameter('card', description: 'ID karty', type: 'string', format: 'uuid', example: '550e8400-e29b-41d4-a716-446655440000')]
+    public function destroy(Card $card)
+    {
+        if ($card->account->user_id !== auth()->id()) {
+            throw new AccessDeniedHttpException('Card not found or access denied.');
+        }
+
+        $this->cardService->deleteCard($card);
+
+        return response()->json(null, 200);
     }
 }
