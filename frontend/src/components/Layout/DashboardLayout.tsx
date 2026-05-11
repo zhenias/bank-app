@@ -141,6 +141,7 @@ export const DashboardLayout = () => {
                 variant="persistent"
                 anchor="left"
                 open={open}
+                onClose={handleClose}
                 sx={{
                     width: DRAWER_WIDTH,
                     flexShrink: 0,
@@ -149,6 +150,7 @@ export const DashboardLayout = () => {
                         boxSizing: 'border-box',
                         mt: 8,
                         borderRadius: 0,
+                        height: 'calc(100% - 64px)',
                     },
                 }}
             >
@@ -186,8 +188,8 @@ export const DashboardLayout = () => {
                     flexGrow: 1,
                     p: 3,
                     mt: 8,
-                    width: open ? `calc(100% - ${DRAWER_WIDTH}px)` : '100%',
-                    transition: 'margin-left 0.3s',
+                    width: '100%',
+                    maxWidth: '100%',
                 }}
             >
                 <Outlet />

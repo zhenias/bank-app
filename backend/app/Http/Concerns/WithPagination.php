@@ -5,18 +5,12 @@ namespace App\Http\Concerns;
 use Dedoc\Scramble\Attributes\QueryParameter;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Contracts\Pagination\Paginator;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Database\Query\Builder as QueryBuilder;
+use Illuminate\Database\Eloquent\Relations\Relation;
 
-#[QueryParameter('per_page', description: 'Number of items per page.', type: 'int', default: 10, example: 20)]
-#[QueryParameter('page', description: 'Current page number.', type: 'int', default: 1, example: 2)]
 trait WithPagination
 {
-    /**
-     * Get the number of items per page from request.
-     * Default: 20, Max: 100, Min: 1.
-     *
-     * @query per_page integer
-     */
     protected function perPage(): int
     {
         $perPage = request()->integer('per_page', 20);
@@ -24,18 +18,12 @@ trait WithPagination
         return max(1, min(100, $perPage));
     }
 
-    /**
-     * Get the current page from request.
-     */
     protected function currentPage(): int
     {
         return request()->integer('page', 1);
     }
 
-    /**
-     * Paginate a query with all request parameters.
-     */
-    protected function paginate($query): LengthAwarePaginator
+    protected function paginate(EloquentBuilder|QueryBuilder|Relation $query): LengthAwarePaginator
     {
         return $query->paginate(
             perPage: $this->perPage(),
@@ -43,10 +31,7 @@ trait WithPagination
         );
     }
 
-    /**
-     * Simple paginate (only next/prev, no total count).
-     */
-    protected function simplePaginate(Builder $query): Paginator
+    protected function simplePaginate(EloquentBuilder|QueryBuilder|Relation $query): Paginator
     {
         return $query->simplePaginate(
             perPage: $this->perPage(),
@@ -54,9 +39,6 @@ trait WithPagination
         );
     }
 
-    /**
-     * Get pagination parameters as array.
-     */
     protected function paginationParams(): array
     {
         return [
@@ -65,10 +47,6 @@ trait WithPagination
         ];
     }
 
-    /**
-     * Register pagination query parameters for Scramble documentation.
-     * Call this in controller's __construct or method docblock.
-     */
     public static function paginationQueryParams(): array
     {
         return [
