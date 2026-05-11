@@ -46,7 +46,20 @@ export const getAccount = async (id: string): Promise<Account> => {
     return (await response.json()).data;
 };
 
+export const getDeleteAccount = async (id: string) => {
+    const response = await fetchWithAuth(`/accounts/${id}`, {
+        method: 'DELETE',
+    });
 
+    if (!response.ok) {
+        const error: ApiError = await response.json();
+        throw new Error(error.message || 'Błąd usuwania konta');
+    }
+
+    return await response.json();
+};
+
+// Card
 export const getCards = async (accountId: string): Promise<PaginationResponse<Card>> => {
     const response = await fetchWithAuth(`/accounts/${accountId}/cards`, {
         method: 'GET',

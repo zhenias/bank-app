@@ -29,6 +29,8 @@ import {
 } from '@mui/icons-material';
 import { getAccounts, createAccount } from '../../services/accountService';
 import type { Account, PaginationMeta } from '../../types/types';
+import {formatMoney} from "../../utils/formatMoney";
+import {formatAccountNumber, isValidAccountNumber} from "../../utils/formatAccount";
 
 export const AccountPage = () => {
     const [accounts, setAccounts] = useState<Account[]>([]);
@@ -43,7 +45,7 @@ export const AccountPage = () => {
     const [submitting, setSubmitting] = useState(false);
     const [formError, setFormError] = useState<string | null>(null);
     const [formData, setFormData] = useState({
-        name: 'Konto moje na dzisiaj',
+        name: 'Konto bieżące',
         currency: 'PLN',
         type: 'current',
         with_card: true,
@@ -53,7 +55,7 @@ export const AccountPage = () => {
         setLoading(true);
         setError(null);
         try {
-            const response = await getAccounts();
+            const response = await getAccounts(pageNumber);
             setAccounts(response.data);
             setMeta(response.meta);
         } catch (err: any) {
@@ -164,11 +166,11 @@ export const AccountPage = () => {
                                         <CardContent>
                                             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
                                                 <Box>
-                                                    <Typography variant="h6" gutterBottom>
+                                                    <Typography variant="h6" sx={{ textAlign: 'left' }} gutterBottom>
                                                         {account.name}
                                                     </Typography>
                                                     <Typography variant="body2" color="text.secondary" sx={{ wordBreak: 'break-all' }}>
-                                                        {account.account_number.replace(/(\d{2})(\d{4})(\d{4})(\d{4})(\d{4})(\d{4})(\d{4})/, '$1 $2 $3 $4 $5 $6 $7')}
+                                                        {formatAccountNumber(account.account_number)}
                                                     </Typography>
                                                 </Box>
                                                 <Chip
@@ -256,11 +258,8 @@ export const AccountPage = () => {
                             onChange={handleFormChange}
                             select
                             fullWidth
-                            disabled
                         >
                             <MenuItem value="PLN">PLN - Polski złoty</MenuItem>
-                            <MenuItem value="EUR">EUR - Euro</MenuItem>
-                            <MenuItem value="USD">USD - Dolar amerykański</MenuItem>
                         </TextField>
                         <TextField
                             name="type"
@@ -279,7 +278,7 @@ export const AccountPage = () => {
                                     name="with_card"
                                     checked={formData.with_card}
                                     onChange={handleFormChange}
-                                    disabled
+                                    required
                                 />
                             }
                             label="Utwórz kartę debetową do konta"

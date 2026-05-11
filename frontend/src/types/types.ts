@@ -171,7 +171,7 @@ export interface Account {
     id: string;
     name: string;
     account_number: string;
-    balance: string;
+    balance: number;
     currency: string;
     type: string;
     cards: Card[];

@@ -44,14 +44,17 @@ import {
     createCard,
     blockCard,
     unblockCard,
-    deleteCard,
+    deleteCard, getDeleteAccount,
 } from '../../services/accountService';
 import type { Account, Card } from '../../types/types';
-import {formatDate, formatDateShort} from "../../utils/formatedDate";
+import {formatDate, formatDateShort} from "../../utils/formatDate";
+import {formatAccountNumber} from "../../utils/formatAccount";
+import {useToast} from "../../context/ToastContext";
 
 export const AccountViewPage = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
+    const { showError, showSuccess } = useToast();
 
     const [account, setAccount] = useState<Account | null>(null);
     const [cards, setCards] = useState<Card[]>([]);
@@ -66,6 +69,9 @@ export const AccountViewPage = () => {
 
     // Delete confirmation
     const [deleteCardId, setDeleteCardId] = useState<string | null>(null);
+
+    // Delete account configmation
+    const [deleteAccountId, setDeleteAccountId] = useState<string | null>(null);
 
     const loadData = async () => {
         if (!id) return;
@@ -118,6 +124,18 @@ export const AccountViewPage = () => {
         }
     };
 
+    const handleDeleteAccount = async () => {
+        if (!deleteAccountId) return;
+        try {
+            await getDeleteAccount(deleteAccountId);
+            setDeleteAccountId(null);
+            navigate('/accounts');
+            showSuccess('Konto bankowe zostało usunięte.');
+        } catch (err: any) {
+            setError(err.message);
+        }
+    };
+
     const handleAddCard = async () => {
         if (!id) return;
         setSubmitting(true);
@@ -158,10 +176,6 @@ export const AccountViewPage = () => {
         return type === 'savings' ? 'Oszczędnościowe' : 'Bieżące';
     };
 
-    const formatAccountNumber = (number: string): string => {
-        return number.replace(/(\d{2})(\d{4})(\d{4})(\d{4})(\d{4})(\d{4})(\d{4})/, '$1 $2 $3 $4 $5 $6 $7');
-    };
-
     if (loading) {
         return (
             <Box>
@@ -183,22 +197,22 @@ export const AccountViewPage = () => {
     }
 
     return (
-        <Box>
-            <Button startIcon={<BackIcon />} onClick={() => navigate('/accounts')} sx={{ mb: 3 }}>
+        <Box sx={{ textAlign: 'left' }}>
+            <Button startIcon={<BackIcon/>} onClick={() => navigate('/accounts')} sx={{mb: 3}}>
                 Powrót do kont
             </Button>
 
-            {error && <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>{error}</Alert>}
+            {error && <Alert severity="error" sx={{mb: 2}} onClose={() => setError(null)}>{error}</Alert>}
 
             {/* Account Details Card */}
-            <CardPage sx={{ mb: 4 }}>
+            <CardPage sx={{mb: 4}}>
                 <CardContent>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
+                    <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3}}>
                         <Box>
-                            <Typography variant="h4" gutterBottom>
+                            <Typography variant="h4" sx={{textAlign: 'left'}} gutterBottom>
                                 {account.name}
                             </Typography>
-                            <Typography variant="body1" color="text.secondary" sx={{ fontFamily: 'monospace', fontSize: '1.1rem' }}>
+                            <Typography variant="body1" color="text.secondary" sx={{fontFamily: 'monospace', fontSize: '1.1rem'}}>
                                 {formatAccountNumber(account.account_number)}
                             </Typography>
                         </Box>
@@ -210,38 +224,42 @@ export const AccountViewPage = () => {
                     </Box>
 
                     <Grid container spacing={4}>
-                        <Grid size={{ xs: 12, sm: 4 }}>
+                        <Grid size={{xs: 12, sm: 4}}>
                             <Typography variant="body2" color="text.secondary">Saldo</Typography>
                             <Typography variant="h4">
                                 {account.balance} {account.currency}
                             </Typography>
                         </Grid>
-                        <Grid size={{ xs: 12, sm: 4 }}>
+                        <Grid size={{xs: 12, sm: 4}}>
                             <Typography variant="body2" color="text.secondary">Waluta</Typography>
                             <Typography variant="h6">{account.currency}</Typography>
                         </Grid>
-                        <Grid size={{ xs: 12, sm: 4 }}>
+                        <Grid size={{xs: 12, sm: 4}}>
                             <Typography variant="body2" color="text.secondary">Utworzono</Typography>
                             <Typography variant="h6">
                                 {formatDate(account.created_at)}
                             </Typography>
                         </Grid>
+
+                        <IconButton color="default" size="small" onClick={() => setDeleteAccountId(account.id)} title="Usuń">
+                            <DeleteIcon/>
+                        </IconButton>
                     </Grid>
                 </CardContent>
             </CardPage>
 
             {/* Cards Section */}
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2}}>
                 <Typography variant="h5">
-                    <CardIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
+                    <CardIcon sx={{mr: 1, verticalAlign: 'middle'}}/>
                     Karty ({cards.length})
                 </Typography>
-                <Button variant="contained" startIcon={<AddIcon />} size="small" onClick={() => setOpenAddDialog(true)}>
+                <Button variant="contained" startIcon={<AddIcon/>} size="small" onClick={() => setOpenAddDialog(true)}>
                     Dodaj kartę
                 </Button>
             </Box>
 
-            <Divider sx={{ mb: 3 }} />
+            <Divider sx={{mb: 3}}/>
 
             {cards.length > 0 ? (
                 <TableContainer component={Paper} variant="outlined">
@@ -259,8 +277,8 @@ export const AccountViewPage = () => {
                             {cards.map((card) => (
                                 <TableRow key={card.id} hover>
                                     <TableCell>
-                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                            <CardIcon color="action" />
+                                        <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
+                                            <CardIcon color="action"/>
                                             <Box>
                                                 <Typography variant="body1">
                                                     •••• {card.card_last_four}
@@ -272,7 +290,7 @@ export const AccountViewPage = () => {
                                         </Box>
                                     </TableCell>
                                     <TableCell>
-                                        <Chip label={card.network.toUpperCase()} size="small" variant="outlined" />
+                                        <Chip label={card.network.toUpperCase()} size="small" variant="outlined"/>
                                     </TableCell>
                                     <TableCell>
                                         {String(card.exp_month).padStart(2, '0')}/{card.exp_year}
@@ -285,19 +303,22 @@ export const AccountViewPage = () => {
                                         />
                                     </TableCell>
                                     <TableCell align="right">
-                                        <Stack direction="row" spacing={0.5} sx={{ justifyContent: 'flex-end' }}>
+                                        <Stack direction="row" spacing={0.5} sx={{justifyContent: 'flex-end'}}>
                                             {card.status === 'active' && (
-                                                <IconButton color="error" size="small" onClick={() => handleBlockCard(card.id)} title="Zablokuj">
-                                                    <BlockIcon />
+                                                <IconButton color="error" size="small"
+                                                            onClick={() => handleBlockCard(card.id)} title="Zablokuj">
+                                                    <BlockIcon/>
                                                 </IconButton>
                                             )}
                                             {card.status === 'blocked' && (
-                                                <IconButton color="success" size="small" onClick={() => handleUnblockCard(card.id)} title="Odblokuj">
-                                                    <UnblockIcon />
+                                                <IconButton color="success" size="small"
+                                                            onClick={() => handleUnblockCard(card.id)} title="Odblokuj">
+                                                    <UnblockIcon/>
                                                 </IconButton>
                                             )}
-                                            <IconButton color="default" size="small" onClick={() => setDeleteCardId(card.id)} title="Usuń">
-                                                <DeleteIcon />
+                                            <IconButton color="default" size="small"
+                                                        onClick={() => setDeleteCardId(card.id)} title="Usuń">
+                                                <DeleteIcon/>
                                             </IconButton>
                                         </Stack>
                                     </TableCell>
@@ -307,16 +328,16 @@ export const AccountViewPage = () => {
                     </Table>
                 </TableContainer>
             ) : (
-                <CardPage variant="outlined" sx={{ textAlign: 'center', py: 6 }}>
+                <CardPage variant="outlined" sx={{textAlign: 'center', py: 6}}>
                     <CardContent>
-                        <CardIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
+                        <CardIcon sx={{fontSize: 48, color: 'text.secondary', mb: 2}}/>
                         <Typography variant="h6" color="text.secondary">
                             Brak kart
                         </Typography>
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                        <Typography variant="body2" color="text.secondary" sx={{mb: 3}}>
                             To konto nie ma przypisanych kart płatniczych
                         </Typography>
-                        <Button variant="outlined" startIcon={<AddIcon />} onClick={() => setOpenAddDialog(true)}>
+                        <Button variant="outlined" startIcon={<AddIcon/>} onClick={() => setOpenAddDialog(true)}>
                             Dodaj pierwszą kartę
                         </Button>
                     </CardContent>
@@ -327,13 +348,14 @@ export const AccountViewPage = () => {
             <Dialog open={openAddDialog} onClose={() => setOpenAddDialog(false)} maxWidth="xs" fullWidth>
                 <DialogTitle>Dodaj nową kartę</DialogTitle>
                 <DialogContent>
-                    <Stack spacing={2} sx={{ mt: 1 }}>
+                    <Stack spacing={2} sx={{mt: 1}}>
                         <TextField
                             label="Network"
                             value={network}
                             onChange={(e) => setNetwork(e.target.value)}
                             select
                             fullWidth
+                            disabled
                         >
                             <MenuItem value="visa">Visa</MenuItem>
                             <MenuItem value="mastercard">Mastercard</MenuItem>
@@ -344,6 +366,7 @@ export const AccountViewPage = () => {
                             onChange={(e) => setCardType(e.target.value)}
                             select
                             fullWidth
+                            disabled
                         >
                             <MenuItem value="debit">Debetowa</MenuItem>
                             <MenuItem value="credit">Kredytowa</MenuItem>
@@ -354,7 +377,7 @@ export const AccountViewPage = () => {
                 <DialogActions>
                     <Button onClick={() => setOpenAddDialog(false)} disabled={submitting}>Anuluj</Button>
                     <Button onClick={handleAddCard} variant="contained" disabled={submitting}
-                            startIcon={submitting ? <CircularProgress size={20} /> : <AddIcon />}>
+                            startIcon={submitting ? <CircularProgress size={20}/> : <AddIcon/>}>
                         {submitting ? 'Dodawanie...' : 'Dodaj kartę'}
                     </Button>
                 </DialogActions>
@@ -371,6 +394,23 @@ export const AccountViewPage = () => {
                 <DialogActions>
                     <Button onClick={() => setDeleteCardId(null)}>Anuluj</Button>
                     <Button onClick={handleDeleteCard} color="error" variant="contained">
+                        Usuń
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Delete Confirmation Dialog */}
+            <Dialog open={!!deleteAccountId} onClose={() => setDeleteAccountId(null)}>
+                <DialogTitle>Usunąć konto bankowe?</DialogTitle>
+                <DialogContent>
+                    <Typography>
+                        Ta operacja jest nieodwracalna. Konto zostanie trwale usunięta.
+                        Jeśli jest więcej od 0 na koncie, to konto nie może zostać usunięte.
+                    </Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setDeleteAccountId(null)}>Anuluj</Button>
+                    <Button onClick={handleDeleteAccount} color="error" variant="contained">
                         Usuń
                     </Button>
                 </DialogActions>

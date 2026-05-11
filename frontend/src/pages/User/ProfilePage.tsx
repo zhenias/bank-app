@@ -12,7 +12,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import {LoadingSpinner} from "../../components/Assets/Svg/LoadingSpinner";
 import {useToast} from "../../context/ToastContext";
 import {useLoading} from "../../context/LoadingContext";
-import {formatDate, formatDateShort} from "../../utils/formatedDate";
+import {formatDateTime} from "../../utils/formatDate";
 import {updateUserProfile} from "../../services/authService";
 import {ProfileUpdateData} from "../../types/types";
 
@@ -119,7 +119,7 @@ export const ProfilePage = () => {
                     <TextField
                         fullWidth
                         label="Data ostatniej zmiany"
-                        value={user?.updated_at ? formatDate(user.updated_at) : 'Brak danych'}
+                        value={user?.updated_at ? formatDateTime(user.updated_at) : 'Brak danych'}
                         disabled
                         variant="outlined"
                         slotProps={{
@@ -132,7 +132,7 @@ export const ProfilePage = () => {
                     <TextField
                         fullWidth
                         label="Data zweryfikowania konta"
-                        value={user?.email_verified_at ? formatDate(user.email_verified_at) : 'Niezweryfikowano - wymaga uwagi'}
+                        value={user?.email_verified_at ? formatDateTime(user.email_verified_at) : 'Niezweryfikowano - wymaga uwagi'}
                         disabled
                         variant="outlined"
                         slotProps={{
