@@ -29,13 +29,13 @@ class UpdateProfileRequest extends FormRequest
         $user = $this->user();
 
         return [
-            /** @example Jan Kowalski */
-            'name'           => ['sometimes', 'string', 'max:255'],
-            /** @example jan.kowalski@example.com */
-            'email'          => ['sometimes', 'email', 'max:255', 'unique:users,email,' . $user->id],
-            /** @example "2000-01-01" */
-            'date_of_birth'  => ['sometimes', 'date', 'date_format:Y-m-d', 'before_or_equal:today'],
-            /** @example guardian@example.com */
+            /* @example Jan Kowalski */
+            'name' => ['sometimes', 'string', 'max:255'],
+            /* @example jan.kowalski@example.com */
+            'email' => ['sometimes', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            /* @example "2000-01-01" */
+            'date_of_birth' => ['sometimes', 'date', 'date_format:Y-m-d', 'before_or_equal:today'],
+            /* @example guardian@example.com */
             'guardian_email' => [
                 'nullable',
                 'email',
@@ -44,7 +44,7 @@ class UpdateProfileRequest extends FormRequest
                 Rule::notIn([$user->email]),
                 new AdultGuardian(),
             ],
-            /** @example "P@ssw0rd123!@" */
+            /* @example "P@ssw0rd123!@" */
             'password' => [
                 'sometimes',
                 'string',
@@ -56,11 +56,11 @@ class UpdateProfileRequest extends FormRequest
                     ->numbers()
                     ->symbols(),
             ],
-            /** @example "P@ssw0rd123!@" */
+            /* @example "P@ssw0rd123!@" */
             'password_confirmation' => ['sometimes', 'string', 'same:password'],
-            /** @example "O&l*dP@ssw0rd123!@" */
-            'old_password'    => ['required_with:password', 'string', 'max:255', new CurrentPassword()],
-            /** @example false */
+            /* @example "O&l*dP@ssw0rd123!@" */
+            'old_password' => ['required_with:password', 'string', 'max:255', new CurrentPassword()],
+            /* @example false */
             'guardian_delete' => ['sometimes', 'boolean'],
         ];
     }

@@ -15,9 +15,9 @@ class BalanceResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            /** @example PLN */
+            /* @example PLN */
             'currency' => $this->currency,
-            /** @example 2500.00 */
+            /* @example 2500.00 */
             'balance' => number_format($this->total_balance / 100, 2, '.', ''),
         ];
     }

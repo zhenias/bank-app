@@ -13,13 +13,13 @@ class PassportClientSeeder extends Seeder
         $clientId     = config('passport.client_id', 'bank-client-id');
         $clientSecret = config('passport.client_secret', 'bank-client-secret');
         $nameApp      = config('app.name', 'Bank Online System');
-        $redirectUris  = [
+        $redirectUris = [
             config('passport.redirect_uri', ''),
             'http://localhost:8000/auth/callback',
             'http://localhost:5174/auth/callback',
-            'http://127.0.0.1:8000/auth/callback'
+            'http://127.0.0.1:8000/auth/callback',
         ];
-        $grantTypes   = ['authorization_code', 'refresh_token', 'password'];
+        $grantTypes = ['authorization_code', 'refresh_token', 'password'];
 
         $exists = DB::table('oauth_clients')
         ->where('id', $clientId)

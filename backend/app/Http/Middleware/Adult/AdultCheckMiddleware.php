@@ -19,9 +19,9 @@ class AdultCheckMiddleware
 
         $isAdult        = $user['is_adult'] ?? false;
         $hasGuardian    = isset($user['guardian']['id']) && $user['guardian']['id'] && $user['guardian']['guardian_approved_at'];
-        $hasDateOfBirth = isset($user['date_of_birth']) && $user['date_of_birth'];
+        $hasDateOfBirth = isset($user['date_of_birth'])  && $user['date_of_birth'];
 
-        if (!$hasDateOfBirth) {
+        if (! $hasDateOfBirth) {
             throw new AccessDeniedHttpException('Access denied. You must set date of birth.');
         }
 

@@ -13,7 +13,6 @@ use App\Services\Account\AccountService;
 use Dedoc\Scramble\Attributes\BodyParameter;
 use Dedoc\Scramble\Attributes\PathParameter;
 use Dedoc\Scramble\Attributes\QueryParameter;
-use Dedoc\Scramble\Attributes\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Laravel\Passport\Attributes\AuthorizeToken;
@@ -34,7 +33,6 @@ class AccountController extends Controller
 
     /**
      * Wyświetla listę kont bankowych użytkownika.
-     *
      */
     #[AuthorizeToken(['accounts-view'], anyScope: true)]
     #[QueryParameter('per_page', description: 'Ilość elementów na stronę.', type: 'int', default: 20, example: 30)]
@@ -52,7 +50,7 @@ class AccountController extends Controller
     }
 
     /**
-     * Saldo
+     * Saldo.
      *
      * Wyświetlanie salda według kont w którym jest waluta.
      */
@@ -67,8 +65,8 @@ class AccountController extends Controller
 
         return response()->json([
             'balances' => BalanceResource::collection($balances),
-            /** @example 2500.00 */
-            'total'    => number_format($balances->where('currency', 'PLN')->sum('total_balance') / 100, 2, '.', ''),
+            /* @example 2500.00 */
+            'total' => number_format($balances->where('currency', 'PLN')->sum('total_balance') / 100, 2, '.', ''),
         ]);
     }
 

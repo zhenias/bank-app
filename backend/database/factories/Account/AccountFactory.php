@@ -17,8 +17,8 @@ class AccountFactory extends Factory
         $currency = $this->faker->randomElement(['PLN', 'USD', 'EURO']);
 
         return [
-            'user_id'        => User::factory(),
-            'name'           => match($currency) {
+            'user_id' => User::factory(),
+            'name'    => match ($currency) {
                 'PLN'  => $this->faker->randomElement(['Konto osobiste', 'Konto oszczędnościowe', 'Konto premium', 'SuperKonto']),
                 'USD'  => 'Konto walutowe USD',
                 'EURO' => 'Konto walutowe EUR',

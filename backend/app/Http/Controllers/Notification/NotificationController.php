@@ -6,7 +6,6 @@ use App\Http\Concerns\WithPagination;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Notification\NotificationResource;
 use Dedoc\Scramble\Attributes\PathParameter;
-use Dedoc\Scramble\Attributes\QueryParameter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -53,7 +52,7 @@ class NotificationController extends Controller
     /**
      * Odczytwanie powiadomienia.
      */
-    #[PathParameter('notificationId', description: 'Identyfikator powiadomienia', type: 'int', example: "123e4567-e89b-12d3-a456-426614174000")]
+    #[PathParameter('notificationId', description: 'Identyfikator powiadomienia', type: 'int', example: '123e4567-e89b-12d3-a456-426614174000')]
     public function markAsRead(string $notificationId, Request $request): JsonResponse
     {
         $notification = $request->user()

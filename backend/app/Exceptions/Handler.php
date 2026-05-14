@@ -68,8 +68,8 @@ class Handler extends ExceptionHandler
         }
 
         if ($e instanceof ValidationException) {
-            $errors = $e->errors();
-            $count = collect($errors)->flatten()->count();
+            $errors       = $e->errors();
+            $count        = collect($errors)->flatten()->count();
             $firstMessage = collect($errors)->flatten()->first();
 
             $message = $count > 1

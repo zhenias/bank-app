@@ -6,7 +6,6 @@ use App\Models\Account\Account;
 use App\Models\Account\Card\Card;
 use App\Models\Account\Flik\FlikCode;
 use App\Models\Account\Transaction\Transaction;
-use Carbon\Carbon;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -109,7 +108,7 @@ class User extends Authenticatable implements OAuthenticatable, MustVerifyEmail
 
     /**
      * @property array{id: string, name: string, email: string, guardian_approved_at: string|null}|null $guardian
-     * @property bool $is_adult
+     * @property bool                                                                                   $is_adult
      */
     public function toArray(): array
     {

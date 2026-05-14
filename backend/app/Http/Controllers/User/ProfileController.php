@@ -9,8 +9,6 @@ use App\Models\User;
 use App\Services\Guardian\GuardianService;
 use Dedoc\Scramble\Attributes\BodyParameter;
 use Dedoc\Scramble\Attributes\PathParameter;
-use Dedoc\Scramble\Attributes\Response;
-use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -134,7 +132,7 @@ class ProfileController extends Controller
      *
      * Zatwierdzenie opiekuństwa nad kontem dziecka.
      */
-    #[PathParameter('wardId', description: 'Identyfikator użytkownika podopiecznego.', type: 'int', example: "123e4567-e89b-12d3-a456-426614174000")]
+    #[PathParameter('wardId', description: 'Identyfikator użytkownika podopiecznego.', type: 'int', example: '123e4567-e89b-12d3-a456-426614174000')]
     public function approveGuardian(string $wardId): JsonResponse
     {
         $guardian = auth()->user();
@@ -174,7 +172,7 @@ class ProfileController extends Controller
      *
      * Odrzucenie opiekuństwa nad kontem dziecka.
      */
-    #[PathParameter('wardId', description: 'Identyfikator użytkownika podopiecznego.', type: 'int', example: "123e4567-e89b-12d3-a456-426614174000")]
+    #[PathParameter('wardId', description: 'Identyfikator użytkownika podopiecznego.', type: 'int', example: '123e4567-e89b-12d3-a456-426614174000')]
     public function rejectGuardian(string $wardId): JsonResponse
     {
         $guardian = auth()->user();

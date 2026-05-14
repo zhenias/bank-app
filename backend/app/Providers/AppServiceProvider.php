@@ -2,20 +2,17 @@
 
 namespace App\Providers;
 
-use App\Http\Responses\AuthorizationViewResponse;
 use Dedoc\Scramble\Scramble;
 use Dedoc\Scramble\Support\Generator\OpenApi;
 use Dedoc\Scramble\Support\Generator\SecurityScheme;
 use Dedoc\Scramble\Support\Generator\SecuritySchemes\OAuthFlow;
 use Illuminate\Support\ServiceProvider;
-use Laravel\Passport\Contracts\AuthorizationViewResponse as AuthorizationViewResponseContract;
 use Laravel\Passport\Passport;
 
 class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
     }
 
     public function boot(): void
@@ -34,7 +31,7 @@ class AppServiceProvider extends ServiceProvider
                     SecurityScheme::oauth2()
                         ->flow('password', function (OAuthFlow $flow) {
                             $flow->tokenUrl(config('app.url') . '/oauth/token');
-                        })
+                        }),
                 );
             });
 

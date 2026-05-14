@@ -22,10 +22,6 @@ trait WithPagination
         return request()->integer('page', 1);
     }
 
-    /**
-     * @param EloquentBuilder|QueryBuilder|Relation $query
-     * @return LengthAwarePaginator
-     */
     protected function paginate(EloquentBuilder|QueryBuilder|Relation $query): LengthAwarePaginator
     {
         return $query->paginate(
@@ -35,7 +31,6 @@ trait WithPagination
     }
 
     /**
-     * @param EloquentBuilder|QueryBuilder|Relation $query
      * @return LengthAwarePaginator
      */
     protected function simplePaginate(EloquentBuilder|QueryBuilder|Relation $query): Paginator
