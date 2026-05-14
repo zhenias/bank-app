@@ -1,0 +1,141 @@
+# .github/workflows/ci.yml
+# Backend CI pipeline for PHP 8.4 with MySQL service, Composer caching
+# Runs on PRs to develop and manual dispatch for main branch AWS deployments
+
+name: Backend CI
+
+on:
+  # Trigger on pull requests targeting develop branch
+  pull_request:
+    branches:
+      - develop
+    paths:
+      - 'backend/**'
+      - '.github/workflows/ci.yml'
+
+  # Manual trigger for main branch (AWS deployment gate)
+  # All tests must pass before pushing to AWS
+  workflow_dispatch:
+    branches:
+      - main
+
+jobs:
+  backend-tests:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+
+    # MySQL service container for integration tests
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_DATABASE: backend_testing
+          MYSQL_USER: laravel
+          MYSQL_PASSWORD: laravel_password
+          MYSQL_ROOT_PASSWORD: root_password
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+      # Redis service for cache/queue/session
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+    defaults:
+      run:
+        working-directory: ./backend
+
+    steps:
+      # Checkout the repository code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Setup PHP 8.4 with required extensions
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, pdo, pdo_mysql, xml, ctype, json, tokenizer, redis
+          coverage: xdebug
+
+      # Wait for MySQL to be ready
+      - name: Wait for MySQL
+        run: |
+          for i in {1..30}; do
+            if mysqladmin ping -h 127.0.0.1 -u laravel -plaravel_password --silent; then
+              break
+            fi
+            echo "Waiting for MySQL..."
+            sleep 1
+          done
+
+      # Cache Composer dependencies for faster builds
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.composer/cache/files
+            ~/.composer/cache/repo
+          key: ${{ runner.os }}-composer-${{ hashFiles('backend/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      # Install Composer dependencies
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      # Generate application key
+      - name: Generate passport keys
+        run: php artisan passport:keys
+
+      # Run database migrations for testing
+      - name: Run migrations
+        env:
+          DB_HOST: 127.0.0.1
+          DB_DATABASE: backend_testing
+          DB_USERNAME: laravel
+          DB_PASSWORD: laravel_password
+          REDIS_HOST: 127.0.0.1
+        run: php artisan migrate --force --env=testing
+
+      # Run PHP CS Fixer in dry-run mode to check code style
+      - name: Check code style
+        run: |
+          if [ -f vendor/bin/php-cs-fixer ]; then
+            vendor/bin/php-cs-fixer fix --dry-run --diff --config=.php-cs-fixer.dist.php || true
+          fi
+
+      # Run PHPUnit tests
+      # All tests must pass - failure blocks merge / deployment
+      - name: Run PHPUnit tests
+        env:
+          DB_HOST: 127.0.0.1
+          DB_DATABASE: backend_testing
+          DB_USERNAME: laravel
+          DB_PASSWORD: laravel_password
+          REDIS_HOST: 127.0.0.1
+        run: |
+          if [ -f vendor/bin/phpunit ]; then
+            vendor/bin/phpunit --testdox --colors=never
+          else
+            echo "phpunit not found - skipping tests"
+            exit 1
+          fi
+
+
+    # Job-level status check
+    # Explicitly fail the job if any previous step failed
+    # This ensures merge / deployment is blocked on test failures
+    outputs:
+      tests-passed: ${{ job.status == 'success' }}

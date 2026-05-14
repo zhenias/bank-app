@@ -1,6 +1,11 @@
+x-defaults: &defaults
+  environment:
+    - TZ=Europe/Warsaw
+
 services:
   # MariaDB Database
   mariadb:
+    <<: *defaults
     image: mariadb:11.4
     container_name: bank-app-mariadb
     environment:
@@ -24,6 +29,7 @@ services:
 
   # Redis Cache
   redis:
+    <<: *defaults
     image: redis:7-alpine
     container_name: bank-app-redis
     ports:
@@ -40,7 +46,7 @@ services:
 
   # Backend (Laravel with PHP-FPM + Nginx)
   backend:
-#    image: php:8.4-fpm-alpine
+    <<: *defaults
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -65,6 +71,7 @@ services:
 
   # Frontend (React)
   frontend:
+    <<: *defaults
     build:
       context: ./frontend
       dockerfile: Dockerfile

@@ -19,6 +19,7 @@ vendor/
 # Environment
 .env.local
 .env.*.local
+.env
 
 # Logs
 storage/logs/
@@ -38,3 +39,4 @@ Thumbs.db
 bootstrap/cache/
 storage/framework/cache/
 
+/.php-cs-fixer.cache

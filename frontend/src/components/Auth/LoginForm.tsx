@@ -43,10 +43,16 @@ export const LoginForm = ({ onLogin, onSwitchToRegister }: LoginFormProps) => {
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Błąd logowania';
             setError(errorMessage);
-            showError(errorMessage);
         } finally {
             stopLoading();
         }
+    };
+
+    const canLogin = () => {
+        return (
+            email.length > 0 &&
+            password.length > 0
+        );
     };
 
     return (
@@ -113,7 +119,7 @@ export const LoginForm = ({ onLogin, onSwitchToRegister }: LoginFormProps) => {
                         fullWidth
                         variant="contained"
                         size="large"
-                        disabled={isLoading}
+                        disabled={isLoading || !canLogin()}
                         startIcon={isLoading ? <LoadingSpinner /> : <LoginIcon />}
                         sx={{ mt: 2, py: 1.5 }}
                     >
