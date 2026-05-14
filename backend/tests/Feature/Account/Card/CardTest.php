@@ -19,7 +19,9 @@ class CardTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->user    = User::factory()->create();
+        $this->user    = User::factory()->create([
+            'date_of_birth' => now()->subYears(30),
+        ]);
         $this->account = Account::factory()->create(['user_id' => $this->user->id]);
     }
 
@@ -27,7 +29,7 @@ class CardTest extends TestCase
     {
         Card::factory()->count(3)->create(['account_id' => $this->account->id]);
 
-        Passport::actingAs($this->user);
+        Passport::actingAs($this->user, ['cards-view']);
 
         $response = $this->getJson("/api/accounts/{$this->account->id}/cards");
 
@@ -60,7 +62,7 @@ class CardTest extends TestCase
         $otherAccount = Account::factory()->create(['user_id' => $this->user->id]);
         Card::factory()->count(3)->create(['account_id' => $otherAccount->id]);
 
-        Passport::actingAs($this->user);
+        Passport::actingAs($this->user, ['cards-view']);
 
         $response = $this->getJson("/api/accounts/{$this->account->id}/cards");
 
@@ -70,7 +72,7 @@ class CardTest extends TestCase
 
     public function testCreatesNewCardForAccount(): void
     {
-        Passport::actingAs($this->user);
+        Passport::actingAs($this->user, ['cards-view', 'cards-manage']);
 
         $response = $this->postJson("/api/accounts/{$this->account->id}/cards");
 
@@ -100,7 +102,7 @@ class CardTest extends TestCase
 
     public function testCreatesCardWithValidNumber(): void
     {
-        Passport::actingAs($this->user);
+        Passport::actingAs($this->user, ['cards-manage']);
 
         $response = $this->postJson("/api/accounts/{$this->account->id}/cards");
 
@@ -117,7 +119,7 @@ class CardTest extends TestCase
 
     public function testCreatesCardWithFutureExpiryDate(): void
     {
-        Passport::actingAs($this->user);
+        Passport::actingAs($this->user, ['cards-manage']);
 
         $response = $this->postJson("/api/accounts/{$this->account->id}/cards");
 
@@ -136,7 +138,7 @@ class CardTest extends TestCase
             'card_number' => '4532123456789012',
         ]);
 
-        Passport::actingAs($this->user);
+        Passport::actingAs($this->user, ['cards-view']);
 
         $response = $this->getJson("/api/accounts/{$this->account->id}/cards");
 
@@ -152,7 +154,7 @@ class CardTest extends TestCase
             'cvv'        => '123',
         ]);
 
-        Passport::actingAs($this->user);
+        Passport::actingAs($this->user, ['cards-view']);
 
         $response = $this->getJson("/api/accounts/{$this->account->id}/cards");
 
@@ -167,7 +169,7 @@ class CardTest extends TestCase
             'card_number' => '5214123456789012',
         ]);
 
-        Passport::actingAs($this->user);
+        Passport::actingAs($this->user, ['cards-details']);
 
         $response = $this->getJson("/api/cards/{$card->id}");
 
@@ -198,7 +200,7 @@ class CardTest extends TestCase
             'status'     => 'active',
         ]);
 
-        Passport::actingAs($this->user);
+        Passport::actingAs($this->user, ['cards-manage']);
 
         $response = $this->patchJson("/api/cards/{$card->id}/block");
 
@@ -218,7 +220,7 @@ class CardTest extends TestCase
             'status'     => 'blocked',
         ]);
 
-        Passport::actingAs($this->user);
+        Passport::actingAs($this->user, ['cards-manage']);
 
         $response = $this->patchJson("/api/cards/{$card->id}/unblock");
 
@@ -293,7 +295,7 @@ class CardTest extends TestCase
     {
         Card::factory()->count(25)->create(['account_id' => $this->account->id]);
 
-        Passport::actingAs($this->user);
+        Passport::actingAs($this->user, ['cards-view']);
 
         $response = $this->getJson("/api/accounts/{$this->account->id}/cards?per_page=10");
 

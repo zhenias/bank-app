@@ -1,0 +1,93 @@
+# .github/workflows/ci.yml
+# Backend CI pipeline for PHP 8.4 with Composer caching
+# Runs on PRs to develop and manual dispatch for main branch AWS deployments
+
+name: Backend CI
+
+on:
+  # Trigger on pull requests targeting develop branch
+  pull_request:
+    branches:
+      - develop
+    paths:
+      - 'backend/**'
+      - '.github/workflows/ci.yml'
+
+  # Manual trigger for main branch (AWS deployment gate)
+  # All tests must pass before pushing to AWS
+  workflow_dispatch:
+    branches:
+      - main
+
+jobs:
+  backend-tests:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./backend
+
+    steps:
+      # Checkout the repository code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Setup PHP 8.4 with required extensions
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, pdo, pdo_mysql, xml, ctype, json, tokenizer
+          coverage: xdebug
+
+      # Cache Composer dependencies for faster builds
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.composer/cache/files
+            ~/.composer/cache/repo
+          key: ${{ runner.os }}-composer-${{ hashFiles('backend/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      # Install Composer dependencies
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      # Run PHP syntax check
+      - name: Check PHP syntax
+        run: find . -name '*.php' -not -path './vendor/*' -exec php -l {} \;
+
+      # Run PHP CS Fixer in dry-run mode to check code style
+      - name: Check code style
+        run: |
+          if [ -f vendor/bin/php-cs-fixer ]; then
+            vendor/bin/php-cs-fixer fix --dry-run --diff --config=.php-cs-fixer.dist.php || true
+          fi
+
+      # Run PHPUnit tests
+      # All tests must pass - failure blocks merge / deployment
+      - name: Run PHPUnit tests
+        run: |
+          if [ -f vendor/bin/phpunit ]; then
+            vendor/bin/phpunit --testdox --colors=never
+          else
+            echo "phpunit not found - skipping tests"
+            exit 1
+          fi
+
+      # Run static analysis if PHPStan is configured
+      - name: Run PHPStan analysis
+        run: |
+          if [ -f vendor/bin/phpstan ]; then
+            vendor/bin/phpstan analyse --no-progress --memory-limit=512M
+          fi
+        continue-on-error: true
+
+    # Job-level status check
+    # Explicitly fail the job if any previous step failed
+    # This ensures merge / deployment is blocked on test failures
+    outputs:
+      tests-passed: ${{ job.status == 'success' }}

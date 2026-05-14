@@ -3,6 +3,7 @@
 namespace Tests\Feature\Account;
 
 use App\Models\Account\Account;
+use App\Models\Account\Card\Card;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Passport\Passport;
@@ -17,18 +18,24 @@ class AccountTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->user = User::factory()->create();
+        $this->user = User::factory()->create([
+            'date_of_birth' => now()->subYears(30),
+        ]);
         Account::query()->delete();
+        Card::query()->delete();
     }
 
     public function testListsAllUserAccounts(): void
     {
         Account::factory()->count(3)->create(['user_id' => $this->user->id]);
 
-        $otherUser = User::factory()->create();
-        Account::factory()->count(2)->create(['user_id' => $otherUser->id]);
+        User::factory()
+        ->withAccount(2)
+        ->create([
+            'date_of_birth' => now()->subYears(30),
+        ]);
 
-        Passport::actingAs($this->user);
+        Passport::actingAs($this->user, ['accounts-view']);
 
         $response = $this->getJson('/api/accounts');
 
@@ -55,7 +62,7 @@ class AccountTest extends TestCase
 
     public function testCreatesNewAccount(): void
     {
-        Passport::actingAs($this->user);
+        Passport::actingAs($this->user, ['accounts-view', 'accounts-manage']);
 
         $response = $this->postJson('/api/accounts', [
             'name'      => 'Konto oszczędnościowe',
@@ -91,7 +98,7 @@ class AccountTest extends TestCase
 
     public function testCreatesAccountWithoutCard(): void
     {
-        Passport::actingAs($this->user);
+        Passport::actingAs($this->user, ['accounts-view', 'accounts-manage']);
 
         $response = $this->postJson('/api/accounts', [
             'name'      => 'Konto bez karty',
@@ -106,7 +113,7 @@ class AccountTest extends TestCase
     {
         $account = Account::factory()->create(['user_id' => $this->user->id]);
 
-        Passport::actingAs($this->user);
+        Passport::actingAs($this->user, ['accounts-view', 'accounts-details']);
 
         $response = $this->getJson("/api/accounts/{$account->id}");
 
@@ -135,7 +142,7 @@ class AccountTest extends TestCase
             'name'    => 'Stara nazwa',
         ]);
 
-        Passport::actingAs($this->user);
+        Passport::actingAs($this->user, ['accounts-view', 'accounts-manage']);
 
         $response = $this->patchJson("/api/accounts/{$account->id}", [
             'name' => 'Nowa nazwa',
@@ -158,7 +165,7 @@ class AccountTest extends TestCase
             'balance'        => 100000, // 1000.00 PLN
         ]);
 
-        Passport::actingAs($this->user);
+        Passport::actingAs($this->user, ['accounts-view', 'accounts-manage']);
 
         $response = $this->patchJson("/api/accounts/{$account->id}", [
             'name'           => 'Nowa nazwa',
@@ -184,9 +191,10 @@ class AccountTest extends TestCase
             'balance' => 0,
         ]);
 
-        Passport::actingAs($this->user);
+        Passport::actingAs($this->user, ['accounts-view', 'accounts-manage']);
 
         $response = $this->deleteJson("/api/accounts/{$account->id}");
+
 
         $response->assertStatus(200)
             ->assertJson(['message' => 'Account closed.']);
@@ -201,7 +209,7 @@ class AccountTest extends TestCase
             'balance' => 50000,
         ]);
 
-        Passport::actingAs($this->user);
+        Passport::actingAs($this->user, ['accounts-view', 'accounts-manage']);
 
         $response = $this->deleteJson("/api/accounts/{$account->id}");
 
@@ -219,7 +227,7 @@ class AccountTest extends TestCase
 
     public function testValidatesStoreRequest(): void
     {
-        Passport::actingAs($this->user);
+        Passport::actingAs($this->user, ['accounts-view', 'accounts-manage']);
 
         $response = $this->postJson('/api/accounts', [
             'name' => '',
@@ -233,7 +241,7 @@ class AccountTest extends TestCase
     {
         $account = Account::factory()->create(['user_id' => $this->user->id]);
 
-        Passport::actingAs($this->user);
+        Passport::actingAs($this->user, ['accounts-view', 'accounts-manage']);
 
         $response = $this->patchJson("/api/accounts/{$account->id}", [
             'name' => '',

@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Account\Account;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
@@ -32,7 +33,7 @@ class UserFactory extends Factory
             'password'          => static::$password ??= Hash::make('password'),
             'remember_token'    => Str::random(10),
             'date_of_birth'     => fake()->dateTimeBetween(
-                now()->subYears(25),
+                now()->subYears(30),
                 now()->subYears(13),
             )->format('Y-m-d'),
         ];
@@ -46,5 +47,14 @@ class UserFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
         ]);
+    }
+
+    public function withAccount(int $count = 1): static
+    {
+        return $this->afterCreating(function (User $account) use ($count) {
+            Account::factory()->count($count)->create([
+                'user_id' => $account->id,
+            ]);
+        });
     }
 }
