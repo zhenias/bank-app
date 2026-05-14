@@ -18,10 +18,8 @@ class CardFactory extends Factory
      */
     public function definition(): array
     {
-        $account = Account::factory()->create();
-
         return [
-            'account_id'  => $account,
+            'account_id'  => Account::factory(),
             'card_number' => $this->faker->creditCardNumber(),
             'cvv'         => $this->faker->randomNumber(3),
             'exp_month'   => $this->faker->date('m'),

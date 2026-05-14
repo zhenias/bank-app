@@ -68,10 +68,18 @@ class Handler extends ExceptionHandler
         }
 
         if ($e instanceof ValidationException) {
+            $errors = $e->errors();
+            $count = collect($errors)->flatten()->count();
+            $firstMessage = collect($errors)->flatten()->first();
+
+            $message = $count > 1
+                ? $firstMessage . ' (and ' . ($count - 1) . ' more error' . ($count > 2 ? 's' : '') . ')'
+                : $firstMessage;
+
             return response()->json([
                 'status'  => 'error',
-                'message' => 'Error validating data.',
-                'errors'  => $e->errors(),
+                'message' => $message,
+                'errors'  => $errors,
                 'code'    => 422,
             ], 422);
         }

@@ -43,11 +43,12 @@ class CardController extends Controller
             throw new AccessDeniedHttpException('Account not found or access denied.');
         }
 
-        $cards = $account->cards();
-
-        return CardResource::collection(
-            $this->paginate($cards),
+        $cards = $account->cards()->paginate(
+            perPage: $this->perPage(),
+            page: $this->currentPage(),
         );
+
+        return CardResource::collection($cards);
     }
 
     /**

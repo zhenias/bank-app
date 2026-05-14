@@ -18,12 +18,10 @@ class FlikCodeFactory extends Factory
      */
     public function definition(): array
     {
-        $card = Card::factory()->create();
-
         return [
-            'card_id'    => $card,
+            'card_id'    => Card::factory(),
             'code'       => $this->faker->unique()->regexify('[0-9]{6}'),
-            'expires_at' => $this->faker->dateTimeBetween('+1 day', '+1 month'),
+            'expires_at' => $this->faker->dateTimeBetween('+1 minut', '+2 minut'),
             'status'     => $this->faker->randomElement(['active', 'used', 'expired']),
         ];
     }

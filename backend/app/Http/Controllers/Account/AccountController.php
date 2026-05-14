@@ -7,12 +7,15 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Account\StoreAccountRequest;
 use App\Http\Requests\Account\UpdateAccountRequest;
 use App\Http\Resources\Account\AccountResource;
+use App\Http\Resources\Account\BalanceResource;
 use App\Models\Account\Account;
 use App\Services\Account\AccountService;
 use Dedoc\Scramble\Attributes\BodyParameter;
 use Dedoc\Scramble\Attributes\PathParameter;
 use Dedoc\Scramble\Attributes\QueryParameter;
+use Dedoc\Scramble\Attributes\Response;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Laravel\Passport\Attributes\AuthorizeToken;
 
 /**
@@ -31,18 +34,42 @@ class AccountController extends Controller
 
     /**
      * Wyświetla listę kont bankowych użytkownika.
+     *
      */
     #[AuthorizeToken(['accounts-view'], anyScope: true)]
     #[QueryParameter('per_page', description: 'Ilość elementów na stronę.', type: 'int', default: 20, example: 30)]
     #[QueryParameter('page', description: 'Numer obecnej strony.', type: 'int', default: 1, example: 2)]
-    public function index()
+    public function index(): AnonymousResourceCollection
     {
         $accounts = Account::where('user_id', auth()->id())
-            ->with('cards');
+            ->with('cards')
+            ->paginate(
+                perPage: $this->perPage(),
+                page: $this->currentPage(),
+            );
 
-        return AccountResource::collection(
-            $this->paginate($accounts),
-        );
+        return AccountResource::collection($accounts);
+    }
+
+    /**
+     * Saldo
+     *
+     * Wyświetlanie salda według kont w którym jest waluta.
+     */
+    #[AuthorizeToken(['accounts-view'], anyScope: true)]
+    public function balance(): JsonResponse
+    {
+        $balances = auth()->user()->accounts()
+            ->select('currency')
+            ->selectRaw('SUM(balance) as total_balance')
+            ->groupBy('currency')
+            ->get();
+
+        return response()->json([
+            'balances' => BalanceResource::collection($balances),
+            /** @example 2500.00 */
+            'total'    => number_format($balances->where('currency', 'PLN')->sum('total_balance') / 100, 2, '.', ''),
+        ]);
     }
 
     /**

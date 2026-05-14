@@ -14,7 +14,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable(['user_id', 'name', 'account_number', 'balance', 'currency', 'type'])]
-// #[Hidden(['account_number'])]
 class Account extends Model
 {
     use HasFactory;

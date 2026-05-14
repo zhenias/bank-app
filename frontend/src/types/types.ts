@@ -2,10 +2,19 @@
 export interface User {
     id?: number;
     name?: string;
-    email: string;
+    email?: string;
     email_verified_at?: string;
+    date_of_birth?: string;
     created_at?: string;
     updated_at?: string;
+    guardian?: Guardian;
+}
+
+export interface Guardian {
+    id?: string;
+    name?: string;
+    email?: string;
+    guardian_approved_at?: string;
 }
 
 // Pagination
@@ -86,6 +95,9 @@ export interface ProfileUpdateData {
     password?: string;
     password_confirmation?: string;
     old_password?: string;
+    date_of_birth?: string;
+    guardian_email?: string;
+    guardian_delete?: boolean;
 }
 
 export interface ProfileUpdateResponse {
@@ -141,6 +153,8 @@ export interface ToastData {
 export interface AuthContextType {
     loading?: boolean;
     user: User | null;
+    setUser: (user: User | null) => void;
+    loadUser: () => void;
     login: (email: string, password: string) => Promise<User>;
     register: (name: string, email: string, password: string) => Promise<User>;
     logout: () => void;
@@ -199,4 +213,30 @@ export interface Transaction {
     type: string;
     status: string;
     created_at: string;
+}
+
+// Notification
+export interface Notification {
+    id: string;
+    type: string;
+    title: string;
+    body: string;
+    data: {
+        ward_id?: string;
+        ward_name?: string;
+        guardian_id?: string;
+        guardian_name?: string;
+        action?: string;
+        action_url?: string;
+        status?: string;
+        ward_date_of_birth?: string;
+        ward_age?: number;
+        ward_email?: string;
+    };
+    read_at: string | null;
+    created_at: string;
+}
+
+export interface NotificationCount {
+    count: number;
 }

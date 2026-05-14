@@ -29,8 +29,7 @@ import {
 } from '@mui/icons-material';
 import { getAccounts, createAccount } from '../../services/accountService';
 import type { Account, PaginationMeta } from '../../types/types';
-import {formatMoney} from "../../utils/formatMoney";
-import {formatAccountNumber, isValidAccountNumber} from "../../utils/formatAccount";
+import {formatAccountNumber} from "../../utils/formatAccount";
 
 export const AccountPage = () => {
     const [accounts, setAccounts] = useState<Account[]>([]);

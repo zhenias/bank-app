@@ -28,10 +28,12 @@ import {
     Logout as LogoutIcon,
     ChevronLeft as ChevronLeftIcon,
     AccountBalanceWallet as BalanceIcon,
-    Warning as WarningIcon
+    Warning as WarningIcon,
+    NotificationImportantRounded as NotificationIcon
 } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 import { Badge } from '@mui/material';
+import {NotificationBell} from "../Notification/NotificationBell";
 
 const DRAWER_WIDTH = 240;
 
@@ -43,6 +45,7 @@ const menuItems = [
     { text: 'Przelewy', icon: <PaymentIcon />, path: '/transfer' },
     { text: 'FLIK', icon: <PaymentIcon />, path: '/flik' },
     { text: 'Historia', icon: <HistoryIcon />, path: '/transactions' },
+    { text: 'Powiadomienia', icon: <NotificationIcon />, path: '/notifications' },
 ];
 
 const getNameApp: string = import.meta.env.VITE_APP_NAME
@@ -93,6 +96,8 @@ export const DashboardLayout = () => {
                     </Typography>
 
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <NotificationBell />
+
                         <Typography variant="body2" sx={{ display: { xs: 'none', sm: 'block' } }}>
                             {user?.name || user?.email}
                         </Typography>

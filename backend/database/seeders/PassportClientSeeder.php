@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -14,23 +13,13 @@ class PassportClientSeeder extends Seeder
         $clientId     = config('passport.client_id', 'bank-client-id');
         $clientSecret = config('passport.client_secret', 'bank-client-secret');
         $nameApp      = config('app.name', 'Bank Online System');
-        $redirectUri  = config('passport.redirect_uri', '');
-        $grantTypes   = ['authorization_code', 'refresh_token', 'password', 'client_credentials'];
-
-        $user = User::where('email', 'test@example.com')->first();
-
-        if (! $user) {
-            $user = User::factory()->create([
-                'name'     => 'Test User',
-                'email'    => 'test@example.com',
-                'password' => Hash::make('password'),
-            ]);
-
-            $this->command->info('✅ User created: ' . $user->email);
-            $this->command->info('   Password:     password');
-        } else {
-            $this->command->info('⚠️  User already exists: ' . $user->email);
-        }
+        $redirectUris  = [
+            config('passport.redirect_uri', ''),
+            'http://localhost:8000/auth/callback',
+            'http://localhost:5174/auth/callback',
+            'http://127.0.0.1:8000/auth/callback'
+        ];
+        $grantTypes   = ['authorization_code', 'refresh_token', 'password'];
 
         $exists = DB::table('oauth_clients')
         ->where('id', $clientId)
@@ -38,22 +27,23 @@ class PassportClientSeeder extends Seeder
         ->exists();
 
         if ($exists) {
-            $this->command->info('⚠️  Passport client already exists. Updating...');
+            $this->command->info('⚠️ Passport client already exists. Updating...');
 
             DB::table('oauth_clients')
             ->where('id', $clientId)
             ->orWhere('name', $nameApp)
             ->update([
                 'secret'        => Hash::make($clientSecret),
-                'redirect_uris' => json_encode([$redirectUri]),
+                'redirect_uris' => json_encode($redirectUris),
                 'updated_at'    => now(),
                 'grant_types'   => json_encode($grantTypes),
             ]);
 
             $this->command->info('✅ Passport client updating!');
-            $this->command->info('   Client ID: ' . $clientId);
+            $this->command->info('   Client ID:     ' . $clientId);
             $this->command->info('   Client Secret: ' . $clientSecret);
-            $this->command->info('   Redirect URI: ' . $redirectUri);
+            $this->command->info('   Redirect URI:  ' . implode(', ', $redirectUris));
+            $this->command->info('   Grant types:   ' . implode(', ', $grantTypes));
 
             return;
         }
@@ -63,16 +53,15 @@ class PassportClientSeeder extends Seeder
             'name'          => $nameApp,
             'secret'        => Hash::make($clientSecret),
             'provider'      => 'users',
-            'redirect_uris' => json_encode([$redirectUri]),
+            'redirect_uris' => json_encode($redirectUris),
             'grant_types'   => json_encode($grantTypes),
             'revoked'       => 0,
-            'created_at'    => now(),
-            'updated_at'    => now(),
         ]);
 
         $this->command->info('✅ Passport client created!');
         $this->command->info('   Client ID:     ' . $clientId);
         $this->command->info('   Client Secret: ' . $clientSecret);
-        $this->command->info('   Redirect URI:  ' . $redirectUri);
+        $this->command->info('   Redirect URI:  ' . implode(', ', $redirectUris));
+        $this->command->info('   Grant types:   ' . implode(', ', $grantTypes));
     }
 }

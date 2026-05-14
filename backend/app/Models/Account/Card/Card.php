@@ -28,6 +28,7 @@ class Card extends Model
         return [
             'exp_month' => 'integer',
             'exp_year'  => 'integer',
+            'cvv'       => 'integer',
         ];
     }
 

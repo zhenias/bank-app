@@ -26,8 +26,31 @@ class Transaction extends Model
     protected function casts(): array
     {
         return [
-            'amount' => 'decimal:2',
+            'amount' => 'integer',
         ];
+    }
+
+    public function isExpenseFor(string $accountId): bool
+    {
+        return $this->from_account_id === $accountId;
+    }
+
+    public function isIncomeFor(string $accountId): bool
+    {
+        return $this->to_account_id === $accountId;
+    }
+
+    public function signedAmountFor(string $accountId): int
+    {
+        if ($this->isExpenseFor($accountId)) {
+            return -$this->amount;
+        }
+
+        if ($this->isIncomeFor($accountId)) {
+            return +$this->amount;
+        }
+
+        return 0;
     }
 
     public function fromAccount(): BelongsTo

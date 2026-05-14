@@ -3,9 +3,19 @@ set -e
 
 echo "🚀 Starting Laravel application..."
 
-# Prepare PHP-FPM directories
-mkdir -p /var/run/php-fpm /var/log/php-fpm
+# Copy conf file to container
+echo "📁 Copying configuration files..."
+cp -f docker/nginx.conf /etc/nginx/http.d/default.conf
+cp -f docker/php-fpm.conf /usr/local/etc/php-fpm.d/www.conf
+cp -f docker/supervisord.conf /etc/supervisord.conf
+
+# PHP-FPM && Logs
+mkdir -p /var/run/php-fpm /var/log/php-fpm /var/log/nginx
 chown -R nobody:nobody /var/run/php-fpm /var/log/php-fpm
+chown -R nginx:nginx /var/log/nginx
+
+# Conf file for laravel.
+mkdir -p storage/logs bootstrap/cache && chmod -R 775 storage bootstrap/cache
 
 # Check if composer.json exists
 if [ ! -f "composer.json" ]; then

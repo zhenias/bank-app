@@ -58,6 +58,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const value: AuthContextType = {
         loading,
         user,
+        setUser,
+        loadUser,
         isAuthenticated,
         login: handleLogin,
         register: handleRegister,

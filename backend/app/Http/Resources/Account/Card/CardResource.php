@@ -29,6 +29,8 @@ class CardResource extends JsonResource
                 $this->card_number,
                 substr($this->card_number, -4),
             ),
+            /* @example 123 */
+            'cvv' => $this->cvv,
             /* @example 12 */
             'exp_month' => $this->exp_month,
             /* @example 2024 */

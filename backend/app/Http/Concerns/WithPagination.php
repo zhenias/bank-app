@@ -2,12 +2,11 @@
 
 namespace App\Http\Concerns;
 
-use Dedoc\Scramble\Attributes\QueryParameter;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
-use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 
 trait WithPagination
 {
@@ -23,6 +22,10 @@ trait WithPagination
         return request()->integer('page', 1);
     }
 
+    /**
+     * @param EloquentBuilder|QueryBuilder|Relation $query
+     * @return LengthAwarePaginator
+     */
     protected function paginate(EloquentBuilder|QueryBuilder|Relation $query): LengthAwarePaginator
     {
         return $query->paginate(
@@ -31,6 +34,10 @@ trait WithPagination
         );
     }
 
+    /**
+     * @param EloquentBuilder|QueryBuilder|Relation $query
+     * @return LengthAwarePaginator
+     */
     protected function simplePaginate(EloquentBuilder|QueryBuilder|Relation $query): Paginator
     {
         return $query->simplePaginate(

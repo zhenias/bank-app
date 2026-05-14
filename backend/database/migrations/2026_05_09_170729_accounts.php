@@ -16,7 +16,7 @@ return new class extends Migration {
             $table->string('name');
             $table->string('account_number', 32)->unique();
             $table->bigInteger('balance')->default(0);
-            $table->string('currency', 3)->default('PLN');
+            $table->string('currency', 5)->default('PLN');
             $table->string('type', 20)->default('current');
             $table->timestamps();
         });

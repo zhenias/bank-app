@@ -6,6 +6,7 @@ use App\Http\Responses\AuthorizationViewResponse;
 use Dedoc\Scramble\Scramble;
 use Dedoc\Scramble\Support\Generator\OpenApi;
 use Dedoc\Scramble\Support\Generator\SecurityScheme;
+use Dedoc\Scramble\Support\Generator\SecuritySchemes\OAuthFlow;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Passport\Contracts\AuthorizationViewResponse as AuthorizationViewResponseContract;
 use Laravel\Passport\Passport;
@@ -14,19 +15,26 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->app->bind(AuthorizationViewResponseContract::class, function () {
-            return new AuthorizationViewResponse('vendor.passport.authorize');
-        });
+        //
     }
 
     public function boot(): void
     {
+        Passport::authorizationView('vendor.passport.authorize');
+
         Scramble::registerApi('docs');
 
         Scramble::configure()
             ->withDocumentTransformers(function (OpenApi $openApi) {
                 $openApi->secure(
                     SecurityScheme::http('bearer', 'JWT'),
+                );
+
+                $openApi->secure(
+                    SecurityScheme::oauth2()
+                        ->flow('password', function (OAuthFlow $flow) {
+                            $flow->tokenUrl(config('app.url') . '/oauth/token');
+                        })
                 );
             });
 
@@ -99,6 +107,7 @@ class AppServiceProvider extends ServiceProvider
 
         Passport::defaultScopes([
             'user-profile',
+            'user-profile-manage',
 
             'balance-view',
             'balance-history',

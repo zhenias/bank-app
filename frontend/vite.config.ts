@@ -13,7 +13,12 @@ export default defineConfig({
       },
       '/oauth': {
         target: 'http://backend:80',
-        changeOrigin: true,
+        changeOrigin: false,
+        secure: false,
+      },
+      '/login': {
+        target: 'http://backend:80',
+        changeOrigin: false,
         secure: false,
       }
     }

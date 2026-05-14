@@ -192,6 +192,11 @@ export const fetchWithAuth = async (url: string, options: FetchOptions = {}): Pr
         }
     }
 
+    if (!response.ok) {
+        const error: ApiError = await response.json();
+        throw error;
+    }
+
     return response;
 };
 

@@ -31,7 +31,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
             'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
             'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
-
+            'adult'    => \App\Http\Middleware\Adult\AdultCheckMiddleware::class,
         ]);
 
         $middleware->group('web', [
@@ -57,44 +57,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withSingletons([
         \Illuminate\Contracts\Debug\ExceptionHandler::class => \App\Exceptions\Handler::class,
     ])
-//    ->withSingletons([
-//        Illuminate\Contracts\Debug\ExceptionHandler::class => Illuminate\Foundation\Exceptions\Handler::class,
-//    ])
     ->withExceptions(function (Exceptions $exceptions) {
-        //        $exceptions->renderable(function (ValidationException $e) {
-        //            return Handler::handleException($e);
-        //        });
-        //
-        //        $exceptions->renderable(function (AuthenticationException $e) {
-        //            return Handler::handleException($e);
-        //        });
-        //
-        //        $exceptions->renderable(function (AuthorizationException $e) {
-        //            return Handler::handleException($e);
-        //        });
-        //
-        //        $exceptions->renderable(function (ModelNotFoundException $e) {
-        //            return Handler::handleException($e);
-        //        });
-        //
-        //        $exceptions->renderable(function (NotFoundHttpException $e) {
-        //            return Handler::handleException($e);
-        //        });
-        //
-        //        $exceptions->renderable(function (UnauthorizedHttpException $e) {
-        //            return Handler::handleException($e);
-        //        });
-        //
-        //        $exceptions->renderable(function (AccessDeniedHttpException $e) {
-        //            return Handler::handleException($e);
-        //        });
-        //
-        //        $exceptions->renderable(function (ThrottleRequestsException $e) {
-        //            return Handler::handleException($e);
-        //        });
-        //
-        //        $exceptions->renderable(function (MissingScopeException $e) {
-        //            return Handler::handleException($e);
-        //        });
+
     })
     ->create();

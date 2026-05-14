@@ -2,9 +2,11 @@
 
 namespace App\Http\Requests\User;
 
+use App\Rules\Adult\AdultGuardian;
 use App\Rules\Password\CurrentPassword;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 
 class UpdateProfileRequest extends FormRequest
@@ -24,9 +26,25 @@ class UpdateProfileRequest extends FormRequest
      */
     public function rules(): array
     {
+        $user = $this->user();
+
         return [
-            'name'     => ['sometimes', 'string', 'max:255'],
-            'email'    => ['sometimes', 'email', 'max:255', 'unique:users,email,' . $this->user()->id],
+            /** @example Jan Kowalski */
+            'name'           => ['sometimes', 'string', 'max:255'],
+            /** @example jan.kowalski@example.com */
+            'email'          => ['sometimes', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            /** @example "2000-01-01" */
+            'date_of_birth'  => ['sometimes', 'date', 'date_format:Y-m-d', 'before_or_equal:today'],
+            /** @example guardian@example.com */
+            'guardian_email' => [
+                'nullable',
+                'email',
+                'max:255',
+                Rule::exists('users', 'email'),
+                Rule::notIn([$user->email]),
+                new AdultGuardian(),
+            ],
+            /** @example "P@ssw0rd123!@" */
             'password' => [
                 'sometimes',
                 'string',
@@ -37,31 +55,13 @@ class UpdateProfileRequest extends FormRequest
                     ->mixedCase()
                     ->numbers()
                     ->symbols(),
-                //                    ->uncompromised(),
             ],
-            'old_password' => ['required_with:password', 'string', 'max:255', new CurrentPassword()],
-        ];
-    }
-
-    public function queryParameters(): array
-    {
-        return [
-            'name' => [
-                'description' => 'Nowa nazwa użytkownika',
-                'example'     => 'Jan Kowalski',
-            ],
-            'email' => [
-                'description' => 'Nowy adres email',
-                'example'     => 'jan@example.com',
-            ],
-            'password' => [
-                'description' => 'Nowe hasło (min. 8 znaków, max. 255 znaków, musi być potwierdzone)',
-                'example'     => 'newpassword123',
-            ],
-            'password_confirmation' => [
-                'description' => 'Potwierdzenie nowego hasła',
-                'example'     => 'newpassword123',
-            ],
+            /** @example "P@ssw0rd123!@" */
+            'password_confirmation' => ['sometimes', 'string', 'same:password'],
+            /** @example "O&l*dP@ssw0rd123!@" */
+            'old_password'    => ['required_with:password', 'string', 'max:255', new CurrentPassword()],
+            /** @example false */
+            'guardian_delete' => ['sometimes', 'boolean'],
         ];
     }
 }

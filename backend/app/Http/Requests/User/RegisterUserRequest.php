@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\User;
 
+use Dedoc\Scramble\Attributes\BodyParameter;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
@@ -24,19 +25,35 @@ class RegisterUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'     => ['required', 'string', 'max:255'],
-            'email'    => ['required', 'email', 'max:255', 'unique:users,email'],
-            'password' => [
+            /** @example Jan Kowalski */
+            'name'          => ['required', 'string', 'max:255'],
+            /** @example jan.kowalski@example.com */
+            'email'         => ['required', 'email', 'max:255', 'unique:users,email'],
+            /** @example "2000-01-01" */
+            'date_of_birth' => ['sometimes', 'date', 'date_format:Y-m-d', 'before_or_equal:today'],
+            /** @example "P@ssw0rd123!@" */
+            'password'      => [
                 'required',
                 'string',
                 'confirmed',
-                Password::min(8)
+                new Password(8)
                     ->max(255)
                     ->letters()
                     ->mixedCase()
                     ->numbers()
                     ->symbols(),
-                //                    ->uncompromised(),
+            ],
+            /** @example "P@ssw0rd123!@" */
+            'password_confirmation' => ['sometimes', 'string', 'same:password'],
+        ];
+    }
+
+    public function bodyParameters(): array
+    {
+        return [
+            'password_confirmation' => [
+                'description' => 'Must match the password field.',
+                'example' => 'P@ssw0rd123!@',
             ],
         ];
     }
