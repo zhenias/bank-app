@@ -95,6 +95,10 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
+      # Generate application key
+      - name: Generate passport keys
+        run: php artisan passport:keys
+
       # Run database migrations for testing
       - name: Run migrations
         env:
