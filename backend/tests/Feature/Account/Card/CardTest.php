@@ -19,7 +19,7 @@ class CardTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->user    = User::factory()->create([
+        $this->user = User::factory()->create([
             'date_of_birth' => now()->subYears(30),
         ]);
         $this->account = Account::factory()->create(['user_id' => $this->user->id]);

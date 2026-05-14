@@ -195,7 +195,6 @@ class AccountTest extends TestCase
 
         $response = $this->deleteJson("/api/accounts/{$account->id}");
 
-
         $response->assertStatus(200)
             ->assertJson(['message' => 'Account closed.']);
 
