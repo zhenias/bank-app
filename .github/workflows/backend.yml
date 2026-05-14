@@ -95,10 +95,6 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
-      # Generate application key
-      - name: Generate app key
-        run: php artisan key:generate
-
       # Run database migrations for testing
       - name: Run migrations
         env:
