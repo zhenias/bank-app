@@ -21,10 +21,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
 
-    useEffect(() => {
-        loadUser();
-    }, []);
-
     const loadUser = async (): Promise<void> => {
         try {
             const userData = await checkAuth();
@@ -35,6 +31,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        loadUser();
+    }, []);
 
     const handleLogin = async (email: string, password: string): Promise<User> => {
         const userData = await loginWithPassword(email, password);

@@ -99,6 +99,8 @@ export const AccountViewPage = () => {
         try {
             await blockCard(cardId);
             await loadData();
+
+            showSuccess('Karta została zablokowana!');
         } catch (err: any) {
             setError(err.message);
         }
@@ -108,6 +110,8 @@ export const AccountViewPage = () => {
         try {
             await unblockCard(cardId);
             await loadData();
+
+            showSuccess('Karta została odblokowana!');
         } catch (err: any) {
             setError(err.message);
         }
@@ -119,6 +123,8 @@ export const AccountViewPage = () => {
             await deleteCard(deleteCardId);
             setDeleteCardId(null);
             await loadData();
+
+            showSuccess('Karta została usunięta!');
         } catch (err: any) {
             setError(err.message);
         }

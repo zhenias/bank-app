@@ -15,6 +15,7 @@ import { GuestOnlyRoute } from "./components/Layout/GuestOnlyRoute";
 import { DashboardLayout } from "./components/Layout/DashboardLayout";
 import { AccountPage } from "./pages/Account/AccountPage";
 import { AccountViewPage } from "./pages/Account/AccoutViewPage";
+import { CardPage } from "./pages/Account/Card/CardPage";
 import { GuardianApprovalPage } from "./pages/Guardian/GuardianApprovalPage";
 import { NotificationBell } from "./components/Notification/NotificationBell";
 import { NotificationsPage } from "./pages/Notification/NotificationsPage";
@@ -302,6 +303,7 @@ function App(): JSX.Element {
                                         <Route path="/balance" element={<BalancePage />} />
                                         <Route path="/accounts" element={<AccountPage />} />
                                         <Route path="/accounts/:id" element={<AccountViewPage />} />
+                                        <Route path="/cards" element={<CardPage />} />
                                         <Route path="/notifications" element={<NotificationsPage />} />
                                         <Route path="/guardian/approve/:wardId" element={<GuardianApprovalPage />} />
                                     </Route>

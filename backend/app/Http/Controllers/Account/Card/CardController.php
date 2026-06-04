@@ -31,6 +31,26 @@ class CardController extends Controller
     }
 
     /**
+     * Wyświetla listę wszystkich kart płatniczych użytkownika.
+     */
+    #[AuthorizeToken(['cards-view'], anyScope: true)]
+    #[QueryParameter('per_page', description: 'Ilość elementów na stronę.', type: 'int', default: 20, example: 30)]
+    #[QueryParameter('page', description: 'Numer obecnej strony.', type: 'int', default: 1, example: 2)]
+    public function allCards()
+    {
+        $userId = auth()->id();
+
+        $cards = Card::whereHas('account', function ($query) use ($userId) {
+            $query->where('user_id', $userId);
+        })->paginate(
+            perPage: $this->perPage(),
+            page: $this->currentPage(),
+        );
+
+        return CardResource::collection($cards);
+    }
+
+    /**
      * Wyświetla listę kart płatniczych przypisanych do konta.
      */
     #[AuthorizeToken(['cards-view'], anyScope: true)]

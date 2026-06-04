@@ -48,6 +48,7 @@ Route::middleware(['auth:api'])->group(function () {
         Route::get('accounts/balance', [AccountController::class, 'balance']);
         Route::apiResource('accounts', AccountController::class);
         Route::apiResource('accounts.cards', CardController::class)->only(['index', 'store']);
+        Route::get('cards', [CardController::class, 'allCards']);
         Route::get('cards/{card}', [CardController::class, 'show']);
         Route::patch('cards/{card}/block', [CardController::class, 'block']);
         Route::patch('cards/{card}/unblock', [CardController::class, 'unblock']);
