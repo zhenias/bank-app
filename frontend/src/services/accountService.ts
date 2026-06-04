@@ -60,6 +60,19 @@ export const getDeleteAccount = async (id: string) => {
 };
 
 // Card
+export const getAllCards = async (page: number = 1, perPage: number = 20): Promise<PaginationResponse<Card>> => {
+    const response = await fetchWithAuth(`/cards?page=${page}&per_page=${perPage}`, {
+        method: 'GET',
+    });
+
+    if (!response.ok) {
+        const error: ApiError = await response.json();
+        throw new Error(error.message || 'Błąd pobierania kart');
+    }
+
+    return await response.json();
+};
+
 export const getCards = async (accountId: string): Promise<PaginationResponse<Card>> => {
     const response = await fetchWithAuth(`/accounts/${accountId}/cards`, {
         method: 'GET',
