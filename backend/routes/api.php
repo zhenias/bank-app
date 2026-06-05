@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Account\AccountController;
 use App\Http\Controllers\Account\Card\CardController;
+use App\Http\Controllers\Account\Flik\FlikCodeController;
+use App\Http\Controllers\Account\Transaction\TransactionController;
 use App\Http\Controllers\Notification\NotificationController;
 use App\Http\Controllers\User\ProfileController;
 use Illuminate\Http\Request;
@@ -35,13 +37,6 @@ Route::middleware(['auth:api'])->group(function () {
 
             Route::post('/revoke-token', [ProfileController::class, 'revokeToken']);
         });
-
-        Route::middleware([CheckToken::using('user-balance')])->get('/balance', function (Request $request) {
-            return [
-                'balance'  => 0.00,
-                'currency' => 'PLN',
-            ];
-        });
     });
 
     Route::middleware(['adult'])->group(function () {
@@ -53,5 +48,16 @@ Route::middleware(['auth:api'])->group(function () {
         Route::patch('cards/{card}/block', [CardController::class, 'block']);
         Route::patch('cards/{card}/unblock', [CardController::class, 'unblock']);
         Route::delete('cards/{card}', [CardController::class, 'destroy']);
+
+        Route::get('transactions', [TransactionController::class, 'index']);
+        Route::post('transactions', [TransactionController::class, 'store']);
+        Route::get('transactions/{transaction}', [TransactionController::class, 'show']);
+        Route::get('accounts/{account}/transactions', [TransactionController::class, 'accountTransactions']);
+        Route::get('cards/{card}/transactions', [TransactionController::class, 'cardTransactions']);
+
+        Route::post('flik/request-code/{card}', [FlikCodeController::class, 'requestCode']);
+        Route::post('flik/pay', [FlikCodeController::class, 'pay']);
     });
 });
+
+

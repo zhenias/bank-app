@@ -247,7 +247,7 @@ export const AccountViewPage = () => {
                             </Typography>
                         </Grid>
 
-                        <IconButton color="default" size="small" onClick={() => setDeleteAccountId(account.id)} title="Usuń">
+                        <IconButton color="default" disabled={account.balance !== 0} size="small" onClick={() => setDeleteAccountId(account.id)} title="Usuń">
                             <DeleteIcon/>
                         </IconButton>
                     </Grid>

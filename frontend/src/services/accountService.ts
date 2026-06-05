@@ -1,5 +1,5 @@
 import {fetchWithAuth} from "./authService";
-import {Account, ApiError, Card, PaginationResponse} from "../types/types";
+import {Account, ApiError, Card, PaginationResponse, Transaction} from "../types/types";
 
 export const getAccounts = async (page: number = 1, perPage: number = 20): Promise<PaginationResponse<Account>> => {
     const response = await fetchWithAuth(`/accounts?page=${page}&per_page=${perPage}`, {
@@ -128,4 +128,66 @@ export const deleteCard = async (cardId: string): Promise<void> => {
     if (!response.ok) {
         throw new Error('Nie udało się usunąć karty');
     }
+};
+
+// Transactions
+export const getTransactions = async (
+    page: number = 1,
+    perPage: number = 20,
+    filters: Record<string, string> = {},
+): Promise<PaginationResponse<Transaction>> => {
+    const params = new URLSearchParams({ page: String(page), per_page: String(perPage), ...filters });
+    const response = await fetchWithAuth(`/transactions?${params.toString()}`, { method: 'GET' });
+
+    if (!response.ok) {
+        const error: ApiError = await response.json();
+        throw new Error(error.message || 'Błąd pobierania transakcji');
+    }
+
+    return await response.json();
+};
+
+export const getTransaction = async (id: string): Promise<Transaction> => {
+    const response = await fetchWithAuth(`/transactions/${id}`, { method: 'GET' });
+
+    if (!response.ok) {
+        const error: ApiError = await response.json();
+        throw new Error(error.message || 'Błąd pobierania transakcji');
+    }
+
+    return (await response.json()).data;
+};
+
+export const createTransfer = async (data: { to_account_number: string; amount: string; description?: string; reference?: string; }): Promise<Transaction> => {
+    const response = await fetchWithAuth('/transactions', { method: 'POST', body: JSON.stringify(data) });
+
+    if (!response.ok) {
+        const error: ApiError = await response.json();
+        throw new Error(error.message || 'Błąd tworzenia przelewu');
+    }
+
+    return (await response.json()).data;
+};
+
+// FLIK
+export const requestFlikCode = async (payload: { card_id: string; account_id: string, amount: string }): Promise<{ code: string; expires_in_seconds: number, amount: number }> => {
+    const response = await fetchWithAuth(`/flik/request-code/${payload.card_id}`, { method: 'POST', body: JSON.stringify(payload) });
+
+    if (!response.ok) {
+        const error: ApiError = await response.json();
+        throw new Error(error.message || 'Błąd generowania kodu FLIK');
+    }
+
+    return await response.json();
+};
+
+export const payFlik = async (payload: { code: string }) : Promise<any> => {
+    const response = await fetchWithAuth(`/flik/pay`, { method: 'POST', body: JSON.stringify(payload) });
+
+    if (!response.ok) {
+        const error: ApiError = await response.json();
+        throw new Error(error.message || 'Błąd płatności FLIK');
+    }
+
+    return await response.json();
 };

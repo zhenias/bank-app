@@ -215,6 +215,34 @@ export interface Transaction {
     created_at: string;
 }
 
+export interface TransactionAccountShort {
+    id: string;
+    name?: string;
+    account_number?: string;
+    user?: string;
+}
+
+export interface TransactionCardShort {
+    id: string;
+    last_four?: string;
+    network?: string;
+}
+
+// Extended transaction returned by API
+export interface Transaction {
+    id: string;
+    amount: number; // in cents
+    description?: string;
+    reference?: string;
+    type: string;
+    status: string;
+    from_account?: TransactionAccountShort | null;
+    to_account?: TransactionAccountShort | null;
+    from_card?: TransactionCardShort | null;
+    created_at: string;
+    updated_at?: string;
+}
+
 // Notification
 export interface Notification {
     id: string;

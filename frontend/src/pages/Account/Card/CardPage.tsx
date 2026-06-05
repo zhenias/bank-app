@@ -36,6 +36,7 @@ import { getAllCards, blockCard, unblockCard, deleteCard } from '../../../servic
 import type { Card as CardType, PaginationMeta } from '../../../types/types';
 import { useToast } from '../../../context/ToastContext';
 import { formatDate } from '../../../utils/formatDate';
+import {FlikRequestButton} from "../../../components/Flik/FlikRequestButton";
 
 export const CardPage = () => {
     const [cards, setCards] = useState<CardType[]>([]);
@@ -51,6 +52,8 @@ export const CardPage = () => {
     // Card details
     const [selectedCard, setSelectedCard] = useState<CardType | null>(null);
     const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
+
+    const [openFlikDialog, setOpenFlikDialog] = useState(false);
 
     const loadCards = async (pageNumber: number = 1) => {
         setLoading(true);
@@ -86,6 +89,7 @@ export const CardPage = () => {
             showError(errorMsg);
         }
     };
+
 
     const handleUnblockCard = async (cardId: string) => {
         try {
@@ -165,6 +169,7 @@ export const CardPage = () => {
         <Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
                 <Typography variant="h4">Moje karty płatnicze</Typography>
+                <Button variant="contained" onClick={() => setOpenFlikDialog(true)}>Wygeneruj kod FLIK</Button>
             </Box>
 
             {error && (
@@ -417,6 +422,11 @@ export const CardPage = () => {
                     </Button>
                 </DialogActions>
             </Dialog>
+
+            <FlikRequestButton
+                open={openFlikDialog}
+                onClose={() => setOpenFlikDialog(false)}
+            />
         </Box>
     );
 };

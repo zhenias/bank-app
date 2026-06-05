@@ -486,7 +486,7 @@ $user->password = Hash::make('password');
 ✅ Umieść w Service klasach
 
 ❌ Zwracanie surowych modeli w API  
-✅ Zawsze użyj Resources
+✅ ZawsZE użyj Resources
 
 ❌ String enumeracje `'visa'` zamiast enums  
 ✅ Użyj PHP Enums
@@ -565,20 +565,149 @@ php artisan scramble:generate
 
 ---
 
-## AI Agent Instructions
+## 11. Transaction & FLIK Implementation
 
-Kiedy dodajesz nowe funkcjonalności:
+### Atomic Transactions Pattern
 
-1. **ZAWSZE** rozpocznij od Service klasach
-2. **NIGDY** nie umieszczaj logiki w kontrolerach
-3. **ZAWSZE** używaj Resources do API responses
-4. **ZAWSZE** dokumentuj poprzez atrybuty PHP
-5. **ZAWSZE** sprawdzaj authorization
-6. **ZAWSZE** maskuj dane wrażliwe
-7. **HINTED TYPES** - używaj strict type hints
-8. Read-only properties gdzie to możliwe
-9. Dependency Injection do konstruktora
-10. Keep methods small and focused
+**Transakcje pieniężne MUSZĄ być atomic** - używamy `DB::transaction()` z `lockForUpdate()`:
 
-Powodzenia! 🚀
+```php
+public function transfer(User $user, string $toAccountNumber, int $amountInCents): Transaction {
+    return DB::transaction(function () use ($user, $toAccountNumber, $amountInCents) {
+        $fromAccount = Account::lockForUpdate()->find($fromAccount->id);
+        
+        if ($fromAccount->balance < $amountInCents) {
+            throw new InsufficientFundsException();
+        }
+        
+        $fromAccount->balance -= $amountInCents;
+        $fromAccount->save();
+        
+        $toAccount->balance += $amountInCents;
+        $toAccount->save();
+        
+        return Transaction::create([...]);
+    });
+}
+```
+
+**Ważne:**
+- ✅ `lockForUpdate()` - zapobiegacza race condition
+- ✅ `DB::transaction()` - rollback na error
+- ✅ Rzuć custom exception na error
+- ❌ Nigdy nie subtract balance bez lock!
+
+### FLIK Code Flow
+
+1. **Request Code** - `POST /api/flik/request-code/{card}`
+   - Wysyła: konto, karta, **kwota**
+   - Generuje 6-cyfrowy kod
+   - Kod zapamiętuje **kwotę** (immutable)
+   - Ważny przez 2 minuty
+   - Status: `active`
+
+2. **Validate Code** - internal validation w `FlikCodeService`
+   - Czy kod istnieje?
+   - Czy nie wygasł?
+   - Czy status == `active`?
+
+3. **Process Payment** - `POST /api/flik/pay`
+   - User wysyła **tylko kod** (bez kwoty!)
+   - Kwota pobierana z kodu - bezpieczeństwo
+   - Transakcja status: `pending` (bo async)
+   - Kod zmienia status na `used`
+
+**Bezpieczeństwo:**
+- ✅ Kwota jest zapamiętana przy kodzie - niemożliwe zmiany
+- ✅ Kod jest jednorazowy - status zmienia się na `used`
+- ✅ Kod wygasa po 2 minutach
+- ✅ `payment_method` field w transakcji - rozróżnienie transfer vs FLIK
+
+### Enum Usage
+
+```php
+use App\Enums\Transaction\TransactionType;
+use App\Enums\Transaction\TransactionStatus;
+
+Transaction::create([
+    'type' => TransactionType::TRANSFER->value,
+    'status' => TransactionStatus::COMPLETED->value,
+]);
+```
+
+**Nie używaj:** `'type' => 'transfer'` - zawsze enum!
+
+### Exception Handling
+
+```php
+throw new InsufficientFundsException();  // 422
+throw new FlikCodeExpiredException();    // 422
+throw new InvalidAccountException();     // 422
+```
+
+Każda exception ma `render()` metode zwracającą JSON z `code` field'em.
+
+---
+
+## 12. API Endpoints Reference
+
+### Transactions
+
+- `GET /api/transactions` - wszystkie tranzakcje (paginated)
+- `POST /api/transactions` - nowy transfer
+- `GET /api/transactions/{id}` - szczegóły
+- `GET /api/accounts/{id}/transactions` - dla konta
+- `GET /api/cards/{id}/transactions` - dla karty
+
+**Request body (transfer):**
+```json
+{
+  "to_account_number": "12 3456 7890...",
+  "amount": "250.50",
+  "description": "Czynsz",
+  "reference": "04/2026"
+}
+```
+
+### FLIK
+
+- `POST /api/flik/request-code/{card}` - generate code z kwotą
+- `POST /api/flik/pay` - process payment (tylko kod)
+
+**Request body (FLIK request code):**
+```json
+{
+  "account_id": "uuid",
+  "card_id": "uuid", 
+  "amount": "150.00"
+}
+```
+
+**Request body (FLIK payment):**
+```json
+{
+  "code": "123456"
+}
+```
+
+**Response (FLIK code):**
+```json
+{
+  "code": "123456",
+  "amount": 150.00,
+  "expires_in_seconds": 120,
+  "message": "Kod FLIK wygenerowany. Ważny przez 2 minuty."
+}
+```
+
+---
+
+## 13. Future Improvements
+
+- [ ] Queue Job - `ProcessFlikPayment` dla async FLIK
+- [ ] Policies - `TransactionPolicy`, `CardPolicy`
+- [ ] Event Log - audit trail dla transakcji
+- [ ] Rate Limiting - `throttle` na endpoints
+- [ ] Tests - Feature + Unit tests
+- [ ] Retry Logic - na Queue failures
 

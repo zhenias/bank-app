@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-#[Fillable(['from_account_id', 'to_account_id', 'from_card_id', 'amount', 'description', 'type', 'status', 'reference'])]
+#[Fillable(['from_account_id', 'to_account_id', 'from_card_id', 'amount', 'description', 'type', 'payment_method', 'status', 'failure_reason', 'reference'])]
 class Transaction extends Model
 {
     use HasFactory;
