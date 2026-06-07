@@ -2,10 +2,9 @@
 
 namespace App\Exceptions\Financial;
 
-use Exception;
 use Illuminate\Http\JsonResponse;
 
-class InvalidAmountException extends Exception
+class InvalidAmountException extends \Exception
 {
     public function __construct(string $message = 'Nieprawidłowa kwota.')
     {
@@ -16,8 +15,7 @@ class InvalidAmountException extends Exception
     {
         return response()->json([
             'message' => $this->message,
-            'code' => 'INVALID_AMOUNT',
+            'code'    => 'INVALID_AMOUNT',
         ], 422);
     }
 }
-

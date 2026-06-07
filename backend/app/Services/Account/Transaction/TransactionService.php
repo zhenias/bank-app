@@ -9,8 +9,8 @@ use App\Exceptions\Financial\InvalidAccountException;
 use App\Exceptions\Financial\InvalidAmountException;
 use App\Jobs\ProcessFlikPayment;
 use App\Models\Account\Account;
-use App\Models\Account\Transaction\Transaction;
 use App\Models\Account\Flik\FlikCode;
+use App\Models\Account\Transaction\Transaction;
 use App\Models\User;
 use App\Services\Service;
 use Illuminate\Support\Facades\DB;
@@ -27,7 +27,7 @@ class TransactionService extends Service
         return DB::transaction(function () use ($user, $toAccountNumber, $amountInCents, $description, $reference) {
             $toAccount = Account::where('account_number', $toAccountNumber)->first();
 
-            if (!$toAccount) {
+            if (! $toAccount) {
                 throw new InvalidAccountException('Nie znaleziono konta docelowego.');
             }
 
@@ -55,13 +55,13 @@ class TransactionService extends Service
 
             return Transaction::create([
                 'from_account_id' => $fromAccount->id,
-                'to_account_id' => $toAccount->id,
-                'amount' => $amountInCents,
-                'description' => $description,
-                'reference' => $reference,
-                'type' => TransactionType::TRANSFER->value,
-                'payment_method' => 'transfer',
-                'status' => TransactionStatus::COMPLETED->value,
+                'to_account_id'   => $toAccount->id,
+                'amount'          => $amountInCents,
+                'description'     => $description,
+                'reference'       => $reference,
+                'type'            => TransactionType::TRANSFER->value,
+                'payment_method'  => 'transfer',
+                'status'          => TransactionStatus::COMPLETED->value,
             ]);
         });
     }
@@ -83,7 +83,7 @@ class TransactionService extends Service
                 ->lockForUpdate()
                 ->first();
 
-            if (!$fromAccount) {
+            if (! $fromAccount) {
                 throw new InvalidAccountException('Płatnik nie posiada konta w PLN.');
             }
 
@@ -93,7 +93,7 @@ class TransactionService extends Service
                 ->lockForUpdate()
                 ->first();
 
-            if (!$toAccount) {
+            if (! $toAccount) {
                 throw new InvalidAccountException('Odbiorca nie posiada konta w PLN.');
             }
 
@@ -109,12 +109,12 @@ class TransactionService extends Service
 
             return Transaction::create([
                 'from_account_id' => $fromAccount->id,
-                'to_account_id' => $toAccount->id,
-                'from_card_id' => $cardId,
-                'amount' => $amountInCents,
-                'type' => TransactionType::FLIK_PAYMENT->value,
-                'payment_method' => 'flik',
-                'status' => TransactionStatus::COMPLETED->value,
+                'to_account_id'   => $toAccount->id,
+                'from_card_id'    => $cardId,
+                'amount'          => $amountInCents,
+                'type'            => TransactionType::FLIK_PAYMENT->value,
+                'payment_method'  => 'flik',
+                'status'          => TransactionStatus::COMPLETED->value,
             ]);
         });
     }
@@ -132,7 +132,7 @@ class TransactionService extends Service
                 throw new InvalidAccountException('Kod FLIK nie znaleziony.');
             }
 
-            if ($code->isExpired() || $code->status !== 'active') {
+            if ($code->isExpired() || 'active' !== $code->status) {
                 throw new InvalidAccountException('Kod FLIK nieaktywny lub wygasł.');
             }
 
@@ -145,7 +145,7 @@ class TransactionService extends Service
 
             // Lock accounts
             $fromAccount = $payer->accounts()->where('currency', 'PLN')->orderByDesc('balance')->first();
-            $toAccount = $receiver->accounts()->where('currency', 'PLN')->orderByDesc('balance')->first();
+            $toAccount   = $receiver->accounts()->where('currency', 'PLN')->orderByDesc('balance')->first();
 
             if (! $fromAccount) {
                 throw new InvalidAccountException('Płatnik nie posiada konta w PLN.');
@@ -168,17 +168,17 @@ class TransactionService extends Service
             // Create PENDING transaction
             $tx = Transaction::create([
                 'from_account_id' => $fromAccount->id,
-                'to_account_id' => $toAccount->id,
-                'from_card_id' => $code->card_id,
-                'amount' => $amountInCents,
-                'type' => TransactionType::FLIK_PAYMENT->value,
-                'payment_method' => 'flik',
-                'status' => TransactionStatus::PENDING->value,
+                'to_account_id'   => $toAccount->id,
+                'from_card_id'    => $code->card_id,
+                'amount'          => $amountInCents,
+                'type'            => TransactionType::FLIK_PAYMENT->value,
+                'payment_method'  => 'flik',
+                'status'          => TransactionStatus::PENDING->value,
             ]);
 
             // Mark code as used immediately to prevent double-spend
             $code->update([
-                'status' => 'used',
+                'status'                 => 'used',
                 'used_in_transaction_id' => $tx->id,
             ]);
 

@@ -6,9 +6,7 @@ use App\Http\Controllers\Account\Flik\FlikCodeController;
 use App\Http\Controllers\Account\Transaction\TransactionController;
 use App\Http\Controllers\Notification\NotificationController;
 use App\Http\Controllers\User\ProfileController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Laravel\Passport\Http\Middleware\CheckToken;
 
 Route::prefix('/')->group(function () {
     return response()->json([
@@ -60,5 +58,3 @@ Route::middleware(['auth:api'])->group(function () {
         Route::post('flik/pay', [FlikCodeController::class, 'pay']);
     });
 });
-
-

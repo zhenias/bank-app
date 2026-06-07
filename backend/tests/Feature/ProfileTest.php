@@ -62,7 +62,7 @@ class ProfileTest extends TestCase
             ->assertJsonPath('user.name', 'Updated Name');
 
         $this->assertDatabaseHas('users', [
-            'id' => $user->id,
+            'id'   => $user->id,
             'name' => 'Updated Name',
         ]);
     }
@@ -82,7 +82,7 @@ class ProfileTest extends TestCase
         $response->assertStatus(200);
 
         $this->assertDatabaseHas('users', [
-            'id' => $user->id,
+            'id'    => $user->id,
             'email' => 'new@example.com',
         ]);
     }
@@ -118,7 +118,7 @@ class ProfileTest extends TestCase
         $response->assertStatus(200);
 
         $this->assertDatabaseHas('users', [
-            'id' => $user->id,
+            'id'            => $user->id,
             'date_of_birth' => '2000-01-01',
         ]);
     }
@@ -127,14 +127,14 @@ class ProfileTest extends TestCase
     {
         $user = User::factory()->create([
             'date_of_birth' => now()->subYears(30),
-            'password' => bcrypt('oldpassword'),
+            'password'      => bcrypt('oldpassword'),
         ]);
 
         Passport::actingAs($user, ['user-profile-manage']);
 
         $response = $this->patchJson('/api/user/profile', [
-            'old_password' => 'oldpassword',
-            'password' => 'NewP@ssw0rd123!@',
+            'old_password'          => 'oldpassword',
+            'password'              => 'NewP@ssw0rd123!@',
             'password_confirmation' => 'NewP@ssw0rd123!@',
         ]);
 
@@ -229,11 +229,11 @@ class ProfileTest extends TestCase
     public function testRegisterUser(): void
     {
         $response = $this->postJson('/api/user/register', [
-            'name' => 'New User',
-            'email' => 'newuser@example.com',
-            'password' => 'P@ssw0rd123!@',
+            'name'                  => 'New User',
+            'email'                 => 'newuser@example.com',
+            'password'              => 'P@ssw0rd123!@',
             'password_confirmation' => 'P@ssw0rd123!@',
-            'date_of_birth' => '2000-01-01',
+            'date_of_birth'         => '2000-01-01',
         ]);
 
         $response->assertStatus(201)
@@ -241,16 +241,16 @@ class ProfileTest extends TestCase
 
         $this->assertDatabaseHas('users', [
             'email' => 'newuser@example.com',
-            'name' => 'New User',
+            'name'  => 'New User',
         ]);
     }
 
     public function testRegisterUserRequiresPasswordConfirmation(): void
     {
         $response = $this->postJson('/api/user/register', [
-            'name' => 'New User',
-            'email' => 'newuser@example.com',
-            'password' => 'P@ssw0rd123!@',
+            'name'          => 'New User',
+            'email'         => 'newuser@example.com',
+            'password'      => 'P@ssw0rd123!@',
             'date_of_birth' => '2000-01-01',
         ]);
 
@@ -265,11 +265,11 @@ class ProfileTest extends TestCase
         ]);
 
         $response = $this->postJson('/api/user/register', [
-            'name' => 'New User',
-            'email' => 'taken@example.com',
-            'password' => 'P@ssw0rd123!@',
+            'name'                  => 'New User',
+            'email'                 => 'taken@example.com',
+            'password'              => 'P@ssw0rd123!@',
             'password_confirmation' => 'P@ssw0rd123!@',
-            'date_of_birth' => '2000-01-01',
+            'date_of_birth'         => '2000-01-01',
         ]);
 
         $response->assertStatus(422)
@@ -282,8 +282,8 @@ class ProfileTest extends TestCase
             'date_of_birth' => now()->subYears(30),
         ]);
         $ward = User::factory()->create([
-            'date_of_birth' => now()->subYears(10),
-            'guardian_id' => $guardian->id,
+            'date_of_birth'        => now()->subYears(10),
+            'guardian_id'          => $guardian->id,
             'guardian_approved_at' => null,
         ]);
 
@@ -295,7 +295,7 @@ class ProfileTest extends TestCase
             ->assertJsonPath('message', 'Guardian approval confirmed.');
 
         $this->assertDatabaseHas('users', [
-            'id' => $ward->id,
+            'id'                   => $ward->id,
             'guardian_approved_at' => now(),
         ]);
     }
@@ -306,8 +306,8 @@ class ProfileTest extends TestCase
             'date_of_birth' => now()->subYears(16),
         ]);
         $ward = User::factory()->create([
-            'date_of_birth' => now()->subYears(10),
-            'guardian_id' => $guardian->id,
+            'date_of_birth'        => now()->subYears(10),
+            'guardian_id'          => $guardian->id,
             'guardian_approved_at' => null,
         ]);
 
@@ -337,8 +337,8 @@ class ProfileTest extends TestCase
             'date_of_birth' => now()->subYears(30),
         ]);
         $ward = User::factory()->create([
-            'date_of_birth' => now()->subYears(10),
-            'guardian_id' => $guardian->id,
+            'date_of_birth'        => now()->subYears(10),
+            'guardian_id'          => $guardian->id,
             'guardian_approved_at' => now(),
         ]);
 
@@ -355,8 +355,8 @@ class ProfileTest extends TestCase
             'date_of_birth' => now()->subYears(30),
         ]);
         $ward = User::factory()->create([
-            'date_of_birth' => now()->subYears(10),
-            'guardian_id' => $guardian->id,
+            'date_of_birth'        => now()->subYears(10),
+            'guardian_id'          => $guardian->id,
             'guardian_approved_at' => null,
         ]);
 
@@ -374,8 +374,8 @@ class ProfileTest extends TestCase
             'date_of_birth' => now()->subYears(30),
         ]);
         $ward = User::factory()->create([
-            'date_of_birth' => now()->subYears(10),
-            'guardian_id' => $guardian->id,
+            'date_of_birth'        => now()->subYears(10),
+            'guardian_id'          => $guardian->id,
             'guardian_approved_at' => now(),
         ]);
 

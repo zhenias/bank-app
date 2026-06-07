@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 /**
- * Powiadomienia
+ * Powiadomienia.
  *
  * @tags Powiadomienia użytkownika
  */

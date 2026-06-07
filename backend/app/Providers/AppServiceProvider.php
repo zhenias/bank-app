@@ -57,7 +57,7 @@ class AppServiceProvider extends ServiceProvider
 
             // Transakcje
             'transactions-view'      => 'Odczyt historii transakcji',
-            'transactions-create'      => 'Tworzenie transakcji',
+            'transactions-create'    => 'Tworzenie transakcji',
             'transactions-details'   => 'Odczyt szczegółów transakcji',
             'transactions-transfer'  => 'Wykonywanie przelewów',
             'transactions-scheduled' => 'Odczyt zaplanowanych przelewów',
@@ -71,8 +71,8 @@ class AppServiceProvider extends ServiceProvider
 
             // Blik / Płatności mobilne
             'flik-generate' => 'Generowanie kodu FLIK',
-            'flik-pay'  => 'Płatność za pomocą FLIK',
-            'flik-status' => 'Sprawdzenie statusu kodu FLIK',
+            'flik-pay'      => 'Płatność za pomocą FLIK',
+            'flik-status'   => 'Sprawdzenie statusu kodu FLIK',
 
             // Przelewy
             'transfer-internal' => 'Przelew wewnętrzny (na konto w tym samym banku)',

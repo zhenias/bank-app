@@ -18,4 +18,3 @@ class StoreFlikPaymentRequest extends FormRequest
         ];
     }
 }
-

@@ -18,7 +18,7 @@ use Laravel\Passport\Attributes\AuthorizeToken;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
- * Transakcje
+ * Transakcje.
  *
  * @tags Transakcje
  */
@@ -53,7 +53,7 @@ class TransactionController extends Controller
     }
 
     /**
-     * Tworzenie nowej transakcji
+     * Tworzenie nowej transakcji.
      *
      * Tworzenie nowej transakcji - przelew między kontami. Użytkownik musi być właścicielem konta źródłowego.
      */
@@ -74,7 +74,7 @@ class TransactionController extends Controller
     }
 
     /**
-     * Szczegóły transakcji
+     * Szczegóły transakcji.
      *
      * Pobranie szczegółów konkretnej transakcji. Użytkownik musi być właścicielem konta źródłowego lub docelowego.
      */
@@ -82,8 +82,8 @@ class TransactionController extends Controller
     #[PathParameter('transaction', description: 'ID transakcji', type: 'string', format: 'uuid')]
     public function show(Transaction $transaction): TransactionResource
     {
-        if ($transaction->fromAccount?->user_id !== auth()->id() &&
-            $transaction->toAccount?->user_id !== auth()->id()) {
+        if ($transaction->fromAccount?->user_id  !== auth()->id()
+            && $transaction->toAccount?->user_id !== auth()->id()) {
             throw new AccessDeniedHttpException();
         }
 
@@ -91,7 +91,7 @@ class TransactionController extends Controller
     }
 
     /**
-     * Transakcje dla konta
+     * Transakcje dla konta.
      *
      * Pobranie listy transakcji związanych z konkretnym kontem. Użytkownik musi być właścicielem tego konta.
      */
@@ -115,7 +115,7 @@ class TransactionController extends Controller
     }
 
     /**
-     * Transakcje dla karty
+     * Transakcje dla karty.
      *
      * Pobranie listy transakcji związanych z konkretną kartą. Użytkownik musi być właścicielem konta, do którego przypisana jest karta.
      */

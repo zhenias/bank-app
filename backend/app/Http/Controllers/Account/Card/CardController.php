@@ -82,7 +82,7 @@ class CardController extends Controller
             throw new AccessDeniedHttpException('Account not found or access denied.');
         }
 
-        if ($account->status !== 'open') {
+        if ('open' !== $account->status) {
             throw new AccessDeniedHttpException('Cannot add card to inactive account.');
         }
 

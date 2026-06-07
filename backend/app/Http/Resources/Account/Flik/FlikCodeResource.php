@@ -29,4 +29,3 @@ class FlikCodeResource extends JsonResource
         ];
     }
 }
-

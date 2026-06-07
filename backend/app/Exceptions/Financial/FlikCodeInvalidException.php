@@ -2,10 +2,9 @@
 
 namespace App\Exceptions\Financial;
 
-use Exception;
 use Illuminate\Http\JsonResponse;
 
-class FlikCodeInvalidException extends Exception
+class FlikCodeInvalidException extends \Exception
 {
     protected $message = 'Kod FLIK jest nieprawidłowy lub już został użyty.';
 
@@ -13,8 +12,7 @@ class FlikCodeInvalidException extends Exception
     {
         return response()->json([
             'message' => $this->message,
-            'code' => 'FLIK_CODE_INVALID',
+            'code'    => 'FLIK_CODE_INVALID',
         ], 422);
     }
 }
-

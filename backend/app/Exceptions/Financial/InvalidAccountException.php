@@ -2,10 +2,9 @@
 
 namespace App\Exceptions\Financial;
 
-use Exception;
 use Illuminate\Http\JsonResponse;
 
-class InvalidAccountException extends Exception
+class InvalidAccountException extends \Exception
 {
     protected $message = 'Konto odbiorcy nie istnieje.';
 
@@ -13,8 +12,7 @@ class InvalidAccountException extends Exception
     {
         return response()->json([
             'message' => $this->message,
-            'code' => 'INVALID_ACCOUNT',
+            'code'    => 'INVALID_ACCOUNT',
         ], 422);
     }
 }
-

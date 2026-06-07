@@ -14,7 +14,7 @@ class AccountFactory extends Factory
 
     public function definition(): array
     {
-//        $currency = $this->faker->randomElement(['PLN', 'USD', 'EURO']);
+        //        $currency = $this->faker->randomElement(['PLN', 'USD', 'EURO']);
         $currency = 'PLN';
 
         return [
@@ -37,7 +37,7 @@ class AccountFactory extends Factory
         return $this->afterCreating(function (Account $account) use ($count) {
             Card::factory()->count($count)->create([
                 'account_id' => $account->id,
-                'status'     => $account->status === 'open' ? 'active' : 'inactive',
+                'status'     => 'open' === $account->status ? 'active' : 'inactive',
             ]);
         });
     }

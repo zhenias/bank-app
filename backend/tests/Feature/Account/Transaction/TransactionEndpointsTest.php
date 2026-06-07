@@ -16,21 +16,21 @@ class TransactionEndpointsTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_user_can_create_transfer_and_balances_update(): void
+    public function testUserCanCreateTransferAndBalancesUpdate(): void
     {
-        $user = User::factory()->create(['date_of_birth' => now()->subYears(30)]);
+        $user        = User::factory()->create(['date_of_birth' => now()->subYears(30)]);
         $fromAccount = Account::factory()->create([
-            'user_id' => $user->id,
-            'currency' => 'PLN',
-            'balance' => 100000,
+            'user_id'        => $user->id,
+            'currency'       => 'PLN',
+            'balance'        => 100000,
             'account_number' => '11111111111111111111111111',
         ]);
 
         $recipient = User::factory()->create(['date_of_birth' => now()->subYears(30)]);
         $toAccount = Account::factory()->create([
-            'user_id' => $recipient->id,
-            'currency' => 'PLN',
-            'balance' => 0,
+            'user_id'        => $recipient->id,
+            'currency'       => 'PLN',
+            'balance'        => 0,
             'account_number' => '22222222222222222222222222',
         ]);
 
@@ -38,9 +38,9 @@ class TransactionEndpointsTest extends TestCase
 
         $response = $this->postJson('/api/transactions', [
             'to_account_number' => $toAccount->account_number,
-            'amount' => '100.50',
-            'description' => 'Test transfer',
-            'reference' => 'INV-100',
+            'amount'            => '100.50',
+            'description'       => 'Test transfer',
+            'reference'         => 'INV-100',
         ]);
 
         $response->assertStatus(201);
@@ -55,13 +55,13 @@ class TransactionEndpointsTest extends TestCase
         $this->assertEquals(10050, $toAccount->balance);
     }
 
-    public function test_transfer_to_own_account_is_rejected(): void
+    public function testTransferToOwnAccountIsRejected(): void
     {
-        $user = User::factory()->create(['date_of_birth' => now()->subYears(30)]);
+        $user    = User::factory()->create(['date_of_birth' => now()->subYears(30)]);
         $account = Account::factory()->create([
-            'user_id' => $user->id,
-            'currency' => 'PLN',
-            'balance' => 100000,
+            'user_id'        => $user->id,
+            'currency'       => 'PLN',
+            'balance'        => 100000,
             'account_number' => '11111111111111111111111111',
         ]);
 
@@ -69,26 +69,26 @@ class TransactionEndpointsTest extends TestCase
 
         $response = $this->postJson('/api/transactions', [
             'to_account_number' => $account->account_number,
-            'amount' => '10.00',
+            'amount'            => '10.00',
         ]);
 
         $response->assertStatus(422);
     }
 
-    public function test_transfer_with_insufficient_funds_is_rejected(): void
+    public function testTransferWithInsufficientFundsIsRejected(): void
     {
         $user = User::factory()->create(['date_of_birth' => now()->subYears(30)]);
         Account::factory()->create([
-            'user_id' => $user->id,
-            'currency' => 'PLN',
-            'balance' => 500,
+            'user_id'        => $user->id,
+            'currency'       => 'PLN',
+            'balance'        => 500,
             'account_number' => '11111111111111111111111111',
         ]);
 
         $recipient = User::factory()->create(['date_of_birth' => now()->subYears(30)]);
         $toAccount = Account::factory()->create([
-            'user_id' => $recipient->id,
-            'currency' => 'PLN',
+            'user_id'        => $recipient->id,
+            'currency'       => 'PLN',
             'account_number' => '22222222222222222222222222',
         ]);
 
@@ -96,19 +96,19 @@ class TransactionEndpointsTest extends TestCase
 
         $response = $this->postJson('/api/transactions', [
             'to_account_number' => $toAccount->account_number,
-            'amount' => '10.00',
+            'amount'            => '10.00',
         ]);
 
         $response->assertStatus(422);
     }
 
-    public function test_transfer_to_nonexistent_account_is_rejected(): void
+    public function testTransferToNonexistentAccountIsRejected(): void
     {
         $user = User::factory()->create(['date_of_birth' => now()->subYears(30)]);
         Account::factory()->create([
-            'user_id' => $user->id,
-            'currency' => 'PLN',
-            'balance' => 100000,
+            'user_id'        => $user->id,
+            'currency'       => 'PLN',
+            'balance'        => 100000,
             'account_number' => '11111111111111111111111111',
         ]);
 
@@ -116,26 +116,26 @@ class TransactionEndpointsTest extends TestCase
 
         $response = $this->postJson('/api/transactions', [
             'to_account_number' => '99999999999999999999999999',
-            'amount' => '10.00',
+            'amount'            => '10.00',
         ]);
 
         $response->assertStatus(422);
     }
 
-    public function test_transfer_below_minimum_amount_is_rejected(): void
+    public function testTransferBelowMinimumAmountIsRejected(): void
     {
         $user = User::factory()->create(['date_of_birth' => now()->subYears(30)]);
         Account::factory()->create([
-            'user_id' => $user->id,
-            'currency' => 'PLN',
-            'balance' => 100000,
+            'user_id'        => $user->id,
+            'currency'       => 'PLN',
+            'balance'        => 100000,
             'account_number' => '11111111111111111111111111',
         ]);
 
         $recipient = User::factory()->create(['date_of_birth' => now()->subYears(30)]);
         $toAccount = Account::factory()->create([
-            'user_id' => $recipient->id,
-            'currency' => 'PLN',
+            'user_id'        => $recipient->id,
+            'currency'       => 'PLN',
             'account_number' => '22222222222222222222222222',
         ]);
 
@@ -143,41 +143,41 @@ class TransactionEndpointsTest extends TestCase
 
         $response = $this->postJson('/api/transactions', [
             'to_account_number' => $toAccount->account_number,
-            'amount' => '0.00',
+            'amount'            => '0.00',
         ]);
 
         $response->assertStatus(422);
     }
 
-    public function test_user_can_list_their_transactions(): void
+    public function testUserCanListTheirTransactions(): void
     {
-        $user = User::factory()->create(['date_of_birth' => now()->subYears(30)]);
+        $user    = User::factory()->create(['date_of_birth' => now()->subYears(30)]);
         $account = Account::factory()->create([
-            'user_id' => $user->id,
+            'user_id'  => $user->id,
             'currency' => 'PLN',
-            'balance' => 50000,
+            'balance'  => 50000,
         ]);
 
-        $other = User::factory()->create(['date_of_birth' => now()->subYears(30)]);
+        $other        = User::factory()->create(['date_of_birth' => now()->subYears(30)]);
         $otherAccount = Account::factory()->create([
-            'user_id' => $other->id,
+            'user_id'        => $other->id,
             'account_number' => Str::random(26),
         ]);
 
         Transaction::create([
             'from_account_id' => $account->id,
-            'to_account_id' => $otherAccount->id,
-            'amount' => 1000,
-            'type' => 'transfer',
-            'status' => TransactionStatus::COMPLETED->value,
+            'to_account_id'   => $otherAccount->id,
+            'amount'          => 1000,
+            'type'            => 'transfer',
+            'status'          => TransactionStatus::COMPLETED->value,
         ]);
 
         Transaction::create([
             'from_account_id' => $otherAccount->id,
-            'to_account_id' => $account->id,
-            'amount' => 2000,
-            'type' => 'transfer',
-            'status' => TransactionStatus::COMPLETED->value,
+            'to_account_id'   => $account->id,
+            'amount'          => 2000,
+            'type'            => 'transfer',
+            'status'          => TransactionStatus::COMPLETED->value,
         ]);
 
         Passport::actingAs($user, ['transactions-view']);
@@ -188,28 +188,28 @@ class TransactionEndpointsTest extends TestCase
         $this->assertCount(2, $response->json('data'));
     }
 
-    public function test_transaction_list_is_paginated(): void
+    public function testTransactionListIsPaginated(): void
     {
-        $user = User::factory()->create(['date_of_birth' => now()->subYears(30)]);
+        $user    = User::factory()->create(['date_of_birth' => now()->subYears(30)]);
         $account = Account::factory()->create([
-            'user_id' => $user->id,
+            'user_id'  => $user->id,
             'currency' => 'PLN',
-            'balance' => 50000,
+            'balance'  => 50000,
         ]);
 
-        $other = User::factory()->create(['date_of_birth' => now()->subYears(30)]);
+        $other        = User::factory()->create(['date_of_birth' => now()->subYears(30)]);
         $otherAccount = Account::factory()->create([
-            'user_id' => $other->id,
+            'user_id'        => $other->id,
             'account_number' => Str::random(26),
         ]);
 
-        for ($i = 0; $i < 25; $i++) {
+        for ($i = 0; $i < 25; ++$i) {
             Transaction::create([
                 'from_account_id' => $account->id,
-                'to_account_id' => $otherAccount->id,
-                'amount' => 100,
-                'type' => 'transfer',
-                'status' => TransactionStatus::COMPLETED->value,
+                'to_account_id'   => $otherAccount->id,
+                'amount'          => 100,
+                'type'            => 'transfer',
+                'status'          => TransactionStatus::COMPLETED->value,
             ]);
         }
 
@@ -222,27 +222,27 @@ class TransactionEndpointsTest extends TestCase
         $this->assertEquals(25, $response->json('meta.total'));
     }
 
-    public function test_user_can_view_own_transaction(): void
+    public function testUserCanViewOwnTransaction(): void
     {
-        $user = User::factory()->create(['date_of_birth' => now()->subYears(30)]);
+        $user    = User::factory()->create(['date_of_birth' => now()->subYears(30)]);
         $account = Account::factory()->create([
-            'user_id' => $user->id,
+            'user_id'  => $user->id,
             'currency' => 'PLN',
-            'balance' => 50000,
+            'balance'  => 50000,
         ]);
 
-        $other = User::factory()->create(['date_of_birth' => now()->subYears(30)]);
+        $other        = User::factory()->create(['date_of_birth' => now()->subYears(30)]);
         $otherAccount = Account::factory()->create([
-            'user_id' => $other->id,
+            'user_id'        => $other->id,
             'account_number' => Str::random(26),
         ]);
 
         $transaction = Transaction::create([
             'from_account_id' => $account->id,
-            'to_account_id' => $otherAccount->id,
-            'amount' => 1000,
-            'type' => 'transfer',
-            'status' => TransactionStatus::COMPLETED->value,
+            'to_account_id'   => $otherAccount->id,
+            'amount'          => 1000,
+            'type'            => 'transfer',
+            'status'          => TransactionStatus::COMPLETED->value,
         ]);
 
         Passport::actingAs($user, ['transactions-view']);
@@ -253,36 +253,36 @@ class TransactionEndpointsTest extends TestCase
         $this->assertEquals($transaction->id, $response->json('data.id'));
     }
 
-    public function test_user_cannot_view_others_transaction(): void
+    public function testUserCannotViewOthersTransaction(): void
     {
         $user = User::factory()->create(['date_of_birth' => now()->subYears(30)]);
         Account::factory()->create([
-            'user_id' => $user->id,
+            'user_id'  => $user->id,
             'currency' => 'PLN',
-            'balance' => 50000,
+            'balance'  => 50000,
         ]);
 
-        $other = User::factory()->create(['date_of_birth' => now()->subYears(30)]);
+        $other        = User::factory()->create(['date_of_birth' => now()->subYears(30)]);
         $otherAccount = Account::factory()->create([
-            'user_id' => $other->id,
-            'currency' => 'PLN',
-            'balance' => 50000,
+            'user_id'        => $other->id,
+            'currency'       => 'PLN',
+            'balance'        => 50000,
             'account_number' => Str::random(26),
         ]);
 
-        $third = User::factory()->create(['date_of_birth' => now()->subYears(30)]);
+        $third        = User::factory()->create(['date_of_birth' => now()->subYears(30)]);
         $thirdAccount = Account::factory()->create([
-            'user_id' => $third->id,
-            'currency' => 'PLN',
+            'user_id'        => $third->id,
+            'currency'       => 'PLN',
             'account_number' => Str::random(26),
         ]);
 
         $transaction = Transaction::create([
             'from_account_id' => $otherAccount->id,
-            'to_account_id' => $thirdAccount->id,
-            'amount' => 1000,
-            'type' => 'transfer',
-            'status' => TransactionStatus::COMPLETED->value,
+            'to_account_id'   => $thirdAccount->id,
+            'amount'          => 1000,
+            'type'            => 'transfer',
+            'status'          => TransactionStatus::COMPLETED->value,
         ]);
 
         Passport::actingAs($user, ['transactions-view']);
@@ -292,27 +292,27 @@ class TransactionEndpointsTest extends TestCase
         $response->assertStatus(403);
     }
 
-    public function test_user_can_list_account_transactions(): void
+    public function testUserCanListAccountTransactions(): void
     {
-        $user = User::factory()->create(['date_of_birth' => now()->subYears(30)]);
+        $user    = User::factory()->create(['date_of_birth' => now()->subYears(30)]);
         $account = Account::factory()->create([
-            'user_id' => $user->id,
+            'user_id'  => $user->id,
             'currency' => 'PLN',
-            'balance' => 50000,
+            'balance'  => 50000,
         ]);
 
-        $other = User::factory()->create(['date_of_birth' => now()->subYears(30)]);
+        $other        = User::factory()->create(['date_of_birth' => now()->subYears(30)]);
         $otherAccount = Account::factory()->create([
-            'user_id' => $other->id,
+            'user_id'        => $other->id,
             'account_number' => Str::random(26),
         ]);
 
         Transaction::create([
             'from_account_id' => $account->id,
-            'to_account_id' => $otherAccount->id,
-            'amount' => 1000,
-            'type' => 'transfer',
-            'status' => TransactionStatus::COMPLETED->value,
+            'to_account_id'   => $otherAccount->id,
+            'amount'          => 1000,
+            'type'            => 'transfer',
+            'status'          => TransactionStatus::COMPLETED->value,
         ]);
 
         Passport::actingAs($user, ['transactions-view']);
@@ -323,20 +323,20 @@ class TransactionEndpointsTest extends TestCase
         $this->assertCount(1, $response->json('data'));
     }
 
-    public function test_user_cannot_list_others_account_transactions(): void
+    public function testUserCannotListOthersAccountTransactions(): void
     {
         $user = User::factory()->create(['date_of_birth' => now()->subYears(30)]);
         Account::factory()->create([
-            'user_id' => $user->id,
+            'user_id'  => $user->id,
             'currency' => 'PLN',
-            'balance' => 50000,
+            'balance'  => 50000,
         ]);
 
-        $other = User::factory()->create(['date_of_birth' => now()->subYears(30)]);
+        $other        = User::factory()->create(['date_of_birth' => now()->subYears(30)]);
         $otherAccount = Account::factory()->create([
-            'user_id' => $other->id,
+            'user_id'  => $other->id,
             'currency' => 'PLN',
-            'balance' => 50000,
+            'balance'  => 50000,
         ]);
 
         Passport::actingAs($user, ['transactions-view']);
@@ -346,32 +346,32 @@ class TransactionEndpointsTest extends TestCase
         $response->assertStatus(403);
     }
 
-    public function test_user_can_list_card_transactions(): void
+    public function testUserCanListCardTransactions(): void
     {
-        $user = User::factory()->create(['date_of_birth' => now()->subYears(30)]);
+        $user    = User::factory()->create(['date_of_birth' => now()->subYears(30)]);
         $account = Account::factory()->create([
-            'user_id' => $user->id,
+            'user_id'  => $user->id,
             'currency' => 'PLN',
-            'balance' => 50000,
+            'balance'  => 50000,
         ]);
         $card = Card::factory()->create([
             'account_id' => $account->id,
-            'status' => 'active',
+            'status'     => 'active',
         ]);
 
-        $other = User::factory()->create(['date_of_birth' => now()->subYears(30)]);
+        $other        = User::factory()->create(['date_of_birth' => now()->subYears(30)]);
         $otherAccount = Account::factory()->create([
-            'user_id' => $other->id,
+            'user_id'        => $other->id,
             'account_number' => Str::random(26),
         ]);
 
         Transaction::create([
             'from_account_id' => $account->id,
-            'to_account_id' => $otherAccount->id,
-            'from_card_id' => $card->id,
-            'amount' => 1000,
-            'type' => 'flik_payment',
-            'status' => TransactionStatus::COMPLETED->value,
+            'to_account_id'   => $otherAccount->id,
+            'from_card_id'    => $card->id,
+            'amount'          => 1000,
+            'type'            => 'flik_payment',
+            'status'          => TransactionStatus::COMPLETED->value,
         ]);
 
         Passport::actingAs($user, ['transactions-view']);
@@ -382,24 +382,24 @@ class TransactionEndpointsTest extends TestCase
         $this->assertCount(1, $response->json('data'));
     }
 
-    public function test_user_cannot_list_others_card_transactions(): void
+    public function testUserCannotListOthersCardTransactions(): void
     {
         $user = User::factory()->create(['date_of_birth' => now()->subYears(30)]);
         Account::factory()->create([
-            'user_id' => $user->id,
+            'user_id'  => $user->id,
             'currency' => 'PLN',
-            'balance' => 50000,
+            'balance'  => 50000,
         ]);
 
-        $other = User::factory()->create(['date_of_birth' => now()->subYears(30)]);
+        $other        = User::factory()->create(['date_of_birth' => now()->subYears(30)]);
         $otherAccount = Account::factory()->create([
-            'user_id' => $other->id,
+            'user_id'  => $other->id,
             'currency' => 'PLN',
-            'balance' => 50000,
+            'balance'  => 50000,
         ]);
         $otherCard = Card::factory()->create([
             'account_id' => $otherAccount->id,
-            'status' => 'active',
+            'status'     => 'active',
         ]);
 
         Passport::actingAs($user, ['transactions-view']);

@@ -33,9 +33,9 @@ class CardTest extends TestCase
         $card1 = Card::factory()->create(['account_id' => $this->account->id]);
 
         $account2 = Account::factory()->create(['user_id' => $this->user->id]);
-        $card2 = Card::factory()->create(['account_id' => $account2->id]);
+        $card2    = Card::factory()->create(['account_id' => $account2->id]);
 
-        $otherUser = User::factory()->create();
+        $otherUser    = User::factory()->create();
         $otherAccount = Account::factory()->create(['user_id' => $otherUser->id]);
         Card::factory()->create(['account_id' => $otherAccount->id]);
 
@@ -66,7 +66,7 @@ class CardTest extends TestCase
     public function testListsCardsForAccount(): void
     {
         Card::factory()->count(3)->create([
-            'account_id' => $this->account->id
+            'account_id' => $this->account->id,
         ]);
 
         Passport::actingAs($this->user, ['cards-view']);
@@ -156,7 +156,7 @@ class CardTest extends TestCase
 
     public function testCannotCreateCardForOtherUserAccount(): void
     {
-        $otherUser = User::factory()->create();
+        $otherUser    = User::factory()->create();
         $otherAccount = Account::factory()->create([
             'user_id' => $otherUser->id,
             'status'  => 'open',
@@ -315,7 +315,7 @@ class CardTest extends TestCase
         $response->assertStatus(200);
 
         $this->assertDatabaseHas('cards', [
-            'id' => $card->id,
+            'id'     => $card->id,
             'status' => 'deleted',
         ]);
     }
@@ -380,7 +380,7 @@ class CardTest extends TestCase
     {
         $card = Card::factory()->create(['account_id' => $this->account->id]);
 
-        $this->getJson("/api/cards")
+        $this->getJson('/api/cards')
             ->assertStatus(401);
 
         $this->getJson("/api/accounts/{$this->account->id}/cards")

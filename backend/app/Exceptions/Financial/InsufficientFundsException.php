@@ -2,10 +2,9 @@
 
 namespace App\Exceptions\Financial;
 
-use Exception;
 use Illuminate\Http\JsonResponse;
 
-class InsufficientFundsException extends Exception
+class InsufficientFundsException extends \Exception
 {
     protected $message = 'Niewystarczające środki na koncie.';
 
@@ -13,8 +12,7 @@ class InsufficientFundsException extends Exception
     {
         return response()->json([
             'message' => $this->message,
-            'code' => 'INSUFFICIENT_FUNDS',
+            'code'    => 'INSUFFICIENT_FUNDS',
         ], 422);
     }
 }
-

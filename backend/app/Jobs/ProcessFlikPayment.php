@@ -17,7 +17,10 @@ use Psr\Log\LoggerInterface;
 
 class ProcessFlikPayment implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     public string $transactionId;
 
@@ -36,11 +39,13 @@ class ProcessFlikPayment implements ShouldQueue
 
         if (! $transaction) {
             $logger->warning('ProcessFlikPayment: transaction not found', ['transaction_id' => $this->transactionId]);
+
             return;
         }
 
         if ($transaction->status !== TransactionStatus::PENDING->value) {
             $logger->info('ProcessFlikPayment: transaction not pending, skipping', ['transaction_id' => $transaction->id, 'status' => $transaction->status]);
+
             return;
         }
 
@@ -51,6 +56,7 @@ class ProcessFlikPayment implements ShouldQueue
 
                 if (! $tx || $tx->status !== TransactionStatus::PENDING->value) {
                     $logger->info('ProcessFlikPayment: transaction changed while acquiring lock, skipping', ['transaction_id' => $transaction->id]);
+
                     return;
                 }
 
@@ -67,6 +73,7 @@ class ProcessFlikPayment implements ShouldQueue
                         ]);
                     }
                     $tx->update(['status' => TransactionStatus::FAILED->value, 'failure_reason' => 'NO_TO_ACCOUNT']);
+
                     return;
                 }
 
@@ -87,9 +94,11 @@ class ProcessFlikPayment implements ShouldQueue
         } catch (InsufficientFundsException $e) {
             $logger->warning('ProcessFlikPayment: insufficient funds', ['transaction_id' => $transaction->id]);
             $this->failed($e);
+
             return;
         } catch (\Exception $e) {
             $logger->error('ProcessFlikPayment: unexpected error, rethrowing to allow retry', ['transaction_id' => $transaction->id, 'error' => $e->getMessage()]);
+
             throw $e;
         }
     }
@@ -117,7 +126,7 @@ class ProcessFlikPayment implements ShouldQueue
                 }
 
                 $tx->update([
-                    'status' => TransactionStatus::FAILED->value,
+                    'status'         => TransactionStatus::FAILED->value,
                     'failure_reason' => substr($exception->getMessage(), 0, 191),
                 ]);
             });

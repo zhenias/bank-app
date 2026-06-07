@@ -24,7 +24,7 @@ class FlikCode extends Model
     protected function casts(): array
     {
         return [
-            'amount' => 'integer',
+            'amount'     => 'integer',
             'expires_at' => 'datetime',
         ];
     }

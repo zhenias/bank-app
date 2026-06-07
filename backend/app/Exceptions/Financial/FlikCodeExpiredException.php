@@ -2,10 +2,9 @@
 
 namespace App\Exceptions\Financial;
 
-use Exception;
 use Illuminate\Http\JsonResponse;
 
-class FlikCodeExpiredException extends Exception
+class FlikCodeExpiredException extends \Exception
 {
     protected $message = 'Kod FLIK wygasł.';
 
@@ -13,8 +12,7 @@ class FlikCodeExpiredException extends Exception
     {
         return response()->json([
             'message' => $this->message,
-            'code' => 'FLIK_CODE_EXPIRED',
+            'code'    => 'FLIK_CODE_EXPIRED',
         ], 422);
     }
 }
-

@@ -77,19 +77,19 @@ class AccountTest extends TestCase
     public function testReturnsBalanceGroupedByCurrency(): void
     {
         Account::factory()->create([
-            'user_id' => $this->user->id,
+            'user_id'  => $this->user->id,
             'currency' => 'PLN',
-            'balance' => 50000,
+            'balance'  => 50000,
         ]);
         Account::factory()->create([
-            'user_id' => $this->user->id,
+            'user_id'  => $this->user->id,
             'currency' => 'PLN',
-            'balance' => 30000,
+            'balance'  => 30000,
         ]);
         Account::factory()->create([
-            'user_id' => $this->user->id,
+            'user_id'  => $this->user->id,
             'currency' => 'EUR',
-            'balance' => 10000,
+            'balance'  => 10000,
         ]);
 
         Passport::actingAs($this->user, ['accounts-view']);
@@ -102,7 +102,7 @@ class AccountTest extends TestCase
                 'total',
             ]);
 
-        $balances = $response->json('balances');
+        $balances   = $response->json('balances');
         $plnBalance = collect($balances)->firstWhere('currency', 'PLN');
         $this->assertNotNull($plnBalance);
         $this->assertEquals('800,00', $plnBalance['balance']);
@@ -111,16 +111,16 @@ class AccountTest extends TestCase
     public function testBalanceExcludesOtherUsersAccounts(): void
     {
         Account::factory()->create([
-            'user_id' => $this->user->id,
+            'user_id'  => $this->user->id,
             'currency' => 'PLN',
-            'balance' => 50000,
+            'balance'  => 50000,
         ]);
 
         $otherUser = User::factory()->create();
         Account::factory()->create([
-            'user_id' => $otherUser->id,
+            'user_id'  => $otherUser->id,
             'currency' => 'PLN',
-            'balance' => 99999,
+            'balance'  => 99999,
         ]);
 
         Passport::actingAs($this->user, ['accounts-view']);
@@ -128,7 +128,7 @@ class AccountTest extends TestCase
         $response = $this->getJson('/api/accounts/balance');
 
         $response->assertStatus(200);
-        $balances = $response->json('balances');
+        $balances   = $response->json('balances');
         $plnBalance = collect($balances)->firstWhere('currency', 'PLN');
         $this->assertEquals('500,00', $plnBalance['balance']);
     }
@@ -224,7 +224,7 @@ class AccountTest extends TestCase
     public function testCannotShowOtherUserAccount(): void
     {
         $otherUser = User::factory()->create();
-        $account = Account::factory()->create(['user_id' => $otherUser->id]);
+        $account   = Account::factory()->create(['user_id' => $otherUser->id]);
 
         Passport::actingAs($this->user, ['accounts-view', 'accounts-details']);
 
@@ -258,7 +258,7 @@ class AccountTest extends TestCase
     public function testCannotUpdateOtherUserAccount(): void
     {
         $otherUser = User::factory()->create();
-        $account = Account::factory()->create([
+        $account   = Account::factory()->create([
             'user_id' => $otherUser->id,
             'name'    => 'Cudze konto',
         ]);
@@ -340,7 +340,7 @@ class AccountTest extends TestCase
     public function testCannotCloseOtherUserAccount(): void
     {
         $otherUser = User::factory()->create();
-        $account = Account::factory()->create([
+        $account   = Account::factory()->create([
             'user_id' => $otherUser->id,
             'balance' => 0,
             'status'  => 'open',
@@ -353,7 +353,7 @@ class AccountTest extends TestCase
         $response->assertStatus(403);
 
         $this->assertDatabaseHas('accounts', [
-            'id' => $account->id,
+            'id'     => $account->id,
             'status' => 'open',
         ]);
     }

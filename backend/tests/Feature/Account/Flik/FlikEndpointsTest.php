@@ -21,31 +21,31 @@ class FlikEndpointsTest extends TestCase
             'date_of_birth' => now()->subYears(30),
         ]);
         $senderAccount = Account::factory()->create([
-            'user_id' => $sender->id,
+            'user_id'  => $sender->id,
             'currency' => 'PLN',
-            'balance' => 50000,
-            'status' => 'open',
+            'balance'  => 50000,
+            'status'   => 'open',
         ]);
         $card = Card::factory()->create([
             'account_id' => $senderAccount->id,
-            'status' => 'active'
+            'status'     => 'active',
         ]);
 
         $receiver = User::factory()->create([
             'date_of_birth' => now()->subYears(25),
         ]);
         $receiverAccount = Account::factory()->create([
-            'user_id' => $receiver->id,
+            'user_id'  => $receiver->id,
             'currency' => 'PLN',
-            'balance' => 0,
-            'status' => 'open'
+            'balance'  => 0,
+            'status'   => 'open',
         ]);
 
         Passport::actingAs($sender, ['flik-generate']);
 
         $response = $this->postJson("/api/flik/request-code/{$card->id}", [
-            'card_id' => $card->id,
-            'amount' => '10.00',
+            'card_id'    => $card->id,
+            'amount'     => '10.00',
             'account_id' => $senderAccount->id,
         ]);
 
@@ -68,15 +68,15 @@ class FlikEndpointsTest extends TestCase
         $this->assertEquals('flik', $tx['payment_method']);
         $this->assertEquals('pending', $tx['status']);
 
-        $this->assertDatabaseHas('flik_codes', [ 'code' => $code, 'status' => FlikCodeStatus::USED->value ]);
+        $this->assertDatabaseHas('flik_codes', ['code' => $code, 'status' => FlikCodeStatus::USED->value]);
         $this->assertDatabaseHas('transactions', [
-            'id' => $tx['id'],
+            'id'              => $tx['id'],
             'from_account_id' => $senderAccount->id,
-            'to_account_id' => $receiverAccount->id,
-            'amount' => 1000,
-            'type' => 'flik_payment',
-            'payment_method' => 'flik',
-            'status' => 'completed',
+            'to_account_id'   => $receiverAccount->id,
+            'amount'          => 1000,
+            'type'            => 'flik_payment',
+            'payment_method'  => 'flik',
+            'status'          => 'completed',
         ]);
     }
 
@@ -88,16 +88,16 @@ class FlikEndpointsTest extends TestCase
 
         $card = Card::factory()->create([
             'account_id' => Account::factory()->create([
-                'user_id' => $user->id,
+                'user_id'  => $user->id,
                 'currency' => 'PLN',
-                'balance' => 50000,
-                'status' => 'open',
+                'balance'  => 50000,
+                'status'   => 'open',
             ]),
-            'status' => 'active'
+            'status' => 'active',
         ]);
 
         $flikCode = FlikCode::factory()->create([
-            'status' => FlikCodeStatus::ACTIVE->value,
+            'status'  => FlikCodeStatus::ACTIVE->value,
             'card_id' => $card->id,
         ]);
 
@@ -134,14 +134,14 @@ class FlikEndpointsTest extends TestCase
             'date_of_birth' => now()->subYears(30),
         ]);
         $senderAccount = Account::factory()->create([
-            'user_id' => $sender->id,
+            'user_id'  => $sender->id,
             'currency' => 'PLN',
-            'balance' => 50000,
-            'status' => 'open',
+            'balance'  => 50000,
+            'status'   => 'open',
         ]);
         $card = Card::factory()->create([
             'account_id' => $senderAccount->id,
-            'status' => 'active'
+            'status'     => 'active',
         ]);
 
         $otherUser = User::factory()->create([
@@ -151,8 +151,8 @@ class FlikEndpointsTest extends TestCase
         Passport::actingAs($otherUser, ['flik-generate']);
 
         $response = $this->postJson("/api/flik/request-code/{$card->id}", [
-            'card_id' => $card->id,
-            'amount' => '10.00',
+            'card_id'    => $card->id,
+            'amount'     => '10.00',
             'account_id' => $senderAccount->id,
         ]);
 
@@ -165,28 +165,28 @@ class FlikEndpointsTest extends TestCase
             'date_of_birth' => now()->subYears(30),
         ]);
         $senderAccount = Account::factory()->create([
-            'user_id' => $sender->id,
+            'user_id'  => $sender->id,
             'currency' => 'PLN',
-            'balance' => 50000,
-            'status' => 'open',
+            'balance'  => 50000,
+            'status'   => 'open',
         ]);
         $card = Card::factory()->create([
             'account_id' => $senderAccount->id,
-            'status' => 'active'
+            'status'     => 'active',
         ]);
 
         $receiver = User::factory()->create([
             'date_of_birth' => now()->subYears(25),
         ]);
         Account::factory()->create([
-            'user_id' => $receiver->id,
+            'user_id'  => $receiver->id,
             'currency' => 'PLN',
-            'balance' => 0,
-            'status' => 'open'
+            'balance'  => 0,
+            'status'   => 'open',
         ]);
 
         $flikCode = FlikCode::factory()->create([
-            'status' => FlikCodeStatus::EXPIRED->value,
+            'status'  => FlikCodeStatus::EXPIRED->value,
             'card_id' => $card->id,
         ]);
 
@@ -203,28 +203,28 @@ class FlikEndpointsTest extends TestCase
             'date_of_birth' => now()->subYears(30),
         ]);
         $senderAccount = Account::factory()->create([
-            'user_id' => $sender->id,
+            'user_id'  => $sender->id,
             'currency' => 'PLN',
-            'balance' => 50000,
-            'status' => 'open',
+            'balance'  => 50000,
+            'status'   => 'open',
         ]);
         $card = Card::factory()->create([
             'account_id' => $senderAccount->id,
-            'status' => 'active'
+            'status'     => 'active',
         ]);
 
         $receiver = User::factory()->create([
             'date_of_birth' => now()->subYears(25),
         ]);
         Account::factory()->create([
-            'user_id' => $receiver->id,
+            'user_id'  => $receiver->id,
             'currency' => 'PLN',
-            'balance' => 0,
-            'status' => 'open'
+            'balance'  => 0,
+            'status'   => 'open',
         ]);
 
         $flikCode = FlikCode::factory()->create([
-            'status' => FlikCodeStatus::USED->value,
+            'status'  => FlikCodeStatus::USED->value,
             'card_id' => $card->id,
         ]);
 
@@ -241,18 +241,18 @@ class FlikEndpointsTest extends TestCase
             'date_of_birth' => now()->subYears(30),
         ]);
         $senderAccount = Account::factory()->create([
-            'user_id' => $sender->id,
+            'user_id'  => $sender->id,
             'currency' => 'PLN',
-            'balance' => 50000,
-            'status' => 'open',
+            'balance'  => 50000,
+            'status'   => 'open',
         ]);
         $card = Card::factory()->create([
             'account_id' => $senderAccount->id,
-            'status' => 'active'
+            'status'     => 'active',
         ]);
 
         $flikCode = FlikCode::factory()->create([
-            'status' => FlikCodeStatus::ACTIVE->value,
+            'status'  => FlikCodeStatus::ACTIVE->value,
             'card_id' => $card->id,
         ]);
 
@@ -269,28 +269,28 @@ class FlikEndpointsTest extends TestCase
             'date_of_birth' => now()->subYears(30),
         ]);
         $senderAccount = Account::factory()->create([
-            'user_id' => $sender->id,
+            'user_id'  => $sender->id,
             'currency' => 'EUR',
-            'balance' => 50000,
-            'status' => 'open',
+            'balance'  => 50000,
+            'status'   => 'open',
         ]);
         $card = Card::factory()->create([
             'account_id' => $senderAccount->id,
-            'status' => 'active'
+            'status'     => 'active',
         ]);
 
         $receiver = User::factory()->create([
             'date_of_birth' => now()->subYears(25),
         ]);
         Account::factory()->create([
-            'user_id' => $receiver->id,
+            'user_id'  => $receiver->id,
             'currency' => 'PLN',
-            'balance' => 0,
-            'status' => 'open'
+            'balance'  => 0,
+            'status'   => 'open',
         ]);
 
         $flikCode = FlikCode::factory()->create([
-            'status' => FlikCodeStatus::ACTIVE->value,
+            'status'  => FlikCodeStatus::ACTIVE->value,
             'card_id' => $card->id,
         ]);
 
@@ -307,28 +307,28 @@ class FlikEndpointsTest extends TestCase
             'date_of_birth' => now()->subYears(30),
         ]);
         $senderAccount = Account::factory()->create([
-            'user_id' => $sender->id,
+            'user_id'  => $sender->id,
             'currency' => 'PLN',
-            'balance' => 50000,
-            'status' => 'open',
+            'balance'  => 50000,
+            'status'   => 'open',
         ]);
         $card = Card::factory()->create([
             'account_id' => $senderAccount->id,
-            'status' => 'active'
+            'status'     => 'active',
         ]);
 
         $receiver = User::factory()->create([
             'date_of_birth' => now()->subYears(25),
         ]);
         Account::factory()->create([
-            'user_id' => $receiver->id,
+            'user_id'  => $receiver->id,
             'currency' => 'EUR',
-            'balance' => 0,
-            'status' => 'open'
+            'balance'  => 0,
+            'status'   => 'open',
         ]);
 
         $flikCode = FlikCode::factory()->create([
-            'status' => FlikCodeStatus::ACTIVE->value,
+            'status'  => FlikCodeStatus::ACTIVE->value,
             'card_id' => $card->id,
         ]);
 
@@ -345,30 +345,30 @@ class FlikEndpointsTest extends TestCase
             'date_of_birth' => now()->subYears(30),
         ]);
         $senderAccount = Account::factory()->create([
-            'user_id' => $sender->id,
+            'user_id'  => $sender->id,
             'currency' => 'PLN',
-            'balance' => 500,
-            'status' => 'open',
+            'balance'  => 500,
+            'status'   => 'open',
         ]);
         $card = Card::factory()->create([
             'account_id' => $senderAccount->id,
-            'status' => 'active'
+            'status'     => 'active',
         ]);
 
         $receiver = User::factory()->create([
             'date_of_birth' => now()->subYears(25),
         ]);
         Account::factory()->create([
-            'user_id' => $receiver->id,
+            'user_id'  => $receiver->id,
             'currency' => 'PLN',
-            'balance' => 0,
-            'status' => 'open'
+            'balance'  => 0,
+            'status'   => 'open',
         ]);
 
         $flikCode = FlikCode::factory()->create([
-            'status' => FlikCodeStatus::ACTIVE->value,
+            'status'  => FlikCodeStatus::ACTIVE->value,
             'card_id' => $card->id,
-            'amount' => 10000,
+            'amount'  => 10000,
         ]);
 
         Passport::actingAs($receiver, ['flik-pay']);
@@ -409,21 +409,21 @@ class FlikEndpointsTest extends TestCase
             'date_of_birth' => now()->subYears(30),
         ]);
         $account = Account::factory()->create([
-            'user_id' => $user->id,
+            'user_id'  => $user->id,
             'currency' => 'PLN',
-            'balance' => 50000,
-            'status' => 'open',
+            'balance'  => 50000,
+            'status'   => 'open',
         ]);
         $card = Card::factory()->create([
             'account_id' => $account->id,
-            'status' => 'active'
+            'status'     => 'active',
         ]);
 
         Passport::actingAs($user, []);
 
         $response = $this->postJson("/api/flik/request-code/{$card->id}", [
-            'card_id' => $card->id,
-            'amount' => '10.00',
+            'card_id'    => $card->id,
+            'amount'     => '10.00',
             'account_id' => $account->id,
         ]);
 
