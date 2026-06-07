@@ -12,7 +12,9 @@ class ProfileTest extends TestCase
 
     public function testProfilePageIsDisplayed(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create([
+            'date_of_birth' => now()->subYears(30),
+        ]);
 
         $response = $this
             ->actingAs($user)
@@ -23,7 +25,9 @@ class ProfileTest extends TestCase
 
     public function testProfileInformationCanBeUpdated(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create([
+            'date_of_birth' => now()->subYears(30),
+        ]);
 
         $response = $this
             ->actingAs($user)
@@ -45,7 +49,9 @@ class ProfileTest extends TestCase
 
     public function testEmailVerificationStatusIsUnchangedWhenTheEmailAddressIsUnchanged(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create([
+            'date_of_birth' => now()->subYears(30),
+        ]);
 
         $response = $this
             ->actingAs($user)
@@ -63,7 +69,9 @@ class ProfileTest extends TestCase
 
     public function testUserCanDeleteTheirAccount(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create([
+            'date_of_birth' => now()->subYears(30),
+        ]);
 
         $response = $this
             ->actingAs($user)
@@ -81,7 +89,9 @@ class ProfileTest extends TestCase
 
     public function testCorrectPasswordMustBeProvidedToDeleteAccount(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create([
+            'date_of_birth' => now()->subYears(30),
+        ]);
 
         $response = $this
             ->actingAs($user)

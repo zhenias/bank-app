@@ -18,7 +18,9 @@ class TransactionEndpointsTest extends TestCase
     public function test_user_can_create_transfer_and_balances_update()
     {
         // Arrange: user with one account (from) and recipient account
-        $user = User::factory()->create();
+        $user = User::factory()->create([
+            'date_of_birth' => now()->subYears(30),
+        ]);
         $fromAccount = Account::factory()->create([
             'user_id' => $user->id,
             'currency' => 'PLN',
@@ -26,7 +28,9 @@ class TransactionEndpointsTest extends TestCase
             'account_number' => '11111111111111111111111111',
         ]);
 
-        $recipientUser = User::factory()->create();
+        $recipientUser = User::factory()->create([
+            'date_of_birth' => now()->subYears(30),
+        ]);
         $toAccount = Account::factory()->create([
             'user_id' => $recipientUser->id,
             'currency' => 'PLN',
@@ -63,16 +67,19 @@ class TransactionEndpointsTest extends TestCase
 
     public function test_user_can_list_their_transactions()
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create([
+            'date_of_birth' => now()->subYears(30),
+        ]);
         $account = Account::factory()->create([
             'user_id' => $user->id,
             'currency' => 'PLN',
             'balance' => 50000,
-            'account_number' => '33333333333333333333333333',
         ]);
 
         // Create some transactions where user is the from_account or to_account
-        $other = User::factory()->create();
+        $other = User::factory()->create([
+            'date_of_birth' => now()->subYears(30),
+        ]);
         $otherAccount = Account::factory()->create(['user_id' => $other->id, 'account_number' => Str::random(26)]);
 
         // create via model directly

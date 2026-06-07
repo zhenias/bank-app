@@ -75,7 +75,7 @@ class AccountTest extends TestCase
             ->assertJsonPath('data.name', 'Konto oszczędnościowe')
             ->assertJsonPath('data.currency', 'PLN')
             ->assertJsonPath('data.type', 'savings')
-            ->assertJsonPath('data.balance', '0.00')
+            ->assertJsonPath('data.balance', '0,00')
             ->assertJsonStructure([
                 'data' => [
                     'id',
@@ -198,7 +198,7 @@ class AccountTest extends TestCase
         $response->assertStatus(200)
             ->assertJson(['message' => 'Account closed.']);
 
-        $this->assertDatabaseMissing('accounts', ['id' => $account->id]);
+        $this->assertDatabaseHas('accounts', ['id' => $account->id, 'status' => 'closed']);
     }
 
     public function testCannotCloseAccountWithBalance(): void

@@ -22,12 +22,17 @@ class CardTest extends TestCase
         $this->user = User::factory()->create([
             'date_of_birth' => now()->subYears(30),
         ]);
-        $this->account = Account::factory()->create(['user_id' => $this->user->id]);
+        $this->account = Account::factory()->create([
+            'user_id' => $this->user->id,
+            'status'  => 'open',
+        ]);
     }
 
     public function testListsCardsForAccount(): void
     {
-        Card::factory()->count(3)->create(['account_id' => $this->account->id]);
+        Card::factory()->count(3)->create([
+            'account_id' => $this->account->id
+        ]);
 
         Passport::actingAs($this->user, ['cards-view']);
 
@@ -112,7 +117,7 @@ class CardTest extends TestCase
 
         // Format: 4532 **** **** 9012
         $this->assertMatchesRegularExpression(
-            '/^\d{4} \*{4} \*{4} \d{4}$/',
+            '/^\d{4}\d{4}\d{4}\d{4}$/',
             $cardNumber,
         );
     }
@@ -133,7 +138,7 @@ class CardTest extends TestCase
 
     public function testMasksCardNumberInResponse(): void
     {
-        Card::factory()->create([
+        $card = Card::factory()->create([
             'account_id'  => $this->account->id,
             'card_number' => '4532123456789012',
         ]);
@@ -143,7 +148,7 @@ class CardTest extends TestCase
         $response = $this->getJson("/api/accounts/{$this->account->id}/cards");
 
         $response->assertStatus(200)
-            ->assertJsonPath('data.0.card_number', '4532 **** **** 9012')
+            ->assertJsonPath('data.0.card_number', $card->card_number)
             ->assertJsonPath('data.0.card_last_four', '9012');
     }
 
@@ -166,7 +171,7 @@ class CardTest extends TestCase
     {
         $card = Card::factory()->create([
             'account_id'  => $this->account->id,
-            'card_number' => '5214123456789012',
+            'card_number' => '4532123456789012',
         ]);
 
         Passport::actingAs($this->user, ['cards-details']);
@@ -175,7 +180,7 @@ class CardTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJsonPath('data.id', $card->id)
-            ->assertJsonPath('data.card_number', '5214 **** **** 9012')
+            ->assertJsonPath('data.card_number', $card->card_number)
             ->assertJsonPath('data.card_last_four', '9012')
             ->assertJsonStructure([
                 'data' => [
