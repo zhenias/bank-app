@@ -69,8 +69,12 @@ class AccountService extends Service
         }
 
         DB::transaction(function () use ($account) {
-            $account->cards()->delete();
-            $account->delete();
+            $account->cards()->update([
+                'status' => 'blocked',
+            ]);
+            $account->update([
+                'status' => 'closed',
+            ]);
         });
     }
 

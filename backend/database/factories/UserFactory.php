@@ -33,7 +33,7 @@ class UserFactory extends Factory
             'password'          => static::$password ??= Hash::make('password'),
             'remember_token'    => Str::random(10),
             'date_of_birth'     => fake()->dateTimeBetween(
-                now()->subYears(30),
+                now()->subYears(60),
                 now()->subYears(13),
             )->format('Y-m-d'),
         ];
@@ -54,6 +54,7 @@ class UserFactory extends Factory
         return $this->afterCreating(function (User $account) use ($count) {
             Account::factory()->count($count)->create([
                 'user_id' => $account->id,
+                'status'  => 'open',
             ]);
         });
     }

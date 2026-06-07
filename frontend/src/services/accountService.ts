@@ -191,3 +191,14 @@ export const payFlik = async (payload: { code: string }) : Promise<any> => {
 
     return await response.json();
 };
+
+export const checkFlikStatus = async (code: string): Promise<{ status: string }> => {
+    const response = await fetchWithAuth(`/flik/status/${code}`, { method: 'POST' });
+
+    if (!response.ok) {
+        const error: ApiError = await response.json();
+        throw new Error(error.message || 'Błąd sprawdzania statusu FLIK');
+    }
+
+    return await response.json();
+}

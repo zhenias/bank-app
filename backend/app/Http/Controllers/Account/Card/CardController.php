@@ -82,6 +82,10 @@ class CardController extends Controller
             throw new AccessDeniedHttpException('Account not found or access denied.');
         }
 
+        if ($account->status !== 'open') {
+            throw new AccessDeniedHttpException('Cannot add card to inactive account.');
+        }
+
         $card = $this->cardService->createCard($account->id);
 
         return new CardResource($card)
@@ -136,7 +140,7 @@ class CardController extends Controller
     }
 
     /**
-     * Odblokowuje kartę płatniczą.
+     * Usuń kartę płatniczą.
      */
     #[AuthorizeToken(['cards-manage'], anyScope: true)]
     #[PathParameter('card', description: 'ID karty', type: 'string', format: 'uuid', example: '550e8400-e29b-41d4-a716-446655440000')]

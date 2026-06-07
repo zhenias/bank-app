@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Account\Flik;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Flik\CheckStatusFlikCodeRequest;
 use App\Http\Requests\Flik\RequestFlikCodeRequest;
 use App\Http\Requests\Flik\StoreFlikPaymentRequest;
 use App\Http\Resources\Account\Flik\FlikCodeResource;
@@ -75,5 +76,22 @@ class FlikCodeController extends Controller
             'transaction' => new TransactionResource($transaction),
             'message' => 'Płatność FLIK zrealizowana. Na twoje konto wpłynęła kwota ' . number_format($transaction->amount / 100, 2) . ' PLN.',
         ], 201);
+    }
+
+    /**
+     * Sprawdzenie statusu kodu FLIK
+     *
+     * Sprawdza aktualny status kodu FLIK (aktywny, wygasły, użyty). Użytkownik podaje kod, a system zwraca jego status oraz informacje o kwocie i czasie wygaśnięcia (jeśli dotyczy).
+     */
+    #[AuthorizeToken(['flik-status'], anyScope: true)]
+    public function status(string $code): JsonResponse
+    {
+        $flikCode = $this->flikCodeService->validateCode(
+            $code
+        );
+
+        return response()->json([
+            'status' => $this->flikCodeService->getStatus($flikCode)->value,
+        ]);
     }
 }

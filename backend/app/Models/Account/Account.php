@@ -12,7 +12,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['user_id', 'name', 'account_number', 'balance', 'currency', 'type'])]
+// status: open, closed, frozen
+#[Fillable(['user_id', 'name', 'account_number', 'balance', 'currency', 'type', 'status'])]
 class Account extends Model
 {
     use HasFactory;

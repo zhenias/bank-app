@@ -7,13 +7,13 @@ use App\Enums\Transaction\TransactionType;
 use App\Exceptions\Financial\InsufficientFundsException;
 use App\Exceptions\Financial\InvalidAccountException;
 use App\Exceptions\Financial\InvalidAmountException;
+use App\Jobs\ProcessFlikPayment;
 use App\Models\Account\Account;
 use App\Models\Account\Transaction\Transaction;
 use App\Models\Account\Flik\FlikCode;
 use App\Models\User;
 use App\Services\Service;
 use Illuminate\Support\Facades\DB;
-// ...existing code...
 
 class TransactionService extends Service
 {
@@ -77,7 +77,6 @@ class TransactionService extends Service
                 throw new InvalidAccountException('Nie możesz płacić samemu sobie.');
             }
 
-            // Lock payer's account
             $fromAccount = $payer->accounts()
                 ->where('currency', 'PLN')
                 ->orderByDesc('balance')
@@ -88,7 +87,6 @@ class TransactionService extends Service
                 throw new InvalidAccountException('Płatnik nie posiada konta w PLN.');
             }
 
-            // Lock receiver's account
             $toAccount = $receiver->accounts()
                 ->where('currency', 'PLN')
                 ->orderByDesc('balance')
@@ -103,14 +101,13 @@ class TransactionService extends Service
                 throw new InsufficientFundsException();
             }
 
-            // Perform transfer atomically: debit payer, credit receiver
             $fromAccount->balance -= $amountInCents;
             $fromAccount->save();
 
             $toAccount->balance += $amountInCents;
             $toAccount->save();
 
-            $tx = Transaction::create([
+            return Transaction::create([
                 'from_account_id' => $fromAccount->id,
                 'to_account_id' => $toAccount->id,
                 'from_card_id' => $cardId,
@@ -119,19 +116,17 @@ class TransactionService extends Service
                 'payment_method' => 'flik',
                 'status' => TransactionStatus::COMPLETED->value,
             ]);
-
-            return $tx;
         });
     }
 
     /**
-     * Redeem a FLIK code atomically: lock flik code, ensure active, perform debit/credit and mark code used.
+     * Redeem a FLIK code: create PENDING transaction, reserve funds, dispatch job.
      */
     public function flikRedeem(FlikCode $flikCode, User $receiver): Transaction
     {
         return DB::transaction(function () use ($flikCode, $receiver) {
             // Re-load and lock flik code
-            $code = FlikCode::lockForUpdate()->find($flikCode->id);
+            $code = FlikCode::find($flikCode->id);
 
             if (! $code) {
                 throw new InvalidAccountException('Kod FLIK nie znaleziony.');
@@ -141,7 +136,7 @@ class TransactionService extends Service
                 throw new InvalidAccountException('Kod FLIK nieaktywny lub wygasł.');
             }
 
-            // Payer is owner of the card linked to the code
+            // Payer is the owner of the card that generated the code
             $payer = $code->card->account->user;
 
             if ($payer->id === $receiver->id) {
@@ -149,8 +144,8 @@ class TransactionService extends Service
             }
 
             // Lock accounts
-            $fromAccount = $payer->accounts()->where('currency', 'PLN')->orderByDesc('balance')->lockForUpdate()->first();
-            $toAccount = $receiver->accounts()->where('currency', 'PLN')->orderByDesc('balance')->lockForUpdate()->first();
+            $fromAccount = $payer->accounts()->where('currency', 'PLN')->orderByDesc('balance')->first();
+            $toAccount = $receiver->accounts()->where('currency', 'PLN')->orderByDesc('balance')->first();
 
             if (! $fromAccount) {
                 throw new InvalidAccountException('Płatnik nie posiada konta w PLN.');
@@ -166,13 +161,11 @@ class TransactionService extends Service
                 throw new InsufficientFundsException();
             }
 
-            // Perform transfer
-            $fromAccount->balance -= $amountInCents;
-            $fromAccount->save();
+            $fromAccount->update([
+                'balance' => $fromAccount->balance - $amountInCents,
+            ]);
 
-            $toAccount->balance += $amountInCents;
-            $toAccount->save();
-
+            // Create PENDING transaction
             $tx = Transaction::create([
                 'from_account_id' => $fromAccount->id,
                 'to_account_id' => $toAccount->id,
@@ -180,14 +173,17 @@ class TransactionService extends Service
                 'amount' => $amountInCents,
                 'type' => TransactionType::FLIK_PAYMENT->value,
                 'payment_method' => 'flik',
-                'status' => TransactionStatus::COMPLETED->value,
+                'status' => TransactionStatus::PENDING->value,
             ]);
 
-            // Mark code as used
+            // Mark code as used immediately to prevent double-spend
             $code->update([
                 'status' => 'used',
                 'used_in_transaction_id' => $tx->id,
             ]);
+
+            // Dispatch async job to complete the transaction
+            ProcessFlikPayment::dispatch($tx->id);
 
             return $tx;
         });

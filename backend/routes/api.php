@@ -56,6 +56,7 @@ Route::middleware(['auth:api'])->group(function () {
         Route::get('cards/{card}/transactions', [TransactionController::class, 'cardTransactions']);
 
         Route::post('flik/request-code/{card}', [FlikCodeController::class, 'requestCode']);
+        Route::post('flik/status/{code}', [FlikCodeController::class, 'status']);
         Route::post('flik/pay', [FlikCodeController::class, 'pay']);
     });
 });

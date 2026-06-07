@@ -15,6 +15,10 @@ class FlikCodeService extends Service
 {
     public function generate(Card $card, int $amountInCents): FlikCode
     {
+        if ($card->account->balance < $amountInCents) {
+            throw new InvalidArgumentException('Niewystarczające środki na koncie.');
+        }
+        
         if ($card->account->currency !== 'PLN') {
             throw new InvalidArgumentException('FLIK kod może być generowany tylko dla kart w PLN.');
         }
@@ -56,11 +60,31 @@ class FlikCodeService extends Service
         return $flikCode;
     }
 
+    public function validateCode(string $code): FlikCode
+    {
+        $flikCode = FlikCode::where('code', $code)->first();
+
+        if (! $flikCode) {
+            throw new FlikCodeInvalidException();
+        }
+
+        return $flikCode;
+    }
+
     public function markAsUsed(FlikCode $flikCode, Transaction $transaction): void
     {
         $flikCode->update([
             'status' => FlikCodeStatus::USED->value,
             'used_in_transaction_id' => $transaction->id,
         ]);
+    }
+
+    public function getStatus(FlikCode $flikCode): FlikCodeStatus
+    {
+        if ($flikCode->isExpired()) {
+            return FlikCodeStatus::EXPIRED;
+        }
+
+        return FlikCodeStatus::from($flikCode->status);
     }
 }

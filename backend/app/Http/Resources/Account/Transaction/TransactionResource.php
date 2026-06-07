@@ -9,13 +9,20 @@ class TransactionResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        $viewerAccountId = $this->resolveViewerAccountId();
+
         return [
             'id' => $this->id,
             'type' => $this->type,
             'payment_method' => $this->payment_method,
             'status' => $this->status,
-            'amount' => $this->amount,
-            'signed_amount' => $this->signedAmountFor(auth()->user()->id),
+
+            'amount' => $this->signedAmountFor($viewerAccountId),
+            'signed_amount' => $this->signedAmountFor($viewerAccountId),
+            'raw_amount' => $this->amount,
+
+            'direction' => $this->resolveDirection($viewerAccountId),
+
             'from_account' => [
                 'id' => $this->fromAccount?->id,
                 'name' => $this->fromAccount?->name,
@@ -40,5 +47,36 @@ class TransactionResource extends JsonResource
             'updated_at' => $this->updated_at?->toISOString(),
         ];
     }
-}
 
+    private function resolveViewerAccountId(): string
+    {
+        $viewerUserId = auth()->id();
+
+        if (! $viewerUserId) {
+            return '';
+        }
+
+        if ($this->fromAccount?->user_id === $viewerUserId) {
+            return $this->from_account_id ?? '';
+        }
+
+        if ($this->toAccount?->user_id === $viewerUserId) {
+            return $this->to_account_id ?? '';
+        }
+
+        return '';
+    }
+
+    private function resolveDirection(string $viewerAccountId): string
+    {
+        if ($this->isExpenseFor($viewerAccountId)) {
+            return 'outgoing';
+        }
+
+        if ($this->isIncomeFor($viewerAccountId)) {
+            return 'incoming';
+        }
+
+        return 'neutral';
+    }
+}

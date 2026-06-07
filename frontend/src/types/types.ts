@@ -183,6 +183,7 @@ export interface LoadingContextType {
 // Accounts
 export interface Account {
     id: string;
+    status: string;
     name: string;
     account_number: string;
     balance: number;
@@ -267,4 +268,15 @@ export interface Notification {
 
 export interface NotificationCount {
     count: number;
+}
+
+// Flik
+export interface FlikCodeResponse {
+    code: string;
+    expires_in_seconds: number;
+    amount: number; // in cents
+}
+
+export interface FlikStatusResponse {
+    status: string; // active, used, expired
 }

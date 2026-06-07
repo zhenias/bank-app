@@ -117,7 +117,12 @@ export const TransactionsPage = () => {
                     <Typography variant="h6">Szczegóły transakcji</Typography>
                     {selectedTx && (
                         <Box>
-                            <Typography>Status: {selectedTx.status}</Typography>
+                            <Typography>
+                                Status: {formatStatusTransaction(selectedTx.status)}
+                            </Typography>
+                            <Typography>
+                                Typ: {formatTypeTransaction(selectedTx.type)}
+                            </Typography>
                             <Typography>Kwota: {(selectedTx.amount/100).toFixed(2)} PLN</Typography>
                             <Typography>Od: {selectedTx.from_account?.account_number ?? '-'} ({selectedTx.from_account?.user ?? '-'})</Typography>
                             <Typography>Do: {selectedTx.to_account?.account_number ?? '-'} ({selectedTx.to_account?.user ?? '-'})</Typography>

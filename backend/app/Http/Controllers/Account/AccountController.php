@@ -40,6 +40,7 @@ class AccountController extends Controller
     public function index(): AnonymousResourceCollection
     {
         $accounts = Account::where('user_id', auth()->id())
+            ->orderBy('created_at', 'desc')
             ->with('cards')
             ->paginate(
                 perPage: $this->perPage(),
@@ -52,7 +53,7 @@ class AccountController extends Controller
     /**
      * Saldo.
      *
-     * Wyświetlanie salda według kont w którym jest waluta.
+     * Wyświetlanie salda według kont, w którym jest waluta.
      */
     #[AuthorizeToken(['accounts-view'], anyScope: true)]
     public function balance(): JsonResponse
@@ -66,7 +67,7 @@ class AccountController extends Controller
         return response()->json([
             'balances' => BalanceResource::collection($balances),
             /* @example 2500.00 */
-            'total' => number_format($balances->where('currency', 'PLN')->sum('total_balance') / 100, 2, '.', ''),
+            'total' => number_format($balances->where('currency', 'PLN')->sum('total_balance') / 100, 2, ',', ''),
         ]);
     }
 

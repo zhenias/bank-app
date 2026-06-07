@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
     Button,
     Dialog,
@@ -14,10 +14,10 @@ import {
     AlertTitle, Alert
 } from '@mui/material';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import { requestFlikCode, getAccounts, getCards } from '../../services/accountService';
+import {requestFlikCode, getAccounts, getCards, checkFlikStatus} from '../../services/accountService';
 import { useToast } from '../../context/ToastContext';
 import type { Account, Card } from '../../types/types';
-import {formatAmount, zlotyToCents} from "../../utils/formatMoney";
+import {formatAmount} from "../../utils/formatMoney";
 import {getStatusCard} from "../../utils/formatCard";
 
 export const FlikRequestButton = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
@@ -35,9 +35,10 @@ export const FlikRequestButton = ({ open, onClose }: { open: boolean; onClose: (
     const [loadingCards, setLoadingCards] = useState(false);
 
     const [amount, setAmount] = useState('');
+    const statusIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     useEffect(() => {
-        let id: any;
+        let id: ReturnType<typeof setInterval>;
         if (remaining > 0) {
             id = setInterval(() => setRemaining(r => r - 1), 1000);
         }
@@ -47,10 +48,13 @@ export const FlikRequestButton = ({ open, onClose }: { open: boolean; onClose: (
     useEffect(() => {
         if (remaining <= 0) {
             setCode(null);
+            if (statusIntervalRef.current) {
+                clearInterval(statusIntervalRef.current);
+                statusIntervalRef.current = null;
+            }
         }
     }, [remaining]);
 
-    // Load accounts when dialog opens
     useEffect(() => {
         if (!open) return;
 
@@ -72,7 +76,6 @@ export const FlikRequestButton = ({ open, onClose }: { open: boolean; onClose: (
         loadAccounts();
     }, [open, showError]);
 
-    // Load cards when account is selected
     useEffect(() => {
         if (!selectedAccountId || !open) return;
 
@@ -94,9 +97,12 @@ export const FlikRequestButton = ({ open, onClose }: { open: boolean; onClose: (
         loadCards();
     }, [selectedAccountId, open, showError]);
 
-    // Reset state when dialog closes
     useEffect(() => {
         if (!open) {
+            if (statusIntervalRef.current) {
+                clearInterval(statusIntervalRef.current);
+                statusIntervalRef.current = null;
+            }
             setCode(null);
             setCodeAmount(null);
             setRemaining(0);
@@ -106,6 +112,14 @@ export const FlikRequestButton = ({ open, onClose }: { open: boolean; onClose: (
             setCards([]);
         }
     }, [open]);
+
+    useEffect(() => {
+        return () => {
+            if (statusIntervalRef.current) {
+                clearInterval(statusIntervalRef.current);
+            }
+        };
+    }, []);
 
     const handleRequest = async () => {
         if (!selectedAccountId || !selectedCardId) {
@@ -128,6 +142,27 @@ export const FlikRequestButton = ({ open, onClose }: { open: boolean; onClose: (
             setExpiresIn(res.expires_in_seconds ?? 120);
             setRemaining(res.expires_in_seconds ?? 120);
             showSuccess('Kod FLIK wygenerowany');
+
+            const codeValue = res.code;
+            const cardIdValue = selectedCardId;
+
+            statusIntervalRef.current = setInterval(async () => {
+                try {
+                    const statusRes = await checkFlikStatus(codeValue);
+                    if (statusRes.status === 'used') {
+                        showSuccess('Kod FLIK został wykorzystany. Środki powinny być już dostępne na koncie odbiorcy.');
+                        if (statusIntervalRef.current) {
+                            clearInterval(statusIntervalRef.current);
+                            statusIntervalRef.current = null;
+                        }
+                        setCode(null);
+                        setCodeAmount(null);
+                        setRemaining(0);
+                    }
+                } catch {
+                    // Polling errors are silently ignored
+                }
+            }, 2000);
         } catch (err: any) {
             showError(err.message || 'Błąd generowania kodu');
         }
@@ -164,7 +199,6 @@ export const FlikRequestButton = ({ open, onClose }: { open: boolean; onClose: (
             <DialogContent>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, pt: 2 }}>
                     {code ? (
-                        // Code generated - show it
                         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
                             <Typography variant="body2" color="text.secondary">Wygenerowany kod FLIK</Typography>
                             <Typography variant="h4" sx={{ fontFamily: 'monospace', fontWeight: 'bold' }}>{code}</Typography>
@@ -193,7 +227,6 @@ export const FlikRequestButton = ({ open, onClose }: { open: boolean; onClose: (
                                 <AlertTitle>Informacja</AlertTitle>
                                 Możesz wygenerować kod FLIK, który pozwoli na odbiór środków z Twojego konta. Odbiór jest realizowany tylko i wyłącznie w złotówkach. Kod jest ważny przez 2 minuty.
                             </Alert>
-                            {/*// Selection form - choose account and card*/}
                             <Stack spacing={2}>
                                 <Box>
                                     <Typography variant="caption" color="text.secondary" sx={{display: 'block', mb: 1}}>
@@ -271,4 +304,3 @@ export const FlikRequestButton = ({ open, onClose }: { open: boolean; onClose: (
         </Dialog>
     );
 };
-

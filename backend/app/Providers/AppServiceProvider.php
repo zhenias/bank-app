@@ -72,6 +72,7 @@ class AppServiceProvider extends ServiceProvider
             // Blik / Płatności mobilne
             'flik-generate' => 'Generowanie kodu FLIK',
             'flik-pay'  => 'Płatność za pomocą FLIK',
+            'flik-status' => 'Sprawdzenie statusu kodu FLIK',
 
             // Przelewy
             'transfer-internal' => 'Przelew wewnętrzny (na konto w tym samym banku)',

@@ -18,6 +18,7 @@ return new class extends Migration {
             $table->bigInteger('balance')->default(0);
             $table->string('currency', 5)->default('PLN');
             $table->string('type', 20)->default('current');
+            $table->string('status', 20)->default('open'); // open, closed, frozen
             $table->timestamps();
         });
 
