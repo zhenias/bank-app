@@ -5,25 +5,31 @@ namespace App\Services\Account\Flik;
 use App\Enums\Flik\FlikCodeStatus;
 use App\Exceptions\Financial\FlikCodeExpiredException;
 use App\Exceptions\Financial\FlikCodeInvalidException;
+use App\Exceptions\Financial\InsufficientFundsException;
 use App\Models\Account\Card\Card;
 use App\Models\Account\Flik\FlikCode;
 use App\Models\Account\Transaction\Transaction;
 use App\Services\Service;
+use InvalidArgumentException;
 
 class FlikCodeService extends Service
 {
     public function generate(Card $card, int $amountInCents): FlikCode
     {
         if ($card->account->balance < $amountInCents) {
-            throw new \InvalidArgumentException('Niewystarczające środki na koncie.');
+            throw new InsufficientFundsException();
         }
 
         if ('PLN' !== $card->account->currency) {
-            throw new \InvalidArgumentException('FLIK kod może być generowany tylko dla kart w PLN.');
+            throw new InvalidArgumentException('FLIK kod może być generowany tylko dla kart w PLN.');
+        }
+
+        if ('open' !== $card->account->status) {
+            throw new InvalidArgumentException('FLIK kod może być generowany tylko dla otwartych kont bankowych.');
         }
 
         if ('active' !== $card->status) {
-            throw new \InvalidArgumentException('FLIK kod może być generowany tylko dla aktywnych kart.');
+            throw new InvalidArgumentException('FLIK kod może być generowany tylko dla aktywnych kart.');
         }
 
         do {
