@@ -6,7 +6,7 @@ use Illuminate\Http\JsonResponse;
 
 class InsufficientFundsException extends \Exception
 {
-    protected $message = 'Niewystarczające środki na koncie.';
+    protected $message = 'Niewystarczająco środków na koncie.';
 
     public function render(): JsonResponse
     {
