@@ -21,13 +21,15 @@ export const zlotyToCents = (zloty: number): number => {
  * 499 → "4,99 PLN"
  * 250000 → "2 500,00 PLN"
  */
-export const formatMoney = (cents: number, currency: string = 'PLN'): string => {
+export const formatMoney = (cents?: string | number, currency: string = 'PLN'): string => {
+    const centsValue = typeof cents === 'string' ? parseFloat(cents) : cents !== undefined ? cents : 0;
+
     return new Intl.NumberFormat('pl-PL', {
         style: 'currency',
         currency: currency,
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
-    }).format(cents / 100);
+    }).format(centsValue / 100);
 };
 
 /**
@@ -69,8 +71,8 @@ export const parseMoneyToCents = (formatted: string): number => {
  * -499 → "-4,99" (red)
  * 0 → "0,00"
  */
-export const formatBalance = (cents: number): { text: string; isPositive: boolean; isZero: boolean } => {
-    const amount = cents / 100;
+export const formatBalance = (cents?: string): { text: string; isPositive: boolean; isZero: boolean } => {
+    const amount = cents !== undefined ? parseFloat(cents) / 100 : 0;
     return {
         text: new Intl.NumberFormat('pl-PL', {
             style: 'decimal',
@@ -78,8 +80,8 @@ export const formatBalance = (cents: number): { text: string; isPositive: boolea
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
         }).format(amount),
-        isPositive: cents > 0,
-        isZero: cents === 0,
+        isPositive: cents !== undefined && parseFloat(cents) > 0,
+        isZero: cents === '0' || cents === '0.00',
     };
 };
 
@@ -89,8 +91,8 @@ export const formatBalance = (cents: number): { text: string; isPositive: boolea
  * 1000000 → "10 000,00"
  * For bigger: use formatMoney
  */
-export const formatMoneyShort = (cents: number, currency: string = 'PLN'): string => {
-    const amount = cents / 100;
+export const formatMoneyShort = (cents?: number | string, currency: string = 'PLN'): string => {
+    const amount = typeof cents === 'string' ? parseFloat(cents) : cents !== undefined ? cents : 0;
 
     if (Math.abs(amount) >= 1_000_000) {
         return new Intl.NumberFormat('pl-PL', {

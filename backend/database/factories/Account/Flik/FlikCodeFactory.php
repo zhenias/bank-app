@@ -21,7 +21,7 @@ class FlikCodeFactory extends Factory
         return [
             'card_id'    => Card::factory(),
             'code'       => $this->faker->unique()->regexify('[0-9]{6}'),
-            'expires_at' => $this->faker->dateTimeBetween('+1 minut', '+2 minut'),
+            'expires_at' => now()->addMinutes(2),
             'status'     => $this->faker->randomElement(['active', 'used', 'expired']),
         ];
     }

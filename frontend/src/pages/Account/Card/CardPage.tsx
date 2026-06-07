@@ -36,6 +36,8 @@ import { getAllCards, blockCard, unblockCard, deleteCard } from '../../../servic
 import type { Card as CardType, PaginationMeta } from '../../../types/types';
 import { useToast } from '../../../context/ToastContext';
 import { formatDate } from '../../../utils/formatDate';
+import {FlikRequestButton} from "../../../components/Flik/FlikRequestButton";
+import {formatCardNumber} from "../../../utils/formatCard";
 
 export const CardPage = () => {
     const [cards, setCards] = useState<CardType[]>([]);
@@ -51,6 +53,8 @@ export const CardPage = () => {
     // Card details
     const [selectedCard, setSelectedCard] = useState<CardType | null>(null);
     const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
+
+    const [openFlikDialog, setOpenFlikDialog] = useState(false);
 
     const loadCards = async (pageNumber: number = 1) => {
         setLoading(true);
@@ -86,6 +90,7 @@ export const CardPage = () => {
             showError(errorMsg);
         }
     };
+
 
     const handleUnblockCard = async (cardId: string) => {
         try {
@@ -128,6 +133,8 @@ export const CardPage = () => {
                 return 'warning';
             case 'expired':
                 return 'default';
+            case 'deleted':
+                return 'error';
             default:
                 return 'default';
         }
@@ -143,6 +150,8 @@ export const CardPage = () => {
                 return 'Nieaktywna';
             case 'expired':
                 return 'Wygasła';
+            case 'deleted':
+                return 'Usunięta';
             default:
                 return status;
         }
@@ -165,6 +174,7 @@ export const CardPage = () => {
         <Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
                 <Typography variant="h4">Moje karty płatnicze</Typography>
+                <Button variant="contained" onClick={() => setOpenFlikDialog(true)}>Wygeneruj kod FLIK</Button>
             </Box>
 
             {error && (
@@ -219,7 +229,7 @@ export const CardPage = () => {
                                                         •••• {card.card_last_four}
                                                     </Typography>
                                                     <Typography variant="caption" color="text.secondary">
-                                                        {card.card_number}
+                                                        {formatCardNumber(card.card_number)}
                                                     </Typography>
                                                 </Box>
                                             </Box>
@@ -283,14 +293,16 @@ export const CardPage = () => {
                                                         <UnblockIcon />
                                                     </IconButton>
                                                 )}
-                                                <IconButton
-                                                    color="default"
-                                                    size="small"
-                                                    onClick={() => setDeleteCardId(card.id)}
-                                                    title="Usuń"
-                                                >
-                                                    <DeleteIcon />
-                                                </IconButton>
+                                                {card.status !== 'deleted' && (
+                                                    <IconButton
+                                                        color="default"
+                                                        size="small"
+                                                        onClick={() => setDeleteCardId(card.id)}
+                                                        title="Usuń"
+                                                    >
+                                                        <DeleteIcon />
+                                                    </IconButton>
+                                                )}
                                             </Stack>
                                         </TableCell>
                                     </TableRow>
@@ -328,7 +340,7 @@ export const CardPage = () => {
                                     Numer karty
                                 </Typography>
                                 <Typography variant="body1" sx={{ fontFamily: 'monospace', fontSize: '1.1rem' }}>
-                                    {selectedCard.card_number}
+                                    {formatCardNumber(selectedCard.card_number)}
                                 </Typography>
                             </Box>
 
@@ -417,6 +429,11 @@ export const CardPage = () => {
                     </Button>
                 </DialogActions>
             </Dialog>
+
+            <FlikRequestButton
+                open={openFlikDialog}
+                onClose={() => setOpenFlikDialog(false)}
+            />
         </Box>
     );
 };

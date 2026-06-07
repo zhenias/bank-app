@@ -66,3 +66,18 @@ export const getNetworkColor = (network: string): string => {
         default: return '#666';
     }
 };
+
+export const getStatusCard = (status: string) => {
+    switch (status.toLowerCase()) {
+        case 'active':
+            return 'Aktywna';
+        case 'blocked':
+            return 'Zablokowana';
+        case 'inactive':
+            return 'Nieaktywna';
+        case 'expired':
+            return 'Wygasła';
+        default:
+            return status;
+    }
+}

@@ -117,6 +117,32 @@ export const AccountPage = () => {
         return type === 'savings' ? 'success' : 'primary';
     };
 
+    const getAccountStatusColor = (status: string) => {
+        switch (status) {
+            case 'open':
+                return 'success';
+            case 'frozen':
+                return 'error';
+            case 'closed':
+                return 'error';
+            default:
+                return 'default';
+        }
+    }
+
+    const getAccountStatusLabel = (status: string): string => {
+        switch (status) {
+            case 'open':
+                return 'Aktywne';
+            case 'frozen':
+                return 'Zamrożone';
+            case 'closed':
+                return 'Zamknięte';
+            default:
+                return 'Nieznany status';
+        }
+    }
+
     return (
         <Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
@@ -172,11 +198,18 @@ export const AccountPage = () => {
                                                         {formatAccountNumber(account.account_number)}
                                                     </Typography>
                                                 </Box>
-                                                <Chip
-                                                    label={getAccountTypeLabel(account.type)}
-                                                    color={getAccountTypeColor(account.type)}
-                                                    size="small"
-                                                />
+                                                <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1, alignItems: 'flex-end' }}>
+                                                    <Chip
+                                                        label={getAccountTypeLabel(account.type)}
+                                                        color={getAccountTypeColor(account.type)}
+                                                        size="small"
+                                                    />
+                                                    <Chip
+                                                        label={getAccountStatusLabel(account.status)}
+                                                        color={getAccountStatusColor(account.status)}
+                                                        size="small"
+                                                    />
+                                                </Box>
                                             </Box>
 
                                             <Typography variant="h5" sx={{ mb: 1 }}>

@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 /**
- * Zarządzanie profilem użytkownika.
+ * Powiadomienia.
  *
  * @tags Powiadomienia użytkownika
  */
@@ -22,7 +22,7 @@ class NotificationController extends Controller
     /**
      * Wyświetlanie listy powiadomień użytkownika.
      *
-     * Wyświtla powiadomienia użytkownika, wszystkie które ma na koncie.
+     * Wyświetla powiadomienia użytkownika, wszystkie, które ma na koncie.
      */
     public function index(Request $request): AnonymousResourceCollection
     {
@@ -41,6 +41,8 @@ class NotificationController extends Controller
 
     /**
      * Nie przeczytane powiadomienia.
+     *
+     * Zwraca liczbę nieprzeczytanych powiadomień użytkownika.
      */
     public function unreadCount(Request $request): JsonResponse
     {
@@ -50,7 +52,9 @@ class NotificationController extends Controller
     }
 
     /**
-     * Odczytwanie powiadomienia.
+     * Odczytywanie powiadomienia.
+     *
+     * Odczytuje pojedyncze powiadomienie, oznaczając je jako przeczytane. Użytkownik musi być właścicielem powiadomienia.
      */
     #[PathParameter('notificationId', description: 'Identyfikator powiadomienia', type: 'int', example: '123e4567-e89b-12d3-a456-426614174000')]
     public function markAsRead(string $notificationId, Request $request): JsonResponse
@@ -67,6 +71,8 @@ class NotificationController extends Controller
 
     /**
      * Odczytać wszystkie powiadomienia.
+     *
+     * Odczytuje wszystkie powiadomienia użytkownika, oznaczając je jako przeczytane. Użytkownik musi być właścicielem powiadomień.
      */
     public function markAllAsRead(Request $request): JsonResponse
     {

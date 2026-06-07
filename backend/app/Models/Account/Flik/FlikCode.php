@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['card_id', 'code', 'expires_at', 'status', 'used_in_transaction_id'])]
+#[Fillable(['card_id', 'code', 'amount', 'expires_at', 'status', 'used_in_transaction_id'])]
 class FlikCode extends Model
 {
     use HasFactory;
@@ -24,6 +24,7 @@ class FlikCode extends Model
     protected function casts(): array
     {
         return [
+            'amount'     => 'integer',
             'expires_at' => 'datetime',
         ];
     }
@@ -46,5 +47,11 @@ class FlikCode extends Model
     public function isActive(): bool
     {
         return 'active' === $this->status && ! $this->isExpired();
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'active')
+            ->where('expires_at', '>', now());
     }
 }

@@ -20,10 +20,7 @@ class CardResource extends JsonResource
             /* @example "1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d" */
             'id' => $this->id,
             /* @example "**** **** **** 1234" */
-            'card_number' => $this->when(
-                $this->card_number,
-                $this->maskCardNumber($this->card_number),
-            ),
+            'card_number' => $this->card_number,
             /* @example "1234" */
             'card_last_four' => $this->when(
                 $this->card_number,

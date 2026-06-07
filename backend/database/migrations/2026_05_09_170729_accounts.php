@@ -18,6 +18,7 @@ return new class extends Migration {
             $table->bigInteger('balance')->default(0);
             $table->string('currency', 5)->default('PLN');
             $table->string('type', 20)->default('current');
+            $table->string('status', 20)->default('open'); // open, closed, frozen
             $table->timestamps();
         });
 
@@ -45,6 +46,7 @@ return new class extends Migration {
             $table->string('description')->nullable();
             $table->string('type', 30);
             $table->string('status', 20)->default('pending');
+            $table->string('failure_reason')->nullable();
             $table->string('reference', 64)->nullable();
             $table->timestamps();
 
@@ -52,6 +54,8 @@ return new class extends Migration {
             $table->index('to_account_id');
             $table->index('from_card_id');
             $table->index('reference');
+            $table->index(['status', 'created_at']);
+            $table->index('created_at');
         });
 
         Schema::create('flik_codes', function (Blueprint $table) {

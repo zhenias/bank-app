@@ -19,12 +19,14 @@ class AccountResource extends JsonResource
         return [
             /* @example "123e4567-e89b-12d3-a456-426614174000" */
             'id' => $this->id,
+            /* @example "open"|"closed"|"frozen" */
+            'status' => $this->status,
             /* @example "Konto oszczędnościowe" */
             'name' => $this->name,
             /* @example "98123456780000000012345678" */
             'account_number' => $this->account_number,
             /* @example "2500.00" */
-            'balance' => number_format($this->balance / 100, 2, '.', ''),
+            'balance' => number_format($this->balance / 100, 2, ',', ''),
             /* @example "PLN" */
             'currency' => $this->currency,
             /* @example "savings" */
