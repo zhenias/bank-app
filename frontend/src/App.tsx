@@ -8,7 +8,7 @@ import { ProtectedRoute } from './components/Layout/ProtectedRoute';
 import { LoginPage } from './pages/Forms/LoginPage';
 import { RegisterPage } from './pages/Forms/RegisterPage';
 import { BalancePage } from './pages/User/BalancePage';
-import { JSX } from "react";
+import {JSX, useState} from "react";
 import { ProfilePage } from "./pages/User/ProfilePage";
 import { DashboardPage } from "./pages/Dashboard/DashboardPage";
 import { GuestOnlyRoute } from "./components/Layout/GuestOnlyRoute";
@@ -16,9 +16,12 @@ import { DashboardLayout } from "./components/Layout/DashboardLayout";
 import { AccountPage } from "./pages/Account/AccountPage";
 import { AccountViewPage } from "./pages/Account/AccoutViewPage";
 import { CardPage } from "./pages/Account/Card/CardPage";
+import { TransactionsPage } from "./pages/Transactions/TransactionsPage";
 import { GuardianApprovalPage } from "./pages/Guardian/GuardianApprovalPage";
 import { NotificationBell } from "./components/Notification/NotificationBell";
 import { NotificationsPage } from "./pages/Notification/NotificationsPage";
+import {FlikRequestButton} from "./components/Flik/FlikRequestButton";
+import { FlikPayDialog } from "./components/Flik/FlikPayDialog";
 
 const theme = createTheme({
     palette: {
@@ -304,6 +307,7 @@ function App(): JSX.Element {
                                         <Route path="/accounts" element={<AccountPage />} />
                                         <Route path="/accounts/:id" element={<AccountViewPage />} />
                                         <Route path="/cards" element={<CardPage />} />
+                                        <Route path="/transactions" element={<TransactionsPage />} />
                                         <Route path="/notifications" element={<NotificationsPage />} />
                                         <Route path="/guardian/approve/:wardId" element={<GuardianApprovalPage />} />
                                     </Route>

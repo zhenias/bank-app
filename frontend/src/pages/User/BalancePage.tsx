@@ -30,6 +30,7 @@ import {
     AttachMoney,
     CurrencyExchange
 } from '@mui/icons-material';
+import {formatBalance, formatMoneyShort} from "../../utils/formatMoney";
 
 interface CurrencyBalance {
     currency: string;

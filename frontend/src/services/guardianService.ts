@@ -2,7 +2,7 @@ import { fetchWithAuth } from './authService';
 import { ApiError } from '../types/types';
 
 export const approveGuardian = async (wardId: string): Promise<void> => {
-    const response = await fetchWithAuth(`/guardian/approve/${wardId}`, {
+    const response = await fetchWithAuth(`user/guardian/approve/${wardId}`, {
         method: 'POST',
     });
 
@@ -13,7 +13,7 @@ export const approveGuardian = async (wardId: string): Promise<void> => {
 };
 
 export const rejectGuardian = async (wardId: string): Promise<void> => {
-    const response = await fetchWithAuth(`/guardian/reject/${wardId}`, {
+    const response = await fetchWithAuth(`user/guardian/reject/${wardId}`, {
         method: 'POST',
     });
 

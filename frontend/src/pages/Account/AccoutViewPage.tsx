@@ -124,7 +124,7 @@ export const AccountViewPage = () => {
             setDeleteCardId(null);
             await loadData();
 
-            showSuccess('Karta została usunięta!');
+            showSuccess('Karta została zamknięta!');
         } catch (err: any) {
             setError(err.message);
         }
@@ -136,7 +136,7 @@ export const AccountViewPage = () => {
             await getDeleteAccount(deleteAccountId);
             setDeleteAccountId(null);
             navigate('/accounts');
-            showSuccess('Konto bankowe zostało usunięte.');
+            showSuccess('Konto bankowe zostało zamknięte.');
         } catch (err: any) {
             setError(err.message);
         }
@@ -164,6 +164,7 @@ export const AccountViewPage = () => {
             case 'blocked': return 'error';
             case 'inactive': return 'warning';
             case 'expired': return 'default';
+            case 'deleted': return 'error';
             default: return 'default';
         }
     };
@@ -174,9 +175,36 @@ export const AccountViewPage = () => {
             case 'blocked': return 'Zablokowana';
             case 'inactive': return 'Nieaktywna';
             case 'expired': return 'Wygasła';
+            case 'deleted': return 'Usunięta';
             default: return status;
         }
     };
+
+    const getAccountStatusColor = (status: string) => {
+        switch (status) {
+            case 'open':
+                return 'success';
+            case 'frozen':
+                return 'error';
+            case 'closed':
+                return 'error';
+            default:
+                return 'default';
+        }
+    }
+
+    const getAccountStatusLabel = (status: string): string => {
+        switch (status) {
+            case 'open':
+                return 'Aktywne';
+            case 'frozen':
+                return 'Zamrożone';
+            case 'closed':
+                return 'Zamknięte';
+            default:
+                return 'Nieznany status';
+        }
+    }
 
     const getAccountTypeLabel = (type: string): string => {
         return type === 'savings' ? 'Oszczędnościowe' : 'Bieżące';
@@ -222,11 +250,18 @@ export const AccountViewPage = () => {
                                 {formatAccountNumber(account.account_number)}
                             </Typography>
                         </Box>
-                        <Chip
-                            label={getAccountTypeLabel(account.type)}
-                            color={account.type === 'savings' ? 'success' : 'primary'}
-                            size="medium"
-                        />
+                        <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1, alignItems: 'flex-end' }}>
+                            <Chip
+                                label={getAccountTypeLabel(account.type)}
+                                color={account.type === 'savings' ? 'success' : 'primary'}
+                                size="medium"
+                            />
+                            <Chip
+                                label={getAccountStatusLabel(account.status)}
+                                color={getAccountStatusColor(account.status)}
+                                size="medium"
+                            />
+                        </Box>
                     </Box>
 
                     <Grid container spacing={4}>
@@ -247,7 +282,7 @@ export const AccountViewPage = () => {
                             </Typography>
                         </Grid>
 
-                        <IconButton color="default" size="small" onClick={() => setDeleteAccountId(account.id)} title="Usuń">
+                        <IconButton color="default" disabled={account.balance === 0 && account.status === "closed"} size="small" onClick={() => setDeleteAccountId(account.id)} title="Usuń">
                             <DeleteIcon/>
                         </IconButton>
                     </Grid>
@@ -407,17 +442,17 @@ export const AccountViewPage = () => {
 
             {/* Delete Confirmation Dialog */}
             <Dialog open={!!deleteAccountId} onClose={() => setDeleteAccountId(null)}>
-                <DialogTitle>Usunąć konto bankowe?</DialogTitle>
+                <DialogTitle>Zamknąć konto bankowe?</DialogTitle>
                 <DialogContent>
                     <Typography>
-                        Ta operacja jest nieodwracalna. Konto zostanie trwale usunięta.
-                        Jeśli jest więcej od 0 na koncie, to konto nie może zostać usunięte.
+                        Ta operacja jest nieodwracalna. Konto zostanie trwale zamknięte.
+                        Jeśli jest więcej od 0 na koncie, to konto nie może zostać zamknięte.
                     </Typography>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setDeleteAccountId(null)}>Anuluj</Button>
                     <Button onClick={handleDeleteAccount} color="error" variant="contained">
-                        Usuń
+                        Zamknij konto
                     </Button>
                 </DialogActions>
             </Dialog>

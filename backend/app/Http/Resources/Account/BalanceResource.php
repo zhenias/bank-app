@@ -18,7 +18,7 @@ class BalanceResource extends JsonResource
             /* @example PLN */
             'currency' => $this->currency,
             /* @example 2500.00 */
-            'balance' => number_format($this->total_balance / 100, 2, '.', ''),
+            'balance' => number_format($this->total_balance / 100, 2, ',', ''),
         ];
     }
 }

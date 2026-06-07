@@ -86,7 +86,7 @@ class ProfileController extends Controller
     /**
      * Usuń konto.
      *
-     * Usuwa konto zalogowanego użytkownika - na zawsze!
+     * Usuwa konto zalogowanego użytkownika-na zawsze!
      */
     #[AuthorizeToken(['user-profile-manage'], anyScope: true)]
     public function destroy(Request $request): JsonResponse

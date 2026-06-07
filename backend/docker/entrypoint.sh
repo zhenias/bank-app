@@ -3,6 +3,16 @@ set -e
 
 echo "🚀 Starting Laravel application..."
 
+if [ -f "/app/storage/oauth-private.key" ]; then
+    chmod 600 /app/storage/oauth-private.key
+    echo "Fixed permissions for oauth-private.key"
+fi
+
+if [ -f "/app/storage/oauth-public.key" ]; then
+    chmod 600 /app/storage/oauth-public.key
+    echo "Fixed permissions for oauth-public.key"
+fi
+
 # Copy conf file to container
 echo "📁 Copying configuration files..."
 cp -f docker/nginx.conf /etc/nginx/http.d/default.conf

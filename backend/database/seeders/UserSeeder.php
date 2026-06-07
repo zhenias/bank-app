@@ -46,7 +46,7 @@ class UserSeeder extends Seeder
             ]);
 
             $accountsCount = 5;
-            Account::factory()->count($accountsCount)->withCards(rand(1, 3))->create([
+            Account::factory()->count($accountsCount)->withCards(rand(1, 2))->create([
                 'user_id' => $user->id,
             ]);
 

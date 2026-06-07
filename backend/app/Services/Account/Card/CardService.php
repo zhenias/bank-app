@@ -63,6 +63,8 @@ class CardService extends Service
      */
     public function deleteCard(Card $card): void
     {
-        $card->delete();
+        $card->update([
+            'status' => 'deleted',
+        ]);
     }
 }

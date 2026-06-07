@@ -16,6 +16,7 @@ use Dedoc\Scramble\Attributes\QueryParameter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Laravel\Passport\Attributes\AuthorizeToken;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
  * Zarządzanie kontem bankowym.
@@ -40,6 +41,7 @@ class AccountController extends Controller
     public function index(): AnonymousResourceCollection
     {
         $accounts = Account::where('user_id', auth()->id())
+            ->orderBy('created_at', 'desc')
             ->with('cards')
             ->paginate(
                 perPage: $this->perPage(),
@@ -52,7 +54,7 @@ class AccountController extends Controller
     /**
      * Saldo.
      *
-     * Wyświetlanie salda według kont w którym jest waluta.
+     * Wyświetlanie salda według kont, w którym jest waluta.
      */
     #[AuthorizeToken(['accounts-view'], anyScope: true)]
     public function balance(): JsonResponse
@@ -66,7 +68,7 @@ class AccountController extends Controller
         return response()->json([
             'balances' => BalanceResource::collection($balances),
             /* @example 2500.00 */
-            'total' => number_format($balances->where('currency', 'PLN')->sum('total_balance') / 100, 2, '.', ''),
+            'total' => number_format($balances->where('currency', 'PLN')->sum('total_balance') / 100, 2, ',', ''),
         ]);
     }
 
@@ -100,6 +102,10 @@ class AccountController extends Controller
     #[PathParameter('account', description: 'Account being viewed', type: 'string', format: 'uuid', example: '550e8400-e29b-41d4-a716-446655440000')]
     public function show(Account $account): AccountResource
     {
+        if ($account->user_id !== auth()->id()) {
+            throw new AccessDeniedHttpException();
+        }
+
         return new AccountResource($account->load('cards'));
     }
 
@@ -111,6 +117,10 @@ class AccountController extends Controller
     #[BodyParameter('name', description: 'Nowa nazwa konta', type: 'string', example: 'Konto oszczędnościowe')]
     public function update(UpdateAccountRequest $request, Account $account): AccountResource
     {
+        if ($account->user_id !== auth()->id()) {
+            throw new AccessDeniedHttpException();
+        }
+
         $account = $this->accountService->updateName($account, $request->name);
 
         return new AccountResource($account->load('cards'));
@@ -123,6 +133,10 @@ class AccountController extends Controller
     #[PathParameter('account', description: 'ID konta bankowego', type: 'string', format: 'uuid', example: '550e8400-e29b-41d4-a716-446655440000')]
     public function destroy(Account $account): JsonResponse
     {
+        if ($account->user_id !== auth()->id()) {
+            throw new AccessDeniedHttpException();
+        }
+
         $this->accountService->closeAccount($account);
 
         return response()->json(['message' => 'Account closed.'], 200);
