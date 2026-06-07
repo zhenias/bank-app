@@ -1,0 +1,86 @@
+# .github/workflows/deploy.yml
+name: Deploy to AWS EC2
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, pdo, mysql, bcmath, opcache
+
+      - name: Install dependencies
+        working-directory: ./backend
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Run tests
+        working-directory: ./backend
+        env:
+          APP_ENV: testing
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ':memory:'
+        run: php artisan test
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.AWS_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.AWS_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy backend
+        run: |
+          rsync -avz --delete \
+            --exclude='.env' \
+            --exclude='vendor/' \
+            --exclude='node_modules/' \
+            --exclude='.git/' \
+            --exclude='storage/logs/' \
+            --exclude='storage/framework/cache/data/' \
+            --exclude='storage/framework/sessions/' \
+            --exclude='storage/framework/views/' \
+            --exclude='bootstrap/cache/' \
+            ./backend/ ${{ secrets.AWS_USER }}@${{ secrets.AWS_HOST }}:/var/www/backend/
+
+      - name: Post-deploy on server
+        run: |
+          ssh ${{ secrets.AWS_USER }}@${{ secrets.AWS_HOST }} << 'EOF'
+            cd /var/www/backend
+          
+            # Install production dependencies
+            composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
+          
+            # Run migrations
+            php artisan migrate --force
+          
+            # Cache everything
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+            php artisan event:cache
+          
+            # Optimize
+            php artisan optimize
+          
+            # Fix permissions
+            sudo chown -R www-data:www-data storage bootstrap/cache
+            sudo chmod -R 775 storage bootstrap/cache
+          
+            # Reload PHP-FPM
+            sudo systemctl reload php8.3-fpm
+            sudo systemctl reload nginx
+          EOF
