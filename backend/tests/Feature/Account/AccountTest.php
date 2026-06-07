@@ -30,10 +30,10 @@ class AccountTest extends TestCase
         Account::factory()->count(3)->create(['user_id' => $this->user->id]);
 
         User::factory()
-        ->withAccount(2)
-        ->create([
-            'date_of_birth' => now()->subYears(30),
-        ]);
+            ->withAccount(2)
+            ->create([
+                'date_of_birth' => now()->subYears(30),
+            ]);
 
         Passport::actingAs($this->user, ['accounts-view']);
 
@@ -60,19 +60,92 @@ class AccountTest extends TestCase
             ]);
     }
 
+    public function testListsAccountsIsPaginated(): void
+    {
+        Account::factory()->count(25)->create(['user_id' => $this->user->id]);
+
+        Passport::actingAs($this->user, ['accounts-view']);
+
+        $response = $this->getJson('/api/accounts?per_page=10');
+
+        $response->assertStatus(200)
+            ->assertJsonCount(10, 'data')
+            ->assertJsonPath('meta.total', 25)
+            ->assertJsonPath('meta.per_page', 10);
+    }
+
+    public function testReturnsBalanceGroupedByCurrency(): void
+    {
+        Account::factory()->create([
+            'user_id' => $this->user->id,
+            'currency' => 'PLN',
+            'balance' => 50000,
+        ]);
+        Account::factory()->create([
+            'user_id' => $this->user->id,
+            'currency' => 'PLN',
+            'balance' => 30000,
+        ]);
+        Account::factory()->create([
+            'user_id' => $this->user->id,
+            'currency' => 'EUR',
+            'balance' => 10000,
+        ]);
+
+        Passport::actingAs($this->user, ['accounts-view']);
+
+        $response = $this->getJson('/api/accounts/balance');
+
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                'balances',
+                'total',
+            ]);
+
+        $balances = $response->json('balances');
+        $plnBalance = collect($balances)->firstWhere('currency', 'PLN');
+        $this->assertNotNull($plnBalance);
+        $this->assertEquals('800,00', $plnBalance['balance']);
+    }
+
+    public function testBalanceExcludesOtherUsersAccounts(): void
+    {
+        Account::factory()->create([
+            'user_id' => $this->user->id,
+            'currency' => 'PLN',
+            'balance' => 50000,
+        ]);
+
+        $otherUser = User::factory()->create();
+        Account::factory()->create([
+            'user_id' => $otherUser->id,
+            'currency' => 'PLN',
+            'balance' => 99999,
+        ]);
+
+        Passport::actingAs($this->user, ['accounts-view']);
+
+        $response = $this->getJson('/api/accounts/balance');
+
+        $response->assertStatus(200);
+        $balances = $response->json('balances');
+        $plnBalance = collect($balances)->firstWhere('currency', 'PLN');
+        $this->assertEquals('500,00', $plnBalance['balance']);
+    }
+
     public function testCreatesNewAccount(): void
     {
         Passport::actingAs($this->user, ['accounts-view', 'accounts-manage']);
 
         $response = $this->postJson('/api/accounts', [
-            'name'      => 'Konto oszczędnościowe',
+            'name'      => 'Konto oszczednosciowe',
             'currency'  => 'PLN',
             'type'      => 'savings',
             'with_card' => true,
         ]);
 
         $response->assertStatus(201)
-            ->assertJsonPath('data.name', 'Konto oszczędnościowe')
+            ->assertJsonPath('data.name', 'Konto oszczednosciowe')
             ->assertJsonPath('data.currency', 'PLN')
             ->assertJsonPath('data.type', 'savings')
             ->assertJsonPath('data.balance', '0,00')
@@ -92,7 +165,7 @@ class AccountTest extends TestCase
 
         $this->assertDatabaseHas('accounts', [
             'user_id' => $this->user->id,
-            'name'    => 'Konto oszczędnościowe',
+            'name'    => 'Konto oszczednosciowe',
         ]);
     }
 
@@ -107,6 +180,19 @@ class AccountTest extends TestCase
 
         $response->assertStatus(201)
             ->assertJsonCount(0, 'data.cards');
+    }
+
+    public function testCreatesAccountWithDefaults(): void
+    {
+        Passport::actingAs($this->user, ['accounts-manage']);
+
+        $response = $this->postJson('/api/accounts', [
+            'name' => 'Konto domyslne',
+        ]);
+
+        $response->assertStatus(201)
+            ->assertJsonPath('data.currency', 'PLN')
+            ->assertJsonPath('data.type', 'current');
     }
 
     public function testShowsAccountDetails(): void
@@ -135,6 +221,18 @@ class AccountTest extends TestCase
             ]);
     }
 
+    public function testCannotShowOtherUserAccount(): void
+    {
+        $otherUser = User::factory()->create();
+        $account = Account::factory()->create(['user_id' => $otherUser->id]);
+
+        Passport::actingAs($this->user, ['accounts-view', 'accounts-details']);
+
+        $response = $this->getJson("/api/accounts/{$account->id}");
+
+        $response->assertStatus(403);
+    }
+
     public function testUpdatesAccountName(): void
     {
         $account = Account::factory()->create([
@@ -157,12 +255,34 @@ class AccountTest extends TestCase
         ]);
     }
 
+    public function testCannotUpdateOtherUserAccount(): void
+    {
+        $otherUser = User::factory()->create();
+        $account = Account::factory()->create([
+            'user_id' => $otherUser->id,
+            'name'    => 'Cudze konto',
+        ]);
+
+        Passport::actingAs($this->user, ['accounts-manage']);
+
+        $response = $this->patchJson("/api/accounts/{$account->id}", [
+            'name' => 'Proba zmiany',
+        ]);
+
+        $response->assertStatus(403);
+
+        $this->assertDatabaseHas('accounts', [
+            'id'   => $account->id,
+            'name' => 'Cudze konto',
+        ]);
+    }
+
     public function testCannotUpdateAccountNumberOrBalance(): void
     {
         $account = Account::factory()->create([
             'user_id'        => $this->user->id,
             'account_number' => '12345678901234567890123456',
-            'balance'        => 100000, // 1000.00 PLN
+            'balance'        => 100000,
         ]);
 
         Passport::actingAs($this->user, ['accounts-view', 'accounts-manage']);
@@ -212,16 +332,51 @@ class AccountTest extends TestCase
 
         $response = $this->deleteJson("/api/accounts/{$account->id}");
 
-        $response->assertStatus(500); // lub 422 zależnie od implementacji
+        $response->assertStatus(500);
 
         $this->assertDatabaseHas('accounts', ['id' => $account->id]);
     }
 
+    public function testCannotCloseOtherUserAccount(): void
+    {
+        $otherUser = User::factory()->create();
+        $account = Account::factory()->create([
+            'user_id' => $otherUser->id,
+            'balance' => 0,
+            'status'  => 'open',
+        ]);
+
+        Passport::actingAs($this->user, ['accounts-manage']);
+
+        $response = $this->deleteJson("/api/accounts/{$account->id}");
+
+        $response->assertStatus(403);
+
+        $this->assertDatabaseHas('accounts', [
+            'id' => $account->id,
+            'status' => 'open',
+        ]);
+    }
+
     public function testRequiresAuthentication(): void
     {
-        $response = $this->getJson('/api/accounts');
+        $this->getJson('/api/accounts')
+            ->assertStatus(401);
 
-        $response->assertStatus(401);
+        $this->getJson('/api/accounts/balance')
+            ->assertStatus(401);
+
+        $this->postJson('/api/accounts', [])
+            ->assertStatus(401);
+
+        $this->getJson('/api/accounts/550e8400-e29b-41d4-a716-446655440000')
+            ->assertStatus(401);
+
+        $this->patchJson('/api/accounts/550e8400-e29b-41d4-a716-446655440000', [])
+            ->assertStatus(401);
+
+        $this->deleteJson('/api/accounts/550e8400-e29b-41d4-a716-446655440000')
+            ->assertStatus(401);
     }
 
     public function testValidatesStoreRequest(): void
@@ -248,5 +403,34 @@ class AccountTest extends TestCase
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['name']);
+    }
+
+    public function testRequiresScopeForIndex(): void
+    {
+        Passport::actingAs($this->user, []);
+
+        $response = $this->getJson('/api/accounts');
+
+        $response->assertStatus(403);
+    }
+
+    public function testRequiresScopeForStore(): void
+    {
+        Passport::actingAs($this->user, ['accounts-view']);
+
+        $response = $this->postJson('/api/accounts', [
+            'name' => 'Test',
+        ]);
+
+        $response->assertStatus(403);
+    }
+
+    public function testRequiresScopeForBalance(): void
+    {
+        Passport::actingAs($this->user, []);
+
+        $response = $this->getJson('/api/accounts/balance');
+
+        $response->assertStatus(403);
     }
 }

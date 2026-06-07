@@ -70,7 +70,7 @@ class AccountService extends Service
 
         DB::transaction(function () use ($account) {
             $account->cards()->update([
-                'status' => 'blocked',
+                'status' => 'deleted',
             ]);
             $account->update([
                 'status' => 'closed',

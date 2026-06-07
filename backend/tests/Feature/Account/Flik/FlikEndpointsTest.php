@@ -17,7 +17,6 @@ class FlikEndpointsTest extends TestCase
 
     public function testRequestCodeAndPayFlow(): void
     {
-        // Arrange
         $sender = User::factory()->create([
             'date_of_birth' => now()->subYears(30),
         ]);
@@ -42,7 +41,6 @@ class FlikEndpointsTest extends TestCase
             'status' => 'open'
         ]);
 
-        // Request code by sender
         Passport::actingAs($sender, ['flik-generate']);
 
         $response = $this->postJson("/api/flik/request-code/{$card->id}", [
@@ -57,7 +55,6 @@ class FlikEndpointsTest extends TestCase
 
         $code = $response->json('code');
 
-        // Pay with code (only code, no amount) by receiver
         Passport::actingAs($receiver, ['flik-pay']);
 
         $payResponse = $this->postJson('/api/flik/pay', ['code' => $code]);
@@ -71,10 +68,14 @@ class FlikEndpointsTest extends TestCase
         $this->assertEquals('flik', $tx['payment_method']);
         $this->assertEquals('pending', $tx['status']);
 
-        // Check flik code status in DB
         $this->assertDatabaseHas('flik_codes', [ 'code' => $code, 'status' => FlikCodeStatus::USED->value ]);
         $this->assertDatabaseHas('transactions', [
             'id' => $tx['id'],
+            'from_account_id' => $senderAccount->id,
+            'to_account_id' => $receiverAccount->id,
+            'amount' => 1000,
+            'type' => 'flik_payment',
+            'payment_method' => 'flik',
             'status' => 'completed',
         ]);
     }
@@ -126,5 +127,332 @@ class FlikEndpointsTest extends TestCase
         $this->assertArrayHasKey('status', $responseUsed->json());
         $this->assertEquals('used', $responseUsed->json('status'));
     }
-}
 
+    public function testCannotRequestCodeForOtherUserCard(): void
+    {
+        $sender = User::factory()->create([
+            'date_of_birth' => now()->subYears(30),
+        ]);
+        $senderAccount = Account::factory()->create([
+            'user_id' => $sender->id,
+            'currency' => 'PLN',
+            'balance' => 50000,
+            'status' => 'open',
+        ]);
+        $card = Card::factory()->create([
+            'account_id' => $senderAccount->id,
+            'status' => 'active'
+        ]);
+
+        $otherUser = User::factory()->create([
+            'date_of_birth' => now()->subYears(25),
+        ]);
+
+        Passport::actingAs($otherUser, ['flik-generate']);
+
+        $response = $this->postJson("/api/flik/request-code/{$card->id}", [
+            'card_id' => $card->id,
+            'amount' => '10.00',
+            'account_id' => $senderAccount->id,
+        ]);
+
+        $response->assertStatus(403);
+    }
+
+    public function testCannotPayWithExpiredCode(): void
+    {
+        $sender = User::factory()->create([
+            'date_of_birth' => now()->subYears(30),
+        ]);
+        $senderAccount = Account::factory()->create([
+            'user_id' => $sender->id,
+            'currency' => 'PLN',
+            'balance' => 50000,
+            'status' => 'open',
+        ]);
+        $card = Card::factory()->create([
+            'account_id' => $senderAccount->id,
+            'status' => 'active'
+        ]);
+
+        $receiver = User::factory()->create([
+            'date_of_birth' => now()->subYears(25),
+        ]);
+        Account::factory()->create([
+            'user_id' => $receiver->id,
+            'currency' => 'PLN',
+            'balance' => 0,
+            'status' => 'open'
+        ]);
+
+        $flikCode = FlikCode::factory()->create([
+            'status' => FlikCodeStatus::EXPIRED->value,
+            'card_id' => $card->id,
+        ]);
+
+        Passport::actingAs($receiver, ['flik-pay']);
+
+        $response = $this->postJson('/api/flik/pay', ['code' => $flikCode->code]);
+
+        $response->assertStatus(422);
+    }
+
+    public function testCannotPayWithUsedCode(): void
+    {
+        $sender = User::factory()->create([
+            'date_of_birth' => now()->subYears(30),
+        ]);
+        $senderAccount = Account::factory()->create([
+            'user_id' => $sender->id,
+            'currency' => 'PLN',
+            'balance' => 50000,
+            'status' => 'open',
+        ]);
+        $card = Card::factory()->create([
+            'account_id' => $senderAccount->id,
+            'status' => 'active'
+        ]);
+
+        $receiver = User::factory()->create([
+            'date_of_birth' => now()->subYears(25),
+        ]);
+        Account::factory()->create([
+            'user_id' => $receiver->id,
+            'currency' => 'PLN',
+            'balance' => 0,
+            'status' => 'open'
+        ]);
+
+        $flikCode = FlikCode::factory()->create([
+            'status' => FlikCodeStatus::USED->value,
+            'card_id' => $card->id,
+        ]);
+
+        Passport::actingAs($receiver, ['flik-pay']);
+
+        $response = $this->postJson('/api/flik/pay', ['code' => $flikCode->code]);
+
+        $response->assertStatus(422);
+    }
+
+    public function testCannotPayToSelf(): void
+    {
+        $sender = User::factory()->create([
+            'date_of_birth' => now()->subYears(30),
+        ]);
+        $senderAccount = Account::factory()->create([
+            'user_id' => $sender->id,
+            'currency' => 'PLN',
+            'balance' => 50000,
+            'status' => 'open',
+        ]);
+        $card = Card::factory()->create([
+            'account_id' => $senderAccount->id,
+            'status' => 'active'
+        ]);
+
+        $flikCode = FlikCode::factory()->create([
+            'status' => FlikCodeStatus::ACTIVE->value,
+            'card_id' => $card->id,
+        ]);
+
+        Passport::actingAs($sender, ['flik-pay']);
+
+        $response = $this->postJson('/api/flik/pay', ['code' => $flikCode->code]);
+
+        $response->assertStatus(422);
+    }
+
+    public function testCannotPayWhenPayerHasNoPlnAccount(): void
+    {
+        $sender = User::factory()->create([
+            'date_of_birth' => now()->subYears(30),
+        ]);
+        $senderAccount = Account::factory()->create([
+            'user_id' => $sender->id,
+            'currency' => 'EUR',
+            'balance' => 50000,
+            'status' => 'open',
+        ]);
+        $card = Card::factory()->create([
+            'account_id' => $senderAccount->id,
+            'status' => 'active'
+        ]);
+
+        $receiver = User::factory()->create([
+            'date_of_birth' => now()->subYears(25),
+        ]);
+        Account::factory()->create([
+            'user_id' => $receiver->id,
+            'currency' => 'PLN',
+            'balance' => 0,
+            'status' => 'open'
+        ]);
+
+        $flikCode = FlikCode::factory()->create([
+            'status' => FlikCodeStatus::ACTIVE->value,
+            'card_id' => $card->id,
+        ]);
+
+        Passport::actingAs($receiver, ['flik-pay']);
+
+        $response = $this->postJson('/api/flik/pay', ['code' => $flikCode->code]);
+
+        $response->assertStatus(422);
+    }
+
+    public function testCannotPayWhenReceiverHasNoPlnAccount(): void
+    {
+        $sender = User::factory()->create([
+            'date_of_birth' => now()->subYears(30),
+        ]);
+        $senderAccount = Account::factory()->create([
+            'user_id' => $sender->id,
+            'currency' => 'PLN',
+            'balance' => 50000,
+            'status' => 'open',
+        ]);
+        $card = Card::factory()->create([
+            'account_id' => $senderAccount->id,
+            'status' => 'active'
+        ]);
+
+        $receiver = User::factory()->create([
+            'date_of_birth' => now()->subYears(25),
+        ]);
+        Account::factory()->create([
+            'user_id' => $receiver->id,
+            'currency' => 'EUR',
+            'balance' => 0,
+            'status' => 'open'
+        ]);
+
+        $flikCode = FlikCode::factory()->create([
+            'status' => FlikCodeStatus::ACTIVE->value,
+            'card_id' => $card->id,
+        ]);
+
+        Passport::actingAs($receiver, ['flik-pay']);
+
+        $response = $this->postJson('/api/flik/pay', ['code' => $flikCode->code]);
+
+        $response->assertStatus(422);
+    }
+
+    public function testCannotPayWithInsufficientFunds(): void
+    {
+        $sender = User::factory()->create([
+            'date_of_birth' => now()->subYears(30),
+        ]);
+        $senderAccount = Account::factory()->create([
+            'user_id' => $sender->id,
+            'currency' => 'PLN',
+            'balance' => 500,
+            'status' => 'open',
+        ]);
+        $card = Card::factory()->create([
+            'account_id' => $senderAccount->id,
+            'status' => 'active'
+        ]);
+
+        $receiver = User::factory()->create([
+            'date_of_birth' => now()->subYears(25),
+        ]);
+        Account::factory()->create([
+            'user_id' => $receiver->id,
+            'currency' => 'PLN',
+            'balance' => 0,
+            'status' => 'open'
+        ]);
+
+        $flikCode = FlikCode::factory()->create([
+            'status' => FlikCodeStatus::ACTIVE->value,
+            'card_id' => $card->id,
+            'amount' => 10000,
+        ]);
+
+        Passport::actingAs($receiver, ['flik-pay']);
+
+        $response = $this->postJson('/api/flik/pay', ['code' => $flikCode->code]);
+
+        $response->assertStatus(422);
+    }
+
+    public function testStatusReturns404ForNonExistentCode(): void
+    {
+        $user = User::factory()->create([
+            'date_of_birth' => now()->subYears(30),
+        ]);
+
+        Passport::actingAs($user, ['flik-status']);
+
+        $response = $this->postJson('/api/flik/status/000000');
+
+        $response->assertStatus(422);
+    }
+
+    public function testRequiresAuthentication(): void
+    {
+        $this->postJson('/api/flik/request-code/550e8400-e29b-41d4-a716-446655440000')
+            ->assertStatus(401);
+
+        $this->postJson('/api/flik/pay', ['code' => '123456'])
+            ->assertStatus(401);
+
+        $this->postJson('/api/flik/status/123456')
+            ->assertStatus(401);
+    }
+
+    public function testRequiresScopeForRequestCode(): void
+    {
+        $user = User::factory()->create([
+            'date_of_birth' => now()->subYears(30),
+        ]);
+        $account = Account::factory()->create([
+            'user_id' => $user->id,
+            'currency' => 'PLN',
+            'balance' => 50000,
+            'status' => 'open',
+        ]);
+        $card = Card::factory()->create([
+            'account_id' => $account->id,
+            'status' => 'active'
+        ]);
+
+        Passport::actingAs($user, []);
+
+        $response = $this->postJson("/api/flik/request-code/{$card->id}", [
+            'card_id' => $card->id,
+            'amount' => '10.00',
+            'account_id' => $account->id,
+        ]);
+
+        $response->assertStatus(403);
+    }
+
+    public function testRequiresScopeForPay(): void
+    {
+        $user = User::factory()->create([
+            'date_of_birth' => now()->subYears(30),
+        ]);
+
+        Passport::actingAs($user, []);
+
+        $response = $this->postJson('/api/flik/pay', ['code' => '123456']);
+
+        $response->assertStatus(403);
+    }
+
+    public function testRequiresScopeForStatus(): void
+    {
+        $user = User::factory()->create([
+            'date_of_birth' => now()->subYears(30),
+        ]);
+
+        Passport::actingAs($user, []);
+
+        $response = $this->postJson('/api/flik/status/123456');
+
+        $response->assertStatus(403);
+    }
+}

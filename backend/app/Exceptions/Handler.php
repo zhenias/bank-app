@@ -2,6 +2,11 @@
 
 namespace App\Exceptions;
 
+use App\Exceptions\Financial\FlikCodeExpiredException;
+use App\Exceptions\Financial\FlikCodeInvalidException;
+use App\Exceptions\Financial\InsufficientFundsException;
+use App\Exceptions\Financial\InvalidAccountException;
+use App\Exceptions\Financial\InvalidAmountException;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -41,6 +46,46 @@ class Handler extends ExceptionHandler
                 'message' => 'Insufficient permissions to access this resource.',
                 'code'    => 403,
             ], 403);
+        }
+
+        if ($e instanceof FlikCodeExpiredException) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => $e->getMessage(),
+                'code'    => 410,
+            ], 410);
+        }
+
+        if ($e instanceof FlikCodeInvalidException) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => $e->getMessage(),
+                'code'    => 422,
+            ], 422);
+        }
+
+        if ($e instanceof InsufficientFundsException) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => $e->getMessage(),
+                'code'    => 422,
+            ], 422);
+        }
+
+        if ($e instanceof InvalidAccountException) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => $e->getMessage(),
+                'code'    => 422,
+            ], 422);
+        }
+
+        if ($e instanceof InvalidAmountException) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => $e->getMessage(),
+                'code'    => 422,
+            ], 422);
         }
 
         if ($e instanceof HttpException) {

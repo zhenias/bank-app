@@ -17,15 +17,15 @@ Route::prefix('/')->group(function () {
 });
 
 Route::middleware(['auth:api'])->group(function () {
-    Route::post('/guardian/approve/{wardId}', [ProfileController::class, 'approveGuardian']);
-    Route::post('/guardian/reject/{wardId}', [ProfileController::class, 'rejectGuardian']);
-
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
     Route::patch('/notifications/{notificationId}/read', [NotificationController::class, 'markAsRead']);
     Route::patch('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
 
     Route::prefix('/user')->group(function () {
+        Route::post('/guardian/approve/{wardId}', [ProfileController::class, 'approveGuardian']);
+        Route::post('/guardian/reject/{wardId}', [ProfileController::class, 'rejectGuardian']);
+
         Route::middleware('guest')->withoutMiddleware(['auth:api', 'verified'])->group(function () {
             Route::post('/register', [ProfileController::class, 'create']);
         });
