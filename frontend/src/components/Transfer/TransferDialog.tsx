@@ -1,5 +1,15 @@
 import { useState } from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Stack } from '@mui/material';
+import {
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    Button,
+    TextField,
+    Stack,
+    AlertTitle,
+    Alert
+} from '@mui/material';
 import { createTransfer } from '../../services/accountService';
 import { useToast } from '../../context/ToastContext';
 
@@ -32,6 +42,11 @@ export const TransferDialog = ({ open, onClose, callback }: { open: boolean; onC
         <Dialog open={open} onClose={onClose}>
             <DialogTitle>Nowy przelew</DialogTitle>
             <DialogContent>
+                <Alert>
+                    <AlertTitle>Informacja</AlertTitle>
+                    Przelew środków jest realizowany tylko i wyłącznie w złotówkach.
+                    W innych walutach transakcje nie są akceptowane.
+                </Alert>
                 <Stack spacing={2} sx={{ mt: 1, minWidth: 360 }}>
                     <TextField label="Numer konta odbiorcy (26 cyfr)" value={toAccountNumber} onChange={e => setToAccountNumber(e.target.value)} />
                     <TextField label="Kwota (np. 10.00)" value={amount} onChange={e => setAmount(e.target.value)} />

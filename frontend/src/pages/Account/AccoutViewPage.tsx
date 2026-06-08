@@ -50,6 +50,13 @@ import type { Account, Card } from '../../types/types';
 import {formatDate, formatDateShort} from "../../utils/formatDate";
 import {formatAccountNumber} from "../../utils/formatAccount";
 import {useToast} from "../../context/ToastContext";
+import {getCardStatusColor, getCardStatusLabel} from "../../utils/status/statusCard";
+import {
+    getAccountStatusColor,
+    getAccountStatusLabel,
+    getAccountTypeColor,
+    getAccountTypeLabel
+} from "../../utils/status/statusAccount";
 
 export const AccountViewPage = () => {
     const { id } = useParams<{ id: string }>();
@@ -70,7 +77,7 @@ export const AccountViewPage = () => {
     // Delete confirmation
     const [deleteCardId, setDeleteCardId] = useState<string | null>(null);
 
-    // Delete account configmation
+    // Delete account confirmation
     const [deleteAccountId, setDeleteAccountId] = useState<string | null>(null);
 
     const loadData = async () => {
@@ -158,58 +165,6 @@ export const AccountViewPage = () => {
         }
     };
 
-    const getStatusColor = (status: string): 'success' | 'error' | 'warning' | 'default' => {
-        switch (status) {
-            case 'active': return 'success';
-            case 'blocked': return 'error';
-            case 'inactive': return 'warning';
-            case 'expired': return 'default';
-            case 'deleted': return 'error';
-            default: return 'default';
-        }
-    };
-
-    const getStatusLabel = (status: string): string => {
-        switch (status) {
-            case 'active': return 'Aktywna';
-            case 'blocked': return 'Zablokowana';
-            case 'inactive': return 'Nieaktywna';
-            case 'expired': return 'Wygasła';
-            case 'deleted': return 'Usunięta';
-            default: return status;
-        }
-    };
-
-    const getAccountStatusColor = (status: string) => {
-        switch (status) {
-            case 'open':
-                return 'success';
-            case 'frozen':
-                return 'error';
-            case 'closed':
-                return 'error';
-            default:
-                return 'default';
-        }
-    }
-
-    const getAccountStatusLabel = (status: string): string => {
-        switch (status) {
-            case 'open':
-                return 'Aktywne';
-            case 'frozen':
-                return 'Zamrożone';
-            case 'closed':
-                return 'Zamknięte';
-            default:
-                return 'Nieznany status';
-        }
-    }
-
-    const getAccountTypeLabel = (type: string): string => {
-        return type === 'savings' ? 'Oszczędnościowe' : 'Bieżące';
-    };
-
     if (loading) {
         return (
             <Box>
@@ -253,13 +208,13 @@ export const AccountViewPage = () => {
                         <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1, alignItems: 'flex-end' }}>
                             <Chip
                                 label={getAccountTypeLabel(account.type)}
-                                color={account.type === 'savings' ? 'success' : 'primary'}
-                                size="medium"
+                                color={getAccountTypeColor(account.type)}
+                                size="small"
                             />
                             <Chip
                                 label={getAccountStatusLabel(account.status)}
                                 color={getAccountStatusColor(account.status)}
-                                size="medium"
+                                size="small"
                             />
                         </Box>
                     </Box>
@@ -338,8 +293,8 @@ export const AccountViewPage = () => {
                                     </TableCell>
                                     <TableCell>
                                         <Chip
-                                            label={getStatusLabel(card.status)}
-                                            color={getStatusColor(card.status)}
+                                            label={getCardStatusLabel(card.status)}
+                                            color={getCardStatusColor(card.status)}
                                             size="small"
                                         />
                                     </TableCell>
@@ -357,10 +312,12 @@ export const AccountViewPage = () => {
                                                     <UnblockIcon/>
                                                 </IconButton>
                                             )}
-                                            <IconButton color="default" size="small"
-                                                        onClick={() => setDeleteCardId(card.id)} title="Usuń">
-                                                <DeleteIcon/>
-                                            </IconButton>
+                                            {card.status !== 'deleted' && (
+                                                <IconButton color="default" size="small"
+                                                            onClick={() => setDeleteCardId(card.id)} title="Usuń">
+                                                    <DeleteIcon/>
+                                                </IconButton>
+                                            )}
                                         </Stack>
                                     </TableCell>
                                 </TableRow>
@@ -426,16 +383,16 @@ export const AccountViewPage = () => {
 
             {/* Delete Confirmation Dialog */}
             <Dialog open={!!deleteCardId} onClose={() => setDeleteCardId(null)}>
-                <DialogTitle>Usunąć kartę?</DialogTitle>
+                <DialogTitle>Zamknąć kartę?</DialogTitle>
                 <DialogContent>
                     <Typography>
-                        Ta operacja jest nieodwracalna. Karta zostanie trwale usunięta.
+                        Ta operacja jest nieodwracalna. Karta zostanie trwale zamknięta.
                     </Typography>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setDeleteCardId(null)}>Anuluj</Button>
                     <Button onClick={handleDeleteCard} color="error" variant="contained">
-                        Usuń
+                        Zamknij kartę
                     </Button>
                 </DialogActions>
             </Dialog>

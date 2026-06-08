@@ -35,7 +35,12 @@ class TransactionService extends Service
                 throw new InvalidAccountException('Nie możesz przelewać na własne konto.');
             }
 
+            if ($toAccount->currency !== 'PLN') {
+                throw new InvalidAccountException('Odbiorca musi posiadać konto w PLN.');
+            }
+
             $fromAccount = $this->selectFromAccount($user);
+
 
             if ($amountInCents < 100) {
                 throw new InvalidAmountException('Minimalna kwota to 0.01 PLN.');
@@ -45,6 +50,10 @@ class TransactionService extends Service
 
             if ($fromAccount->balance < $amountInCents) {
                 throw new InsufficientFundsException();
+            }
+
+            if ($fromAccount->currency !== 'PLN') {
+                throw new InvalidAccountException('Nie posiadasz konta w PLN.');
             }
 
             $fromAccount->balance -= $amountInCents;

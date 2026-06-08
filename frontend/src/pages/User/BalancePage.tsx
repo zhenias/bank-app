@@ -30,7 +30,7 @@ import {
     AttachMoney,
     CurrencyExchange
 } from '@mui/icons-material';
-import {formatBalance, formatMoneyShort} from "../../utils/formatMoney";
+import {Navigate} from "react-router-dom";
 
 interface CurrencyBalance {
     currency: string;
@@ -113,7 +113,7 @@ export const BalancePage = () => {
                 </Typography>
             </Box>
 
-            <Grid container spacing={3}>
+            <Grid container spacing={4}>
                 {/* Lewa kolumna - Saldo i lista walut */}
                 <Grid size={{ xs: 12, md: 8 }}>
                     {/* Główne saldo PLN */}
@@ -265,7 +265,7 @@ export const BalancePage = () => {
                                 '&:hover': { boxShadow: 6, transform: 'translateY(-2px)' }
                             }}
                         >
-                            <CardContent sx={{ p: 3, display: 'flex', alignItems: 'center' }}>
+                            <CardContent onClick={() => { <Navigate to="/profile" /> }} sx={{ p: 3, display: 'flex', alignItems: 'center' }}>
                                 <AccountBalance sx={{ mr: 2, color: 'primary.main', fontSize: 28 }} />
                                 <Box>
                                     <Typography variant="h6">Moje konto</Typography>
@@ -284,7 +284,7 @@ export const BalancePage = () => {
                                 '&:hover': { boxShadow: 6, transform: 'translateY(-2px)' }
                             }}
                         >
-                            <CardContent sx={{ p: 3, display: 'flex', alignItems: 'center' }}>
+                            <CardContent onClick={() => { <Navigate to="/transactions" /> }} sx={{ p: 3, display: 'flex', alignItems: 'center' }}>
                                 <Receipt sx={{ mr: 2, color: 'primary.main', fontSize: 28 }} />
                                 <Box>
                                     <Typography variant="h6">Moje transakcje</Typography>

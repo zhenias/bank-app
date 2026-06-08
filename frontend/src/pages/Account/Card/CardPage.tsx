@@ -38,6 +38,7 @@ import { useToast } from '../../../context/ToastContext';
 import { formatDate } from '../../../utils/formatDate';
 import {FlikRequestButton} from "../../../components/Flik/FlikRequestButton";
 import {formatCardNumber} from "../../../utils/formatCard";
+import {getCardStatusColor, getCardStatusLabel, getCardTypeLabel} from "../../../utils/status/statusCard";
 
 export const CardPage = () => {
     const [cards, setCards] = useState<CardType[]>([]);
@@ -123,53 +124,6 @@ export const CardPage = () => {
         setOpenDetailsDialog(true);
     };
 
-    const getStatusColor = (status: string): 'success' | 'error' | 'warning' | 'default' => {
-        switch (status) {
-            case 'active':
-                return 'success';
-            case 'blocked':
-                return 'error';
-            case 'inactive':
-                return 'warning';
-            case 'expired':
-                return 'default';
-            case 'deleted':
-                return 'error';
-            default:
-                return 'default';
-        }
-    };
-
-    const getStatusLabel = (status: string): string => {
-        switch (status) {
-            case 'active':
-                return 'Aktywna';
-            case 'blocked':
-                return 'Zablokowana';
-            case 'inactive':
-                return 'Nieaktywna';
-            case 'expired':
-                return 'Wygasła';
-            case 'deleted':
-                return 'Usunięta';
-            default:
-                return status;
-        }
-    };
-
-    const getCardTypeLabel = (type: string): string => {
-        switch (type) {
-            case 'debit':
-                return 'Debetowa';
-            case 'credit':
-                return 'Kredytowa';
-            case 'virtual':
-                return 'Wirtualna';
-            default:
-                return type;
-        }
-    };
-
     return (
         <Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
@@ -253,8 +207,8 @@ export const CardPage = () => {
                                         </TableCell>
                                         <TableCell>
                                             <Chip
-                                                label={getStatusLabel(card.status)}
-                                                color={getStatusColor(card.status)}
+                                                label={getCardStatusLabel(card.status)}
+                                                color={getCardStatusColor(card.status)}
                                                 size="small"
                                             />
                                         </TableCell>
@@ -385,8 +339,8 @@ export const CardPage = () => {
                                 </Typography>
                                 <Box sx={{ mt: 0.5 }}>
                                     <Chip
-                                        label={getStatusLabel(selectedCard.status)}
-                                        color={getStatusColor(selectedCard.status)}
+                                        label={getCardStatusLabel(selectedCard.status)}
+                                        color={getCardStatusColor(selectedCard.status)}
                                         size="small"
                                     />
                                 </Box>
@@ -416,16 +370,16 @@ export const CardPage = () => {
 
             {/* Delete Confirmation Dialog */}
             <Dialog open={!!deleteCardId} onClose={() => setDeleteCardId(null)}>
-                <DialogTitle>Usunąć kartę?</DialogTitle>
+                <DialogTitle>Zamknąć kartę?</DialogTitle>
                 <DialogContent>
                     <Typography>
-                        Ta operacja jest nieodwracalna. Karta zostanie trwale usunięta.
+                        Ta operacja jest nieodwracalna. Karta zostanie na trwale zamknięta.
                     </Typography>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setDeleteCardId(null)}>Anuluj</Button>
                     <Button onClick={handleDeleteCard} color="error" variant="contained">
-                        Usuń
+                        Zamknij kartę
                     </Button>
                 </DialogActions>
             </Dialog>

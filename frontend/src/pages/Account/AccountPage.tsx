@@ -30,6 +30,13 @@ import {
 import { getAccounts, createAccount } from '../../services/accountService';
 import type { Account, PaginationMeta } from '../../types/types';
 import {formatAccountNumber} from "../../utils/formatAccount";
+import {getCardStatusColor} from "../../utils/status/statusCard";
+import {
+    getAccountStatusColor,
+    getAccountStatusLabel,
+    getAccountTypeColor,
+    getAccountTypeLabel
+} from "../../utils/status/statusAccount";
 
 export const AccountPage = () => {
     const [accounts, setAccounts] = useState<Account[]>([]);
@@ -108,40 +115,6 @@ export const AccountPage = () => {
             setSubmitting(false);
         }
     };
-
-    const getAccountTypeLabel = (type: string): string => {
-        return type === 'savings' ? 'Oszczędnościowe' : 'Bieżące';
-    };
-
-    const getAccountTypeColor = (type: string): 'success' | 'primary' => {
-        return type === 'savings' ? 'success' : 'primary';
-    };
-
-    const getAccountStatusColor = (status: string) => {
-        switch (status) {
-            case 'open':
-                return 'success';
-            case 'frozen':
-                return 'error';
-            case 'closed':
-                return 'error';
-            default:
-                return 'default';
-        }
-    }
-
-    const getAccountStatusLabel = (status: string): string => {
-        switch (status) {
-            case 'open':
-                return 'Aktywne';
-            case 'frozen':
-                return 'Zamrożone';
-            case 'closed':
-                return 'Zamknięte';
-            default:
-                return 'Nieznany status';
-        }
-    }
 
     return (
         <Box>
@@ -223,7 +196,7 @@ export const AccountPage = () => {
                                                         label={`${card.network} •••• ${card.card_last_four}`}
                                                         size="small"
                                                         variant="outlined"
-                                                        color={card.status === 'active' ? 'default' : 'error'}
+                                                        color={getCardStatusColor(card.status)}
                                                     />
                                                 ))}
                                                 {account.cards && account.cards.length > 3 && (

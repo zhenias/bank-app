@@ -42,9 +42,7 @@ const menuItems = [
     { text: 'Saldo', icon: <BalanceIcon />, path: '/balance' },
     { text: 'Konta', icon: <AccountIcon />, path: '/accounts' },
     { text: 'Karty', icon: <CardIcon />, path: '/cards' },
-    { text: 'Przelewy', icon: <PaymentIcon />, path: '/transfer' },
-    { text: 'FLIK', icon: <PaymentIcon />, path: '/flik' },
-    { text: 'Historia', icon: <HistoryIcon />, path: '/transactions' },
+    { text: 'Transakcje', icon: <HistoryIcon />, path: '/transactions' },
     { text: 'Powiadomienia', icon: <NotificationIcon />, path: '/notifications' },
 ];
 
